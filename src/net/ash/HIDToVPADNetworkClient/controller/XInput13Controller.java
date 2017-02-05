@@ -19,9 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.gui;
+package net.ash.HIDToVPADNetworkClient.controller;
 
-public enum GuiControllerType {
-	HID4JAVA,
-	LINUX
+import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
+
+public class XInput13Controller extends XInputController {
+    public XInput13Controller(String identifier) throws ControllerInitializationFailedException {
+        super(ControllerType.XINPUT13, identifier);
+    }
 }

@@ -19,240 +19,293 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
+
 package net.ash.HIDToVPADNetworkClient.network;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.util.HashMap;
-import java.util.concurrent.ThreadLocalRandom;
+import org.omg.Messaging.SyncScopeHelper;
 
-import net.ash.HIDToVPADNetworkClient.controller.Controller;
-import net.ash.HIDToVPADNetworkClient.gui.GuiInteractionManager;
+import lombok.Getter;
+import lombok.Synchronized;
+import lombok.extern.java.Log;
+import net.ash.HIDToVPADNetworkClient.manager.ControllerManager;
+import net.ash.HIDToVPADNetworkClient.network.commands.AttachCommand;
+import net.ash.HIDToVPADNetworkClient.network.commands.DetachCommand;
+import net.ash.HIDToVPADNetworkClient.network.commands.DeviceCommand;
+import net.ash.HIDToVPADNetworkClient.network.commands.PingCommand;
+import net.ash.HIDToVPADNetworkClient.network.commands.ReadCommand;
+import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
-public class NetworkManager implements Runnable {
-	private static final int PING_INTERVAL = 1000;
-	
-	public static int clientID;
-	
-	private static NetworkManager instance = null;
-	
-	private Object controllersLock = new Object();
-	private HashMap<Integer, Controller> controllers = new HashMap<Integer, Controller>();
-	
-	private Thread networkThread;
-	
-	private TCPClient tcp;
-	private UDPClient udp;
-	
-	private int packetInterval = 100;
-	
-	private enum NetworkState {
-		DISCONNECTED,
-		FRESH, //Connected, no handshake
-		CONNECTED
-	}
-	private NetworkState networkState = NetworkState.DISCONNECTED;
-	
-	public NetworkManager() throws Exception {
-		if (instance != null) {
-			throw new Exception("NetworkManager already has an instance!");
-		}
-		instance = this;
-		
-		networkThread = new Thread(this);
-		tcp = new TCPClient();
-		udp = new UDPClient();
-		
-		pingThread.start();
-		
-		clientID = ThreadLocalRandom.current().nextInt();
-		System.out.println("[NetworkManager] clientID: " + clientID);
-	}
-	
-	private int runLoopCounter = 0;
-	@Override
-	public void run() {
-		for (;;) {
-			for (;;) {
-				/*
-				 * Socket is connected, handshake needed
-				 */
-				if (networkState == NetworkState.FRESH) {
-					try {
-						switch (tcp.doHandshake()) {
-						
-						case BAD_HANDSHAKE:
-							tcp.abort();
-							networkState = NetworkState.DISCONNECTED;
-							continue;
-							
-						case NEW_CLIENT:
-							synchronized (controllersLock) {
-								for (Controller c : controllers.values()) {
-									tcp.sendAttach(c);
-								}
-							}
-							networkState = NetworkState.CONNECTED;
-							break;
-							
-						case SAME_CLIENT:
-							networkState = NetworkState.CONNECTED;
-							break;
-							
-						default:
-							tcp.abort();
-							networkState = NetworkState.DISCONNECTED;
-							continue;
-							
-						}		
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				} else if (networkState == NetworkState.CONNECTED) {
-					synchronized (controllersLock) {
-						try {
-							udp.send(controllers);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-					
-					if (runLoopCounter++ == PING_INTERVAL / packetInterval) {
-						synchronized(pingThread) {
-							pingThread.notify();
-						}
-						runLoopCounter = 0;
-					}
-					
-					sleep(packetInterval);
-				} else if (networkState == NetworkState.DISCONNECTED) break;
-			} //for (;;)
-			
-			try {
-				synchronized (networkThread) {
-					networkThread.wait();
-				}
-			} catch (InterruptedException e) {}
-		}
-	}
-	
-	public void connect(String ip) {
-		System.out.println("[NetworkManager] Connecting to " + ip + "..."); //XXX debug text
-		try {
-			udp.connect(ip);
-			tcp.connect(ip);
-		} catch (Exception e) {
-			System.err.println("[NetworkManager] Couldn't connect to Wii U!");
-			e.printStackTrace();
-			return;
-		}
-		networkState = NetworkState.FRESH;
-		if (networkThread.getState() == Thread.State.NEW) {
-			networkThread.start();
-		} else if (networkThread.getState() == Thread.State.WAITING) {
-			synchronized (networkThread) {
-				networkThread.notify();
-			}
-		}
-	}
-	
-	public void disconnect() {
-		networkState = NetworkState.DISCONNECTED;
-		
-		if (!Thread.currentThread().equals(networkThread) && networkThread.getState() != Thread.State.NEW) {
-			while (networkThread.getState() != Thread.State.WAITING) {sleep(1);}
-		}
-		
-		try {
-			tcp.abort();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		System.out.println("[NetworkManager] Disconnected.");
-	}
-	
-	/*
-	 * Is there an active connection?
-	 */
-	public boolean isConnected() {
-		return networkState == NetworkState.FRESH || networkState == NetworkState.CONNECTED;
-	}
-	
-	/*
-	 * Is the active connection good for data?
-	 */
-	public boolean isRunning() {
-		return networkState == NetworkState.CONNECTED;
-	}
-	
-	public HashMap<Integer,Controller> getControllers() {
-		return controllers;
-	}
-	
-	public void setPacketInterval(int packetInterval) {
-		this.packetInterval = packetInterval;
-	}
-	
-	public void addController(Controller controller) {
-		synchronized (controllersLock) {
-			if (isRunning()) {
-				try {
-					tcp.sendAttach(controller);
-				} catch (Exception e) {return;};
-			}
-			controllers.put(controller.getID().hashCode(), controller);
-		}
-	}
-	
-	public void removeController(Controller controller) {
-		synchronized (controllersLock) {
-			if (isRunning()) {
-				try {
-					tcp.sendDetach(controller);
-				} catch (Exception e) {return;};
-			}
-			controller.destroy();
-			controllers.remove(controller.getID().hashCode());
-		}
-	}
-	
-	public void removeAllControllers() {
-		synchronized (controllersLock) {
-			for (Controller c : controllers.values()) {
-				if (isRunning()) {
-					try {
-						tcp.sendDetach(c);
-					} catch (Exception e) {continue;};
-				}
-				c.destroy();
-				controllers.remove(c.getID().hashCode());
-			}
-		}
-	}
-	
-	private Thread pingThread = new Thread(new Runnable() {
-		public void run() {
-			for (;;) {
-				synchronized (pingThread) {
-					try {
-						pingThread.wait();
-					} catch (InterruptedException e) {}
-				}
-				
-				if (!tcp.ping()) {
-					System.out.println("[NetworkManager] Ping failed, disconnecting...");
-					GuiInteractionManager.instance().disconnect();
-				}
-			}
-		}
-	}, "Ping Thread");
-	
-	private void sleep(long ticks) {
-		try {
-			Thread.sleep(ticks);
-		} catch (InterruptedException e) {}
-	}
-	
-	public static NetworkManager instance() {
-		return instance;
-	}
+@Log
+public class NetworkManager implements Runnable{    
+    private final TCPClient tcpClient = new TCPClient();
+    private UDPClient udpClient = null;
+        
+    private static NetworkManager instance = null;
+    private NetworkManager() {
+        
+    }
+    
+    public static NetworkManager getInstance(){
+        if(instance == null){
+            instance = new NetworkManager();
+        }
+        return instance;
+    }
+    
+    @Getter private List<NetworkHIDDevice> devices = new ArrayList<>();
+    
+    public void addHIDDevice(NetworkHIDDevice device){
+        if(!getDevices().contains(device)){
+            synchronized (devices) {
+                getDevices().add(device);
+            }
+        }
+    }
+    
+    /*
+     * We want to remove them at the end of a cycle. To make sure the detach was send before removing.
+     */
+    @Getter private List<NetworkHIDDevice> toRemove = new ArrayList<>();
+    @Synchronized("toRemove")
+    public void removeHIDDevice(NetworkHIDDevice device) {
+        device.sendDetach();
+        toRemove.add(device);
+    }
+
+    @Override
+    public void run() {
+        int i = 0;
+        while(true){
+            proccessCommands();
+            Utilities.sleep(10);
+            if(i++ > 1000/10){
+                ping();
+                i = 0;
+            }
+        }
+    }
+
+    private void ping() {
+        if(isConnected())sendingCommand(new PingCommand());
+    }
+
+    public void proccessCommands(){
+        List<DeviceCommand> commands = new ArrayList<>();
+        synchronized (toRemove) {
+            synchronized (devices) {
+                for(NetworkHIDDevice device : getDevices()){
+                    commands.addAll(device.getCommandList());
+                }
+            }
+        }
+        
+        if(commands.isEmpty())return;
+        
+        //Split up into "read commands" and other commands.
+        List<ReadCommand> readCommands = new ArrayList<>();
+        {                
+            for(DeviceCommand command : commands){
+                if(command instanceof ReadCommand){
+                    readCommands.add((ReadCommand) command);
+                }
+            }
+            commands.removeAll(readCommands);
+        }
+       
+        if(!readCommands.isEmpty()){
+            sendingRead(readCommands);
+        }
+        
+        if(!commands.isEmpty()){
+            for(DeviceCommand command : commands){
+                sendingCommand(command);
+            }
+        }
+        
+        synchronized (toRemove) {
+            synchronized (devices) {
+                for(NetworkHIDDevice d: toRemove){
+                    commands.remove(d);
+                }
+            }
+        }
+    }
+    
+    private void sendingCommand(DeviceCommand command) {
+        if(command instanceof AttachCommand){
+            sendAttach((AttachCommand) command);
+        }else if(command instanceof DetachCommand){
+            sendDetach((DetachCommand) command);
+        }else if(command instanceof PingCommand){
+            sendPing((PingCommand) command);
+        }
+    }
+
+    private void sendPing(PingCommand command) {
+        if(sendTCP(Protocol.getRawPingDataToSend(command))){
+            log.info("PING");
+        }else{
+            log.info("Sending the PING failed");
+        }
+    }
+
+    private void sendDetach(DetachCommand command) {
+        byte[] sendData;
+        try {
+            sendData = Protocol.getRawDetachDataToSend(command);
+            if(!sendTCP(sendData)){
+                log.info("Sending the detach command for device (" + command.getSender() + ") failed. sendTCP failed");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }        
+        
+    }
+   
+    private void sendAttach(AttachCommand command) {
+        //Send the TCP command
+        byte[] sendData = null;
+        try {
+            sendData = Protocol.getRawAttachDataToSend(command);
+        }catch (IOException e) {
+            log.info("Building the attach command for device (" + command.getSender() + ") failed." + e.getMessage());
+            return;
+        } 
+        if(sendTCP(sendData)){
+            byte configFound = 0;
+            try {
+                configFound = recvTCPByte();                
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            if(configFound == Protocol.TCP_CMD_ATTACH_CONFIG_FOUND){
+                log.info("Config on the console found!");
+            }else if(configFound == Protocol.TCP_CMD_ATTACH_CONFIG_NOT_FOUND){
+                log.info("NO CONFIG FOUND.");
+                return;
+            }else if (configFound == 0){
+                log.info("Failed to get byte.");
+                disconnect();
+            }
+            
+            byte userDataOkay = 0;
+            try {
+                userDataOkay = recvTCPByte();                
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            if(userDataOkay == Protocol.TCP_CMD_ATTACH_USERDATA_OKAY){
+                log.info("userdata okay!");
+            }else if(userDataOkay == Protocol.TCP_CMD_ATTACH_USERDATA_BAD){
+                log.info("USERDATA BAD.");
+                return;
+            }else if (userDataOkay == 0){
+                log.info("Failed to get byte.");
+                disconnect();
+            }
+            
+            //We receive our device slot and pad slot
+            short deviceslot = -1;
+            byte padslot = -1;
+            try {
+                deviceslot = recvTCPShort();
+                padslot = recvTCPByte();
+            } catch (IOException e) {
+                log.info("Recieving data after sending a attach failed for device (" + command.getSender() + ") failed." + e.getMessage());
+            }
+            
+            if(deviceslot < 0 || padslot < 0){
+                log.info("Recieving data after sending a attach failed for device (" + command.getSender() + ") failed. We need to disconnect =(");
+                disconnect();
+            }
+            
+            //Let's save them for later.
+            NetworkHIDDevice sender  = command.getSender();
+            if(sender != null){
+                sender.setDeviceslot(deviceslot);
+                sender.setPadslot(padslot);
+            }else{
+                log.info("Something really went wrong. Got an attach event with out an " + NetworkHIDDevice.class.getSimpleName());
+            }
+            log.info("Attaching done!");
+        }else{
+            log.info("Sending the attach command for device (" + command.getSender() + ") failed. sendTCP failed");
+        }
+    }
+    
+    private void sendingRead(List<ReadCommand> readCommands) {
+        byte[] rawCommand;
+        try {
+            rawCommand = Protocol.getRawReadDataToSend(readCommands);
+            System.out.println("UDP Packet: "+ Utilities.ByteArrayToString(rawCommand));
+            sendUDP(rawCommand);
+        } catch (IOException e) {
+            System.out.println("Sending read data failed.");
+        }
+    }
+    
+    private boolean sendUDP(byte[] rawCommand) {
+        boolean result = false;
+        if(udpClient != null){
+            try {
+                udpClient.send(rawCommand);
+                result = true;
+            } catch (Exception e) {
+                //
+                result = false;
+            }
+        }
+        return result;
+    }
+    
+    private boolean sendTCP(byte[] rawCommand) {
+        boolean result = false;
+        if(tcpClient != null){
+            try {
+                tcpClient.send(rawCommand);
+                result = true;
+            } catch (Exception e) {
+                //
+                result = false;
+            }
+        }
+        return result;
+    }
+    
+    public void disconnect() {
+        ControllerManager.deactivateAllAttachedControllers();
+        tcpClient.abort();
+    }
+
+    private short recvTCPShort() throws IOException {
+        return tcpClient.recvShort();
+    }
+
+    private byte recvTCPByte() throws IOException {
+        return tcpClient.recvByte();
+    }
+
+    
+    public boolean isConnected() {
+        return (tcpClient != null && tcpClient.isConnected());
+    }
+
+    public boolean connect(String ip) {
+        boolean result = false;
+        log.info("Trying to connect to: " + ip);
+        try {
+            tcpClient.connect(ip);
+            System.out.println("TCP Connected!");
+            udpClient = UDPClient.createUDPClient(ip);
+            if(udpClient != null){
+                result = true;
+            }
+        } catch (Exception e) {
+            System.out.println("Error while connecting: " + e.getMessage());
+        }
+        return result;
+    }
 }

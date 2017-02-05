@@ -19,35 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.network;
+package net.ash.HIDToVPADNetworkClient.controller;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
 
-public class UDPClient {
-	private final DatagramSocket sock;
-	private final InetAddress host;
-	
-	private UDPClient(String ip) throws SocketException, UnknownHostException{	
-        sock = new DatagramSocket();
-        host = InetAddress.getByName(ip);        
-	}
-	public static UDPClient createUDPClient(String ip){
-	    UDPClient result = null;
-        try {
-            result = new UDPClient(ip);
-        } catch (Exception e) {
-            //handle?
-        }
-        return result;
-	}
-	
-	public void send(byte[] data) throws IOException {
-		DatagramPacket packet = new DatagramPacket(data, data.length, host, Protocol.UDP_PORT);
-		sock.send(packet);
-	}
+public class XInput14Controller extends XInputController {
+    public XInput14Controller(String identifier) throws ControllerInitializationFailedException {
+        super(ControllerType.XINPUT14, identifier);
+    }
 }

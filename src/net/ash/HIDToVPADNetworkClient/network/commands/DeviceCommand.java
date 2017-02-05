@@ -19,34 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.util;
+package net.ash.HIDToVPADNetworkClient.network.commands;
+import lombok.Data;
+import net.ash.HIDToVPADNetworkClient.network.NetworkHIDDevice;
 
-public class WakeupThread extends Thread {
-	private Object wakeup;
-	private int timeout;
-	private boolean run;
-	public WakeupThread(Object wakeup) {
-		super();
-		this.wakeup = wakeup;
-		run = true;
-	}
-	public void setTimeout(int timeout) {
-		this.timeout = timeout;
-	}
-	public void tryStop() {
-		run = false;
-	}
-	@Override
-	public void run() {
-		while (run) {
-			synchronized (wakeup) {
-				wakeup.notify();
-			}
-			try {
-				Thread.sleep(timeout);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+@Data
+public abstract class DeviceCommand {
+	private final int handle;
+	private final NetworkHIDDevice sender;
+	private final Class<? extends DeviceCommand> type;
+	
+	protected DeviceCommand(int hidHandle,NetworkHIDDevice sender){
+		this.handle = hidHandle;
+		this.sender = sender;
+		this.type = this.getClass();
+	}	
 }

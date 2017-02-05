@@ -19,35 +19,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.network;
+package net.ash.HIDToVPADNetworkClient.util;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import org.hid4java.HidDevice;
+import org.hid4java.HidManager;
+import org.hid4java.HidServices;
 
-public class UDPClient {
-	private final DatagramSocket sock;
-	private final InetAddress host;
-	
-	private UDPClient(String ip) throws SocketException, UnknownHostException{	
-        sock = new DatagramSocket();
-        host = InetAddress.getByName(ip);        
-	}
-	public static UDPClient createUDPClient(String ip){
-	    UDPClient result = null;
-        try {
-            result = new UDPClient(ip);
-        } catch (Exception e) {
-            //handle?
+public class HID4JavaManager {
+    
+    private HID4JavaManager(){}
+    
+    /**
+     * Searches the corresponding HIDDevice for the given path
+     * @param path Path of the HIDDevice
+     * @return It the device is found, it will be returned. Otherwise null is returned.
+     */
+    public static HidDevice getDeviceByPath(String path){
+        HidDevice result = null;
+        
+        HidServices services = HidManager.getHidServices();        
+        if(services == null) return result;
+        
+        for (HidDevice device : services.getAttachedHidDevices()) {
+            if (device.getPath().equals(path)) {
+                result = device;
+                break;
+            }
         }
         return result;
-	}
-	
-	public void send(byte[] data) throws IOException {
-		DatagramPacket packet = new DatagramPacket(data, data.length, host, Protocol.UDP_PORT);
-		sock.send(packet);
-	}
+    }
 }

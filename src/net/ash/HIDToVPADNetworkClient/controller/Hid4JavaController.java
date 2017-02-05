@@ -21,91 +21,60 @@
  *******************************************************************************/
 package net.ash.HIDToVPADNetworkClient.controller;
 
+import java.util.Arrays;
+
 import org.hid4java.HidDevice;
-import org.hid4java.HidManager;
 
-import net.ash.HIDToVPADNetworkClient.util.HandleFoundry;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
+import net.ash.HIDToVPADNetworkClient.util.HID4JavaManager;
+import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
-public class Hid4JavaController implements Controller {
-	static final int PACKET_LENGTH = 64;
+public class Hid4JavaController extends Controller {
+    public Hid4JavaController(String identifier) throws ControllerInitializationFailedException {
+        super(ControllerType.HID4JAVA, identifier);
+    }
+
+    private static final int PACKET_LENGTH = 128;
 	
-	private String path = null;
-	private HidDevice controller = null;
-	
-	@Override
-	public boolean initController(Object arg) {
-		for (HidDevice device : HidManager.getHidServices().getAttachedHidDevices()) {
-			if (device.getPath().equals(arg.toString())) {
-				controller = device;
-				controller.setNonBlocking(true);
-				
-				path = arg.toString();
-				
-				break;
-			}
-		}
-		
-		System.out.println("ctrl: " + controller.open() + " " + controller.getLastErrorMessage());
-		if (controller == null | !controller.isOpen()) return false;
+	@Getter @Setter(AccessLevel.PRIVATE) 
+	private HidDevice hidDevice;
+
+    @Override
+	public boolean initController(String identifier) {
+        HidDevice device = HID4JavaManager.getDeviceByPath(identifier);
+        //device.setNonBlocking(true); //TODO: What does this do? This is done no in a extra Thread so it shouldn't matter.
+        device.open();
+        Utilities.sleep(20); //What a bit until is opened.
+		if (device == null | !device.isOpen()) return false;
+		setHidDevice(device);
+		//System.out.println("ctrl: " + device.isOpen() + " " + device.getLastErrorMessage());
 		return true;
 	}
 	
 	@Override
-	public void setPollingState(boolean poll) {
-		
-	}
+    public byte[] pollLatestData() {
+	    byte[] data = new byte[PACKET_LENGTH];
+        int length = getHidDevice().read(data);
+        if(length <= 0) return null;
+        //if(length > data.length) System.out.println("WTF?");
+        return Arrays.copyOf(data, length);
+    }
 
 	@Override
-	public ControllerData getLatestData() {
-		ControllerData data = new ControllerData(getVID(), getPID(), getHandle(), new byte[1200]);
-		System.out.println("Data size: " + controller.read(data.data, 500));
-		System.out.println("hrm: " + controller.getLastErrorMessage());
-		return data;
-	}
-
-	@Override
-	public void destroy() {
-		controller.close();
+	public void destroyDriver() {
+		getHidDevice().close();
 	}
 	
-	private short getVID() {
-		return controller.getVendorId();
+	@Override
+	public short getVID() {
+		return getHidDevice().getVendorId();
 	}
-
-	private short getPID() {
-		return controller.getProductId();
-	}
-
-	private short deviceSlot = 0;
-	private byte padSlot = 0;
 	
 	@Override
-	public void setSlotData(short deviceSlot, byte padSlot) {
-		this.deviceSlot = deviceSlot;
-		this.padSlot = padSlot;
-	}
-
-	@Override
-	public short getDeviceSlot() {
-		return deviceSlot;
-	}
-
-	@Override
-	public byte getPadSlot() {
-		return padSlot;
-	}
-
-	private int handle = 0;
-	@Override
-	public int getHandle() {
-		if (handle == 0) {
-			handle = HandleFoundry.next();
-		}
-		return handle;
-	}
-
-	@Override
-	public String getID() {
-		return path;
+	public short getPID() {
+		return getHidDevice().getProductId();
 	}
 }

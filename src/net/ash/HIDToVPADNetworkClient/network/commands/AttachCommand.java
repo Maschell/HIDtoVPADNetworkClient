@@ -19,35 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.network;
+package net.ash.HIDToVPADNetworkClient.network.commands;
+import lombok.Getter;
+import net.ash.HIDToVPADNetworkClient.network.NetworkHIDDevice;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+public class AttachCommand extends DeviceCommand {
+    @Getter private final short vid;
+    @Getter private final short pid;    
 
-public class UDPClient {
-	private final DatagramSocket sock;
-	private final InetAddress host;
-	
-	private UDPClient(String ip) throws SocketException, UnknownHostException{	
-        sock = new DatagramSocket();
-        host = InetAddress.getByName(ip);        
-	}
-	public static UDPClient createUDPClient(String ip){
-	    UDPClient result = null;
-        try {
-            result = new UDPClient(ip);
-        } catch (Exception e) {
-            //handle?
-        }
-        return result;
-	}
-	
-	public void send(byte[] data) throws IOException {
-		DatagramPacket packet = new DatagramPacket(data, data.length, host, Protocol.UDP_PORT);
-		sock.send(packet);
-	}
+    public AttachCommand(int hidHandle, short vid, short pid, NetworkHIDDevice sender) {
+        super(hidHandle,sender);
+        this.vid = vid;
+        this.pid = pid;
+    }
+
+    @Override
+    public String toString() {
+        return "AttachCommand [vid=" + vid + ", pid=" + pid+ ", handle=" + getHandle() + ", sender=" + getSender() + "]";
+    }
 }

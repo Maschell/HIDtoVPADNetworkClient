@@ -23,7 +23,6 @@ package net.ash.HIDToVPADNetworkClient.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -54,18 +53,9 @@ public class GuiMain extends JPanel {
 	public GuiMain() {
 		super(new BorderLayout());
 		
-		try {
-			new GuiInteractionManager();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Main.fatal();
-		}
-		
-		
 		leftControllerList = new GuiControllerList();
 		leftControllerList.setPreferredSize(new Dimension(300, 100));
 		add(leftControllerList, BorderLayout.CENTER);
-		leftControllerList.setActionListener(GuiInteractionManager.instance());
 		
 		try {
 			rightSideControls = new GuiInputControls();
@@ -74,18 +64,6 @@ public class GuiMain extends JPanel {
 			Main.fatal();
 		}
 		add(rightSideControls, BorderLayout.LINE_END);
-	}
-	
-	public void updateControllerList(List<GuiController> controllers) {
-		leftControllerList.updateControllerList(controllers);
-	}
-	
-	public List<GuiController> getControllers() {
-		return leftControllerList.getControllers();
-	}
-	
-	public String getIPText() {
-		return rightSideControls.getIpTextBox().getText();
 	}
 	
 	public static GuiMain instance() {

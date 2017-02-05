@@ -21,13 +21,76 @@
  *******************************************************************************/
 package net.ash.HIDToVPADNetworkClient.controller;
 
+import lombok.Getter;
+import lombok.Synchronized;
+import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
+import net.ash.HIDToVPADNetworkClient.manager.ControllerManager;
+import net.ash.HIDToVPADNetworkClient.util.Utilities;
+
 /**
  * Main controller interface, extended by controller drivers.
  * <br><br>
  * See {@link LinuxDevInputController} for a full implementation.
  * @author ash
  */
-public interface Controller {
+public abstract class Controller implements Runnable{
+    private boolean active;
+    @Getter private final ControllerType type;
+    @Getter private final String identifier;
+    private byte[] latestData = null;
+        
+    boolean shutdown = false;
+    boolean shutdownDone = false;
+    private Object dataLock = new Object();
+    private Object shutdownLock = new Object();
+        
+    public Controller(ControllerType type, String identifier) throws ControllerInitializationFailedException{
+        this.type = type;
+        this.identifier = identifier;
+        if(!initController(identifier)){
+            throw new ControllerInitializationFailedException();
+        }
+    }
+    
+    @Override
+    public void run() {
+        boolean shutdownState = shutdown;
+        while(!shutdownState){
+            Utilities.sleep(1000);
+            while(isActive()) {
+                byte[] newData =  pollLatestData();
+                if(newData != null){
+                    setLatestData(newData);
+                }
+                Utilities.sleep(10);
+            }
+            synchronized (shutdownLock) {
+                shutdownState = shutdown;
+            }
+        }
+        synchronized (shutdownLock) {
+            shutdownDone = true;
+        }
+    }
+    
+    @Synchronized("dataLock")
+    private void setLatestData(byte[] newData) {
+        this.latestData = newData;      
+    }
+    
+    @Synchronized("dataLock")
+    public byte[] getLatestData() {
+        if(latestData != null){
+            byte[] data = this.latestData.clone();
+            this.latestData = null;
+            return data;
+        }else{
+            return null;
+        }
+    }
+
+    public abstract byte[] pollLatestData();
+    
 	/**
 	 * Sets up the driver.
 	 * <br>
@@ -36,64 +99,93 @@ public interface Controller {
 	 * @param arg Driver-specific init argument, see {@link ControllerManager} and {@link ControllerDetector}.
 	 * @return Whether initialization was successful.
 	 */
-	public boolean initController(Object arg);
+	public abstract boolean initController(String identifier);
+
 	
 	/**
-	 * Allocates and returns a copy of the latest data available from the controller.
-	 * 
-	 * @return A ControllerData instance containing the latest controller data.
+	 * Destroys the controller driver and ends the polling thread.
 	 */
-	public ControllerData getLatestData();
+	public void destroyAll(){
+	    destroyDriver();
+	    endThread();
+	}
 	
 	/**
-	 * Used to tell a driver whether or not to poll the controller.
-	 * <br>
-	 * Is currently only ever used to initialize a driver (poll=true).
-	 * destroy() is called for deinitialization.
-	 * <br><br>
-	 * <i>Candidate to be removed during refactoring.</i>
-	 * 
-	 * @param poll Whether or not the driver should poll the controller.
-	 */
-	public void setPollingState(boolean poll);
+     * Destroys the controller driver.
+     */
+	public abstract void destroyDriver();
+    
 	
-	/**
-	 * Destroys the controller driver.
-	 * <br>
-	 * Will not return until all threads are stopped and resources are freed.
-	 */
-	public void destroy();
-	
-	/**
-	 * Sets the deviceSlot and padSlot to be returned by {@link #getDeviceSlot() getDeviceSlot} and {@link #getPadSlot() getPadSlot}.
-	 * @param deviceSlot Value to be returned by {@link #getDeviceSlot() getDeviceSlot}
-	 * @param padSlot Value to be returned by {@link #getPadSlot() getPadSlot}
-	 */
-	public void setSlotData(short deviceSlot, byte padSlot);
-	
-	/**
-	 * Gets the previously set device slot (see {@link #setSlotData(short, byte) setSlotData})
-	 * @return The controller's device slot.
-	 */
-	public short getDeviceSlot();
-	
-	/**
-	 * Gets the previously set pad slot (see {@link #setSlotData(short, byte) setSlotData})
-	 * @return The controller's pad slot.
-	 */
-	public byte getPadSlot();
-	
-	/**
-	 * Returns a unique handle for this controller driver.
-	 * <br>
-	 * Please note that this is unique to the <i>driver</i>, not the controller it's connected to.
-	 * @return The driver's handle.
-	 */
-	public int getHandle();
-	
-	/**
-	 * Gets the controller's ID. This is often identical to the argument to {@link #initController(Object) initController}.
-	 * @return The controller's ID.
-	 */
-	public String getID();
+	private void endThread() {
+	    new Thread(new Runnable() {
+            @Override
+            public void run() {
+                setActive(false);
+                
+                synchronized (shutdownLock) {
+                    shutdown = true;
+                }
+               
+                boolean done = false;
+                int i = 0;
+                while(!done){
+                    synchronized (shutdownLock) {
+                        done = shutdownDone;
+                    }
+                    Utilities.sleep(50);
+                    if(i++ > 50) System.out.println("Thread doesn't stop!!");
+                }
+            }
+        }).start();
+    }
+
+    public abstract short getVID();
+    
+    public abstract short getPID();
+
+	@Synchronized("shutdownLock")
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+    
+    @Override
+    public String toString(){
+        return getType() + " " + getIdentifier();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((identifier == null) ? 0 : identifier.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Controller other = (Controller) obj;
+        if (identifier == null) {
+            if (other.identifier != null)
+                return false;
+        } else if (!identifier.equals(other.identifier))
+            return false;
+        if (type != other.type)
+            return false;
+        return true;
+    }
+    
+    public enum ControllerType {
+        HID4JAVA, LINUX, XINPUT13,XINPUT14
+    }
 }

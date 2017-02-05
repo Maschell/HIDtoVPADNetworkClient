@@ -26,79 +26,96 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.util.concurrent.SynchronousQueue;
 
-import net.ash.HIDToVPADNetworkClient.controller.Controller;
-import net.ash.HIDToVPADNetworkClient.controller.ControllerData;
+import lombok.Getter;
+import net.ash.HIDToVPADNetworkClient.network.Protocol.HandshakeReturnCode;
+import net.ash.HIDToVPADNetworkClient.util.HandleFoundry;
 
 public class TCPClient {
 	private Socket sock;
 	private DataInputStream in;
 	private DataOutputStream out;
+	@Getter	private int clientID = HandleFoundry.next();
+	
+	private String ip;
 	
 	public TCPClient() {
 	}
 	
 	public synchronized void connect(String ip) throws Exception {
+	    this.ip = ip;
 		sock = new Socket();
-		sock.connect(new InetSocketAddress(ip, Protocol.TCP_PORT), 2000);
+		sock.connect(new InetSocketAddress(ip, Protocol.TCP_PORT), 30000);
 		in = new DataInputStream(sock.getInputStream());
 		out = new DataOutputStream(sock.getOutputStream());
-	}
-	
-	public enum HandshakeReturnCode {
-		BAD_HANDSHAKE,
-		SAME_CLIENT,
-		NEW_CLIENT
-	}
-	
-	public synchronized HandshakeReturnCode doHandshake() throws Exception {
-		if (in.readByte() != Protocol.TCP_HANDSHAKE) return HandshakeReturnCode.BAD_HANDSHAKE;
 		
-		out.writeInt(NetworkManager.clientID);
-		out.flush();
-		System.out.println("[TCP] Handshaking...");
-		return (in.readByte() == Protocol.TCP_NEW_CLIENT) ? HandshakeReturnCode.NEW_CLIENT : HandshakeReturnCode.SAME_CLIENT;
-	}
-	
-	public synchronized void sendAttach(Controller c) throws Exception {
-		System.out.println("[TCPClient] Attach " + c); //XXX debug text
-		out.writeByte(Protocol.TCP_CMD_ATTACH);
-		
-		
-		out.writeInt(c.getHandle());
-		ControllerData d = c.getLatestData(); //GetLatestData allocates a new ControllerData
-		out.writeShort(d.getVID());
-		out.writeShort(d.getPID());
-		out.flush();
-		
-		short deviceSlot = in.readShort();
-		byte padSlot = in.readByte();
-		c.setSlotData(deviceSlot, padSlot);
-		
-		System.out.println("Attached! deviceSlot: " + Integer.toHexString((int)deviceSlot & 0xFFFF) + " padSlot: " + Integer.toHexString((int)padSlot & 0xFF));
-	}
-	
-	public synchronized void sendDetach(Controller c) throws Exception {
-		System.out.println("[TCPClient] Detach " + c);
-		out.write(Protocol.TCP_CMD_DETACH);
-		
-		out.writeInt(c.getHandle());
-		out.flush();
-	}
-	
-	public synchronized boolean ping() {
-		//System.out.println("Ping!");
-		try {
-			out.writeByte(Protocol.TCP_CMD_PING);
-			out.flush();
-		} catch (IOException e) {
-			return false;
+		if(doHandshake() == HandshakeReturnCode.BAD_HANDSHAKE){
+		    throw new Exception();
 		}
-		//TODO convince Maschell to make the client actually respond to pings
+	}
+	
+	private synchronized HandshakeReturnCode doHandshake() throws Exception {
+		if (recvByte() != Protocol.TCP_HANDSHAKE) return HandshakeReturnCode.BAD_HANDSHAKE;
+		
+		send(clientID);
+		System.out.println("clientID:" + clientID);
+		
+		System.out.println("[TCP] Handshaking...");
+		HandshakeReturnCode test = (recvByte() == Protocol.TCP_NEW_CLIENT) ? HandshakeReturnCode.NEW_CLIENT : HandshakeReturnCode.SAME_CLIENT;
+		System.out.println(test);
+		return test;
+	}
+	
+	public synchronized boolean abort(){
+		try {
+            sock.close();
+            clientID = HandleFoundry.next();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
 		return true;
 	}
-	
-	public synchronized void abort() throws Exception {
-		sock.close();
-	}
+
+    public synchronized void send(byte[] rawCommand) throws IOException {
+        try{
+            out.write(rawCommand);
+            out.flush();
+        }catch(IOException e){
+            try {
+                connect(ip); //TODO: this is for reconnecting when the WiiU switches the application. But this breaks disconnecting, woops.
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+            throw e;
+        }
+    }
+    
+    public synchronized void send(int value) throws IOException {
+        send(ByteBuffer.allocate(4).putInt(value).array());
+    }
+
+    public synchronized byte recvByte() throws IOException {
+        try{
+            return in.readByte();
+        }catch(IOException e){
+            System.out.println(e.getMessage());
+            throw e;
+        }
+    }
+
+    public synchronized short recvShort() throws IOException {
+        try{
+            return in.readShort();
+        }catch(IOException e){
+            System.out.println(e.getMessage());
+            throw e;
+        }
+    }
+    
+    public synchronized boolean isConnected(){
+        return (sock != null && sock.isConnected() && !sock.isClosed());
+    }
 }

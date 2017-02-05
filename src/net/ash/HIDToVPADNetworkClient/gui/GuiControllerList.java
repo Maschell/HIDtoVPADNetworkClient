@@ -23,21 +23,25 @@ package net.ash.HIDToVPADNetworkClient.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.Timer;
+
+import net.ash.HIDToVPADNetworkClient.controller.Controller;
+import net.ash.HIDToVPADNetworkClient.manager.ControllerManager;
 
 public class GuiControllerList extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	private JPanel innerScrollPanel;
-	private ActionListener currentActionListener = null;
 	
 	public GuiControllerList() {
 		super(new BorderLayout());
@@ -45,62 +49,60 @@ public class GuiControllerList extends JPanel {
 		innerScrollPanel = new JPanel();
 		innerScrollPanel.setLayout(new BoxLayout(innerScrollPanel, BoxLayout.PAGE_AXIS));
 		add(new JScrollPane(innerScrollPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+		
+		int delay = 1000; //milliseconds
+        ActionListener taskPerformer = new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                updateControllerList();
+            }
+        };
+        new Timer(delay, taskPerformer).start();
 	}
 	
-	public synchronized List<GuiController> getControllers() {
-		List<GuiController> controllers = new ArrayList<GuiController>();
+	public synchronized void updateControllerList() {
+		//System.out.println("[GuiControllerList] Updating controller list..."); //XXX debug text
 		
-		for (Component component : innerScrollPanel.getComponents()) {
-			if (component instanceof GuiControllerListItem) {
-				controllers.add(((GuiControllerListItem)component).getData());
-			}
-		}
-		
-		return controllers;
-	}
-	
-	public synchronized void updateControllerList(List<GuiController> controllers) {
-		System.out.println("[GuiControllerList] Updating controller list..."); //XXX debug text
-		
-		HashMap<Integer, GuiController> components = new HashMap<Integer, GuiController>();
-		for (Component component : innerScrollPanel.getComponents()) {
-			if (component instanceof GuiControllerListItem) {
-				components.put(component.hashCode(), ((GuiControllerListItem)component).getData());
-			}
-		}
+	    boolean repaintNeeded = false;
+	    
+		List<Controller> attachedControllers = ControllerManager.getAttachedControllers();
 		
 		List<GuiControllerListItem> newComponents = new ArrayList<GuiControllerListItem>();
-		for (GuiController controller : controllers) {
-			GuiControllerListItem i;
-			if (components.containsKey(controller.hashCode())) {
-				i = new GuiControllerListItem(components.get(controller.hashCode()));
-			} else {
+		
+		Map<Controller,GuiControllerListItem> components = new HashMap<>();
+        for (Component component : innerScrollPanel.getComponents()) {
+            if (component instanceof GuiControllerListItem) {
+                GuiControllerListItem comp = (GuiControllerListItem) component;
+                Controller cont = comp.getController();
+                if(attachedControllers.contains(cont)){
+                    components.put(cont,comp);
+                }else{//Controller removed
+                    repaintNeeded = true;
+                }
+            }
+        }
+        
+        //Build new list of components.
+		for (Controller controller : attachedControllers) {
+			GuiControllerListItem i = null;
+			if (components.containsKey(controller)) {
+			    newComponents.add(components.get(controller));
+			}else{ //New controller was added
+			    repaintNeeded = true;
 				i = new GuiControllerListItem(controller);
+				newComponents.add(i);
 			}
-			newComponents.add(i);
 		}
 		
-		innerScrollPanel.removeAll();
-		for (GuiControllerListItem component : newComponents) {
-			component.addActionListener(currentActionListener);
-			innerScrollPanel.add(component);
-		}
-		
-		//TODO research performance impact - 300+ms on swing.RepaintManager?
-		innerScrollPanel.revalidate();
-		revalidate();
-		innerScrollPanel.repaint();
-		repaint();
-	}
-	
-	public synchronized void setActionListener(ActionListener l) {
-		currentActionListener = l;
-		for (Component c : innerScrollPanel.getComponents()) {
-			try {
-				((AbstractButton)c).addActionListener(l);
-			} catch (ClassCastException e) {
-				System.out.println("[GuiControllerList] Bad cast on " + c.getClass().getName() + " to AbstractButton!");
-			}
+		if(repaintNeeded){
+		    innerScrollPanel.removeAll();
+	        for (GuiControllerListItem component : newComponents) {         
+	            innerScrollPanel.add(component);
+	        }
+    		
+    		innerScrollPanel.revalidate();
+    		revalidate();
+    		innerScrollPanel.repaint();
+    		repaint();
 		}
 	}
 }

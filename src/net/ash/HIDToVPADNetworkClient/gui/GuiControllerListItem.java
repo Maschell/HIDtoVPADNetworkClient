@@ -23,52 +23,91 @@ package net.ash.HIDToVPADNetworkClient.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 
-public class GuiControllerListItem extends JPanel {
+import lombok.Getter;
+import net.ash.HIDToVPADNetworkClient.controller.Controller;
+import net.ash.HIDToVPADNetworkClient.network.NetworkManager;
+
+public class GuiControllerListItem extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	
-	private GuiController data = null;
+	@Getter private final Controller controller;
 	private JCheckBox checkbox;
 
-	public GuiControllerListItem(GuiController data) {
+	public GuiControllerListItem(Controller data) {
 		super(new BorderLayout());
 		
 		setMinimumSize(new Dimension (300, 30));
 		setPreferredSize(new Dimension(300, 30));
 		setMaximumSize(new Dimension(2000, 30));
 		
-		this.data = data;
+		this.controller = data;
 		
 		checkbox = new JCheckBox(getFlavorText());
-		checkbox.setSelected(data.getActiveState());
+		checkbox.setSelected(data.isActive());
+		checkbox.addActionListener(this);
 		add(checkbox);
+		
+		int delay = 100; //milliseconds
+        ActionListener taskPerformer = new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                checkbox.setEnabled(NetworkManager.getInstance().isConnected());
+                checkbox.setSelected(controller.isActive());
+            }
+        };
+        new Timer(delay, taskPerformer).start();
 	}
 	
 	private String getFlavorText() {
-		switch (data.getType()) {
-		case HID4JAVA:
-			return "USB HID on " + data.getId().toString();
-		case LINUX:
-			return "Linux controller on " + data.getId().toString();
-		default:
-			return data.toString();
+		switch (controller.getType()) { //TODO: String.format with value from Settings.
+		    case XINPUT13:
+		        return "XInput 1.3 on " + controller.getIdentifier();
+		    case XINPUT14:
+		        return "XInput 1.4 on " + controller.getIdentifier();
+    		case HID4JAVA:
+    			return "USB HID on " + controller.getIdentifier();
+    		case LINUX:
+    			return "Linux controller on " + controller.getIdentifier();
+    		default:
+    			return controller.toString();
 		}
 	}
-	
-	public void addActionListener(ActionListener l) {
-		checkbox.addActionListener(l);
-	}
-	
-	public GuiController getData() {
-		return data;
-	}
-	
-	@Override
-	public int hashCode() {
-		return data.hashCode();
-	}
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+       boolean selected = ((JCheckBox) e.getSource()).isSelected();
+       controller.setActive(selected);
+       checkbox.setSelected(controller.isActive());
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((controller == null) ? 0 : controller.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        GuiControllerListItem other = (GuiControllerListItem) obj;
+        if (controller == null) {
+            if (other.controller != null)
+                return false;
+        } else if (!controller.equals(other.controller))
+            return false;
+        return true;
+    }    
 }

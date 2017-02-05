@@ -19,30 +19,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.controller;
+package net.ash.HIDToVPADNetworkClient.network.commands;
 
-public class ControllerData {
-	private short vid;
-	private short pid;
-	protected byte[] data;
-	
-	public ControllerData(short vid, short pid, int handle, byte[] data) {
-		this.vid = vid;
-		this.pid = pid;
-		this.data = data;
-	}
-	
-	public ControllerData() {}
-	
-	public short getVID() {
-		return vid;
-	}
-	
-	public short getPID() {
-		return pid;
-	}
-	
-	public byte[] getData() {
-		return data;
-	}
+import net.ash.HIDToVPADNetworkClient.network.NetworkHIDDevice;
+
+public class DetachCommand extends DeviceCommand{
+    public DetachCommand(int hidHandle, NetworkHIDDevice sender){
+        super(hidHandle,sender);
+    }
+
+    @Override
+    public String toString() {
+        return "DetachCommand [handle=" + getHandle() + ", sender=" + getSender() + "]";
+    }
 }
