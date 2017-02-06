@@ -29,15 +29,24 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.concurrent.SynchronousQueue;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.java.Log;
+import net.ash.HIDToVPADNetworkClient.manager.ActiveControllerManager;
 import net.ash.HIDToVPADNetworkClient.network.Protocol.HandshakeReturnCode;
 import net.ash.HIDToVPADNetworkClient.util.HandleFoundry;
+import net.ash.HIDToVPADNetworkClient.util.Settings;
 
+@Log
 public class TCPClient {
 	private Socket sock;
 	private DataInputStream in;
 	private DataOutputStream out;
 	@Getter	private int clientID = HandleFoundry.next();
+	
+	@Getter @Setter(AccessLevel.PRIVATE)
+	private int shouldRetry = Settings.MAXIMUM_TRIES_FOR_RECONNECTING;
 	
 	private String ip;
 	
@@ -45,35 +54,44 @@ public class TCPClient {
 	}
 	
 	public synchronized void connect(String ip) throws Exception {
-	    this.ip = ip;
+	    
 		sock = new Socket();
-		sock.connect(new InetSocketAddress(ip, Protocol.TCP_PORT), 30000);
+		sock.connect(new InetSocketAddress(ip, Protocol.TCP_PORT), 2000);
 		in = new DataInputStream(sock.getInputStream());
 		out = new DataOutputStream(sock.getOutputStream());
 		
-		if(doHandshake() == HandshakeReturnCode.BAD_HANDSHAKE){
-		    throw new Exception();
-		}
+		HandshakeReturnCode resultHandshake = doHandshake();
+		if(resultHandshake == HandshakeReturnCode.BAD_HANDSHAKE){
+		    log.info("[TCP] Handshaking failed");
+            throw new Exception();
+        }else{
+            if(resultHandshake == HandshakeReturnCode.NEW_CLIENT && this.ip != null){
+                //We check the IP to be sure it's the first time we connect to a WiiU. //TODO: Sending a ID from the WiiU which will be compared?
+                //we are new to the client.
+                ActiveControllerManager.getInstance().attachAllActiveControllers();
+            }else if(resultHandshake == HandshakeReturnCode.SAME_CLIENT){
+                
+            }
+            this.ip = ip;
+            shouldRetry = 0;
+        }
 	}
 	
 	private synchronized HandshakeReturnCode doHandshake() throws Exception {
-		if (recvByte() != Protocol.TCP_HANDSHAKE) return HandshakeReturnCode.BAD_HANDSHAKE;
-		
+		if (recvByte() != Protocol.TCP_HANDSHAKE) return HandshakeReturnCode.BAD_HANDSHAKE;		
 		send(clientID);
-		System.out.println("clientID:" + clientID);
-		
-		System.out.println("[TCP] Handshaking...");
+		log.info("[TCP] Handshaking...");
 		HandshakeReturnCode test = (recvByte() == Protocol.TCP_NEW_CLIENT) ? HandshakeReturnCode.NEW_CLIENT : HandshakeReturnCode.SAME_CLIENT;
-		System.out.println(test);
 		return test;
 	}
 	
 	public synchronized boolean abort(){
 		try {
+		    shouldRetry = Settings.MAXIMUM_TRIES_FOR_RECONNECTING;
             sock.close();
             clientID = HandleFoundry.next();
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            System.out.println(e.getMessage()); //TODO: handle
             return false;
         }
 		return true;
@@ -85,10 +103,15 @@ public class TCPClient {
             out.flush();
         }catch(IOException e){
             try {
-                connect(ip); //TODO: this is for reconnecting when the WiiU switches the application. But this breaks disconnecting, woops.
+                if(shouldRetry++ < Settings.MAXIMUM_TRIES_FOR_RECONNECTING){
+                    System.out.println("Trying again to connect! Attempt number " + shouldRetry);
+                    connect(ip); //TODO: this is for reconnecting when the WiiU switches the application. But this breaks disconnecting, woops.
+                }else{
+                    abort();
+                }
             } catch (Exception e1) {
-                e1.printStackTrace();
-            }
+                //e1.printStackTrace();
+            }            
             throw e;
         }
     }
@@ -117,5 +140,9 @@ public class TCPClient {
     
     public synchronized boolean isConnected(){
         return (sock != null && sock.isConnected() && !sock.isClosed());
+    }
+
+    public boolean isShouldRetry() {
+        return this.shouldRetry < Settings.MAXIMUM_TRIES_FOR_RECONNECTING;
     }
 }

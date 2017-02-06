@@ -44,6 +44,9 @@ public class NetworkManager implements Runnable{
     private UDPClient udpClient = null;
         
     private static NetworkManager instance = null;
+    
+    private List<DeviceCommand> ownCommands = new ArrayList<>();
+    
     private NetworkManager() {
         
     }
@@ -80,8 +83,8 @@ public class NetworkManager implements Runnable{
         int i = 0;
         while(true){
             proccessCommands();
-            Utilities.sleep(10);
-            if(i++ > 1000/10){
+            Utilities.sleep(10);//TODO: move magic value to Settings
+            if(i++ > 1000/10){//TODO: move magic value to Settings
                 ping();
                 i = 0;
             }
@@ -89,11 +92,13 @@ public class NetworkManager implements Runnable{
     }
 
     private void ping() {
-        if(isConnected())sendingCommand(new PingCommand());
+        if(isConnected() || tcpClient.isShouldRetry())sendingCommand(new PingCommand());
     }
-
+   
     public void proccessCommands(){
         List<DeviceCommand> commands = new ArrayList<>();
+        commands.addAll(ownCommands); //TODO: Does this need a synchronized block? It _should_ be only access from this thread. Need to think about it
+        ownCommands.clear();
         synchronized (toRemove) {
             synchronized (devices) {
                 for(NetworkHIDDevice device : getDevices()){
@@ -135,15 +140,30 @@ public class NetworkManager implements Runnable{
     }
     
     private void sendingCommand(DeviceCommand command) {
-        if(command instanceof AttachCommand){
-            sendAttach((AttachCommand) command);
-        }else if(command instanceof DetachCommand){
-            sendDetach((DetachCommand) command);
-        }else if(command instanceof PingCommand){
-            sendPing((PingCommand) command);
+        boolean result = false;
+        if(isConnected() || tcpClient.isShouldRetry()){
+            if(command instanceof AttachCommand){
+                result = sendAttach((AttachCommand) command);
+            }else if(command instanceof DetachCommand){
+                result = sendDetach((DetachCommand) command);
+            }else if(command instanceof PingCommand){
+                sendPing((PingCommand) command);
+                result = true;
+            }else{
+                log.info("UNKNOWN COMMAND!");
+                result = true;
+            }
+        }else{
+            Utilities.sleep(500); //TODO: move magic value to Settings
+        }
+        
+        //Add the command again on errors
+        if(!result){
+            addCommand(command);
         }
     }
 
+    //TODO: PONG from WiiU? Hey Quark ;)
     private void sendPing(PingCommand command) {
         if(sendTCP(Protocol.getRawPingDataToSend(command))){
             log.info("PING");
@@ -152,27 +172,32 @@ public class NetworkManager implements Runnable{
         }
     }
 
-    private void sendDetach(DetachCommand command) {
+    private boolean sendDetach(DetachCommand command) {
         byte[] sendData;
         try {
             sendData = Protocol.getRawDetachDataToSend(command);
-            if(!sendTCP(sendData)){
+            if(sendTCP(sendData)){
+                log.info("Success detach command for device (" + command.getSender() + ") sent!");
+            }else{
                 log.info("Sending the detach command for device (" + command.getSender() + ") failed. sendTCP failed");
+                return false;
             }
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }        
-        
+        return true;
     }
    
-    private void sendAttach(AttachCommand command) {
+    //TODO: Maybe move it into the Protocol class?
+    private boolean sendAttach(AttachCommand command) {
         //Send the TCP command
         byte[] sendData = null;
         try {
             sendData = Protocol.getRawAttachDataToSend(command);
         }catch (IOException e) {
             log.info("Building the attach command for device (" + command.getSender() + ") failed." + e.getMessage());
-            return;
+            return false;
         } 
         if(sendTCP(sendData)){
             byte configFound = 0;
@@ -182,13 +207,14 @@ public class NetworkManager implements Runnable{
                 e1.printStackTrace();
             }
             if(configFound == Protocol.TCP_CMD_ATTACH_CONFIG_FOUND){
-                log.info("Config on the console found!");
+                //log.info("Config on the console found!");
             }else if(configFound == Protocol.TCP_CMD_ATTACH_CONFIG_NOT_FOUND){
                 log.info("NO CONFIG FOUND.");
-                return;
+                return false;
             }else if (configFound == 0){
                 log.info("Failed to get byte.");
                 disconnect();
+                return false;
             }
             
             byte userDataOkay = 0;
@@ -198,13 +224,14 @@ public class NetworkManager implements Runnable{
                 e1.printStackTrace();
             }
             if(userDataOkay == Protocol.TCP_CMD_ATTACH_USERDATA_OKAY){
-                log.info("userdata okay!");
+                //log.info("userdata okay!");
             }else if(userDataOkay == Protocol.TCP_CMD_ATTACH_USERDATA_BAD){
                 log.info("USERDATA BAD.");
-                return;
+                return false;
             }else if (userDataOkay == 0){
                 log.info("Failed to get byte.");
                 disconnect();
+                return false;
             }
             
             //We receive our device slot and pad slot
@@ -215,11 +242,13 @@ public class NetworkManager implements Runnable{
                 padslot = recvTCPByte();
             } catch (IOException e) {
                 log.info("Recieving data after sending a attach failed for device (" + command.getSender() + ") failed." + e.getMessage());
+                return false;
             }
             
             if(deviceslot < 0 || padslot < 0){
                 log.info("Recieving data after sending a attach failed for device (" + command.getSender() + ") failed. We need to disconnect =(");
                 disconnect();
+                return false;
             }
             
             //Let's save them for later.
@@ -229,10 +258,13 @@ public class NetworkManager implements Runnable{
                 sender.setPadslot(padslot);
             }else{
                 log.info("Something really went wrong. Got an attach event with out an " + NetworkHIDDevice.class.getSimpleName());
+                return false;
             }
             log.info("Attaching done!");
+            return true;
         }else{
             log.info("Sending the attach command for device (" + command.getSender() + ") failed. sendTCP failed");
+            return false;
         }
     }
     
@@ -268,7 +300,6 @@ public class NetworkManager implements Runnable{
                 tcpClient.send(rawCommand);
                 result = true;
             } catch (Exception e) {
-                //
                 result = false;
             }
         }
@@ -276,7 +307,7 @@ public class NetworkManager implements Runnable{
     }
     
     public void disconnect() {
-        ControllerManager.deactivateAllAttachedControllers();
+        //ControllerManager.deactivateAllAttachedControllers();
         tcpClient.abort();
     }
 
@@ -287,7 +318,6 @@ public class NetworkManager implements Runnable{
     private byte recvTCPByte() throws IOException {
         return tcpClient.recvByte();
     }
-
     
     public boolean isConnected() {
         return (tcpClient != null && tcpClient.isConnected());
@@ -307,5 +337,13 @@ public class NetworkManager implements Runnable{
             System.out.println("Error while connecting: " + e.getMessage());
         }
         return result;
+    }
+
+    public void addCommand(DeviceCommand command) {
+        this.ownCommands.add(command);
+    }
+
+    public boolean isReconnecting() {        
+        return !tcpClient.isConnected() && tcpClient.isShouldRetry();
     }
 }

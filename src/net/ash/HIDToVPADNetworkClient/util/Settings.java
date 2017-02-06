@@ -24,6 +24,7 @@ package net.ash.HIDToVPADNetworkClient.util;
 public class Settings {
     public static final int DETECT_CONTROLLER_INTERVAL = 1000;
     public static final int HANDLE_INPUTS_INTERVAL = 15;
+    public static final int MAXIMUM_TRIES_FOR_RECONNECTING = 10;
 
     private Settings(){}
 

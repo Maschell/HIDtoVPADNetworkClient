@@ -44,6 +44,7 @@ public class GuiInputControls extends JPanel implements ActionListener {
 	
     private static final String CONNECT = "Connect";
     private static final String DISCONNECT = "Disconnect";
+    private static final String RECONNECTING = "Reconnecting";
 	
 	private JButton connectButton;
 	private JTextField ipTextBox;
@@ -93,10 +94,15 @@ public class GuiInputControls extends JPanel implements ActionListener {
 		int delay = 100; //milliseconds
         ActionListener taskPerformer = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                if(NetworkManager.getInstance().isConnected()){
+                if(NetworkManager.getInstance().isReconnecting()){
+                    connectButton.setText(RECONNECTING);
+                    connectButton.setEnabled(false);
+                }else if(NetworkManager.getInstance().isConnected()){
                     connectButton.setText(DISCONNECT);
+                    connectButton.setEnabled(true);
                 }else{
                     connectButton.setText(CONNECT);
+                    connectButton.setEnabled(true);
                 }
             }
         };
@@ -127,10 +133,14 @@ public class GuiInputControls extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                if(NetworkManager.getInstance().isConnected()){
-                    NetworkManager.getInstance().disconnect();
-                }else{            
-                    NetworkManager.getInstance().connect(ipTextBox.getText());
+                if(NetworkManager.getInstance().isReconnecting()){
+                    
+                }else{
+                    if(NetworkManager.getInstance().isConnected()){
+                        NetworkManager.getInstance().disconnect();
+                    }else{            
+                        NetworkManager.getInstance().connect(ipTextBox.getText());
+                    }
                 }
             }
         });

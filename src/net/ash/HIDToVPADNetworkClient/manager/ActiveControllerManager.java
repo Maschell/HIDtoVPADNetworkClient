@@ -129,4 +129,13 @@ public class ActiveControllerManager implements Runnable{
             }
         }
     }
+    
+    public void attachAllActiveControllers() {
+        synchronized (activeControllers) {
+            for(Entry<Controller, NetworkHIDDevice> entry : activeControllers.entrySet()){
+                NetworkHIDDevice device = entry.getValue();
+                device.sendAttach();
+            }
+        }
+    }
 }

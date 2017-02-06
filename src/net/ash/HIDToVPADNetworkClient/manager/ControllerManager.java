@@ -65,7 +65,10 @@ public class ControllerManager{
             connectedDevices.putAll(detectWindowsControllers());
         }
         
-        //TODO: Enable HID4Java again
+        /*TODO: Enable HID4Java again. Currently it's disabled because
+        * We can either use the WiiU directly OR have XInput anyway.
+        * Adding an option menu for enabling it?
+        */
         //connectedDevices.putAll(detectHIDDevices());
         
         //Remove detached devices
@@ -100,9 +103,15 @@ public class ControllerManager{
                             //e.printStackTrace();
                         }
                         break;
+                    /*
+                     * TODO:
+                     * Currently the XInput will be set active automatically.
+                     * But this should move to something for the settings? 
+                     */
                     case XINPUT14:
                         try {
                             c = new XInput14Controller(deviceIdentifier);
+                            c.setActive(true);
                         } catch (ControllerInitializationFailedException e) {
                             //e.printStackTrace();
                         }
@@ -110,6 +119,7 @@ public class ControllerManager{
                     case XINPUT13:
                         try {
                             c = new XInput13Controller(deviceIdentifier);
+                            c.setActive(true);
                         } catch (ControllerInitializationFailedException e) {
                             //e.printStackTrace();
                         }
