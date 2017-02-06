@@ -125,6 +125,11 @@ public class LinuxDevInputController extends Controller implements Runnable{
 		}
 		return newData;
 	}
+	
+	@Override
+	protected void doSleepAfterPollingData() {
+        //This is event driven (aka pollLatestData() is blocking anyway until we have data), we don't need to sleep it all.
+    }
 
 	@Override
 	public void destroyDriver() {

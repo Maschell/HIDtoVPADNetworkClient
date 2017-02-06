@@ -62,7 +62,7 @@ public abstract class Controller implements Runnable{
                 if(newData != null){
                     setLatestData(newData);
                 }
-                Utilities.sleep(10);
+                doSleepAfterPollingData();
             }
             synchronized (shutdownLock) {
                 shutdownState = shutdown;
@@ -73,6 +73,10 @@ public abstract class Controller implements Runnable{
         }
     }
     
+    protected void doSleepAfterPollingData() {
+        Utilities.sleep(10);
+    }
+
     @Synchronized("dataLock")
     private void setLatestData(byte[] newData) {
         this.latestData = newData;      
