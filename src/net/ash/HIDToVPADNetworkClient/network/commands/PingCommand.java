@@ -19,41 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.gui;
+package net.ash.HIDToVPADNetworkClient.network.commands;
 
-public class GuiController {
-	private boolean activeState = false;
-	private GuiControllerType type;
-	private Object id;
-	
-	public GuiController(GuiControllerType type, Object id) {
-		this.type = type;
-		this.id = id;
-	}
-	
-	public Object getId() {
-		return id;
-	}
-	
-	public GuiControllerType getType() {
-		return type;
-	}
-	
-	public boolean getActiveState() {
-		return activeState;
-	}
-	
-	public void setActiveState(boolean activeState) {
-		this.activeState = activeState;
-	}
-	
-	@Override
-	public String toString() {
-		return "GuiController, active: " + activeState + ", type: " + type.toString() + ", id: " + id.toString();
-	}
-	
-	@Override
-	public int hashCode() {
-		return id.hashCode() + type.hashCode() /*+ (activeState ? 1 : 0)*/;
-	}
+import net.ash.HIDToVPADNetworkClient.network.NetworkHIDDevice;
+
+public class PingCommand extends DeviceCommand {
+    public PingCommand() {
+        this((short) 0,null);
+    }
+    private PingCommand(int hidHandle, NetworkHIDDevice sender) {
+        super(hidHandle, sender);
+    }
+    
+    @Override
+    public String toString() {
+        return "PingCommand []";
+    }
 }

@@ -19,35 +19,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.network;
+package net.ash.HIDToVPADNetworkClient.util;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.util.List;
 
-public class UDPClient {
-	private final DatagramSocket sock;
-	private final InetAddress host;
-	
-	private UDPClient(String ip) throws SocketException, UnknownHostException{	
-        sock = new DatagramSocket();
-        host = InetAddress.getByName(ip);        
-	}
-	public static UDPClient createUDPClient(String ip){
-	    UDPClient result = null;
-        try {
-            result = new UDPClient(ip);
-        } catch (Exception e) {
-            //handle?
+import purejavahidapi.HidDevice;
+import purejavahidapi.HidDeviceInfo;
+import purejavahidapi.PureJavaHidApi;
+
+public class PureJavaHidApiManager {
+    
+    private PureJavaHidApiManager(){}
+    
+    /**
+     * Searches the corresponding HIDDevice for the given path
+     * @param path Path of the HIDDevice
+     * @return It the device is found, it will be returned. Otherwise null is returned.
+     * @throws IOException 
+     */
+    public static HidDevice getDeviceByPath(String path) throws IOException{
+        List<HidDeviceInfo> devList = PureJavaHidApi.enumerateDevices();
+        for (HidDeviceInfo info : devList) {
+            if(info.getPath().equals(path)){
+                return PureJavaHidApi.openDevice(info);
+            }
         }
-        return result;
-	}
-	
-	public void send(byte[] data) throws IOException {
-		DatagramPacket packet = new DatagramPacket(data, data.length, host, Protocol.UDP_PORT);
-		sock.send(packet);
-	}
+        return null;
+    }
 }

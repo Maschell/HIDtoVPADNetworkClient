@@ -19,35 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.network;
+package net.ash.HIDToVPADNetworkClient.network.commands;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import lombok.Getter;
+import net.ash.HIDToVPADNetworkClient.network.NetworkHIDDevice;
 
-public class UDPClient {
-	private final DatagramSocket sock;
-	private final InetAddress host;
-	
-	private UDPClient(String ip) throws SocketException, UnknownHostException{	
-        sock = new DatagramSocket();
-        host = InetAddress.getByName(ip);        
-	}
-	public static UDPClient createUDPClient(String ip){
-	    UDPClient result = null;
-        try {
-            result = new UDPClient(ip);
-        } catch (Exception e) {
-            //handle?
-        }
-        return result;
-	}
-	
-	public void send(byte[] data) throws IOException {
-		DatagramPacket packet = new DatagramPacket(data, data.length, host, Protocol.UDP_PORT);
-		sock.send(packet);
-	}
+public class ReadCommand extends DeviceCommand{    
+    @Getter private final byte[] data;
+    public ReadCommand(int hidHandle,byte[] data, NetworkHIDDevice sender) {
+        super(hidHandle, sender);
+        this.data = data;
+    }
+    
+    @Override
+    public String toString() {
+        return "ReadCommand [handle=" + getHandle() + ", sender=" + getSender() + "]";
+    }
 }

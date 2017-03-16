@@ -26,67 +26,65 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import net.ash.HIDToVPADNetworkClient.util.HandleFoundry;
+import lombok.Getter;
+import lombok.Setter;
+import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
 
-public class LinuxDevInputController extends Thread implements Controller {
-	public static final int NUM_SUPPORTED_AXIS = 10; //possibly off-by-one
+public class LinuxDevInputController extends Controller implements Runnable{
+	public LinuxDevInputController(String identifier) throws ControllerInitializationFailedException {
+        super(ControllerType.LINUX, identifier);
+    }
+
+    public static final int NUM_SUPPORTED_AXIS = 10; //possibly off-by-one
 	public static final int CONTROLLER_DATA_SIZE = Long.BYTES + (Byte.BYTES * NUM_SUPPORTED_AXIS);
 	
 	private static final byte JS_EVENT_BUTTON = 0x01;
 	private static final byte JS_EVENT_INIT = (byte)0x80;
 	private static final byte JS_EVENT_AXIS = 0x02;
 	
-	private DataInputStream controller;
-	private ControllerData controllerData;
+	@Getter @Setter private DataInputStream controller;
 	
-	private String id;
-	
-	private short deviceSlot = 0;
-	private byte padSlot = 0;
-	
-	private boolean shouldProcessEvents = false;
-	private boolean shutdown = false;
-	
-	public LinuxDevInputController() {
-		super("LinuxDevInputController");
-		controllerData = new ControllerData((short)0, (short)0, 0, new byte[CONTROLLER_DATA_SIZE]);
-	}
+    @Getter @Setter private short VID;
+    @Getter @Setter private short PID;
 	
 	@Override
-	public void run() {
-		for (;;) {
-			for (;;) {
-				if (!shouldProcessEvents) break;
-				
-				processNextControllerEvent();
-			}
-			
-			if (shutdown) break;
-			/* Not polling. Wait for setPollingState to wake us up. */
-			try {
-				this.wait();
-			} catch (InterruptedException e) {}
-		} //for (;;)
-	}
-	
+    public boolean initController(String identifier) {
+        try {
+            controller = new DataInputStream(new BufferedInputStream(new FileInputStream(identifier)));
+        } catch (Exception e) {
+            System.err.println("[LinuxDevInputController] Couldn't open " + identifier + " as file!");
+            e.printStackTrace();
+            return false;
+        }
+        
+        setVID((short)(identifier.hashCode() & 0xFFFF));
+        setPID((short)((identifier.hashCode() >> Short.BYTES) & 0xFFFF));
+        System.out.println("[LinuxDevInputController] " + identifier.toString() + " fakevid: " + Integer.toHexString((int)getVID() & 0xFFFF) + " fakepid: " + Integer.toHexString((int)getPID() & 0xFFFF));
+                
+        return true;
+    }
+		
 	private long buttonState = 0;
 	private byte[] axisState = new byte[NUM_SUPPORTED_AXIS];
-	private void processNextControllerEvent() {
+	
+	@Override
+	public byte[] pollLatestData() {
+	    DataInputStream inputStream =  getController();
 		//Read out next event from controller
 		/*int time;*/
 		short value;
 		byte type, number;
 		try {
-			/*time = */controller.readInt();
-			value = controller.readShort();
-			type = controller.readByte();
-			number = controller.readByte();
+			/*time = */inputStream.readInt();
+			value = inputStream.readShort();
+			type = inputStream.readByte();
+			number = inputStream.readByte();
 		} catch (IOException e) {
 			System.err.println("[LinuxDevInputController] Couldn't read from controller!");
 			e.printStackTrace();
 			System.out.println("[LinuxDevInputController] Detaching...");
-			ControllerManager.instance().detachController(this);
-			return;
+			setActive(false);
+			return null;
 		}
 		
 		//Treat init events as normal (clear init bit)
@@ -95,7 +93,7 @@ public class LinuxDevInputController extends Thread implements Controller {
 		if (type == JS_EVENT_BUTTON) {
 			if (number >= Long.SIZE) {
 				System.out.println("[LinuxDevInputController] Button number " + number + " out of range; ignoring");
-				return;
+				return null;
 			}
 			
 			if (value != 0) {
@@ -108,7 +106,7 @@ public class LinuxDevInputController extends Thread implements Controller {
 		} else if (type == JS_EVENT_AXIS) {
 			if (number >= NUM_SUPPORTED_AXIS) {
 				System.out.println("[LinuxDevInputController] Axis number " + number + " out of range; ignoring");
-				return;
+				return null;
 			}
 			//Do byteswap
 			value = (short)(((value & 0xFF) << Byte.SIZE) | ((value & 0xFF00) >> Byte.SIZE));
@@ -125,103 +123,30 @@ public class LinuxDevInputController extends Thread implements Controller {
 		for (int i = Long.BYTES; i < CONTROLLER_DATA_SIZE; i++) {
 			newData[i] = axisState[i - Long.BYTES];
 		}
-		synchronized (controllerData) {
-			controllerData.data = newData;
-		}
+		return newData;
 	}
 	
 	@Override
-	public ControllerData getLatestData() {		
-		synchronized (controllerData) {
-			return new ControllerData(getVID(), getPID(), getHandle(), controllerData.getData());
-		}
-	}
-	
+	protected void doSleepAfterPollingData() {
+        //This is event driven (aka pollLatestData() is blocking anyway until we have data), we don't need to sleep it all.
+    }
+
 	@Override
-	public boolean initController(Object arg) {
+	public void destroyDriver() {
 		try {
-			controller = new DataInputStream(new BufferedInputStream(new FileInputStream(arg.toString())));
-		} catch (Exception e) {
-			System.err.println("[LinuxDevInputController] Couldn't open " + arg.toString() + " as file!");
-			e.printStackTrace();
-			return false;
-		}
-		
-		fakevid = (short)(arg.hashCode() & 0xFFFF);
-		fakepid = (short)((arg.hashCode() >> Short.BYTES) & 0xFFFF);
-		System.out.println("[LinuxDevInputController] " + arg.toString() + " fakevid: " + Integer.toHexString((int)fakevid & 0xFFFF) + " fakepid: " + Integer.toHexString((int)fakepid & 0xFFFF));
-		
-		id = arg.toString();
-		
-		return true;
-	}
-	
-	@Override
-	public void setPollingState(boolean poll) {
-		shouldProcessEvents = poll;
-		if (this.getState() == Thread.State.NEW) {
-			this.start();
-		} else if (this.getState() == Thread.State.WAITING){
-			this.notify();
-		}
-	}
-
-	@Override
-	public void destroy() {
-		shutdown = true;
-		setPollingState(false);
-		
-		if (!this.equals(Thread.currentThread())) {
-			while (this.getState() != Thread.State.TERMINATED) {}
-		}
-		
-		try {
-			controller.close();
-		} catch (IOException e) {}
-	}
-	
-	private short fakevid;
-	private short getVID() {
-		return fakevid;
-	}
-	
-	private short fakepid;
-	private short getPID() {
-		return fakepid;
-	}
-
-	@Override
-	public String getID() {
-		return id;
-	}
-	
-	private int handle = 0;
-	@Override
-	public int getHandle() {
-		if (handle == 0) {
-			handle = HandleFoundry.next();
-		}
-		return handle;
-	}
-	
-	@Override
-	public void setSlotData(short deviceSlot, byte padSlot) {
-		this.deviceSlot = deviceSlot;
-		this.padSlot = padSlot;
-	}
-
-	@Override
-	public short getDeviceSlot() {
-		return deviceSlot;
-	}
-
-	@Override
-	public byte getPadSlot() {
-		return padSlot;
+            controller.close();
+        } catch (IOException e) {
+        }
 	}
 
 	@Override
 	public String toString() {
-		return "[" + super.toString() + ";VID," + Integer.toHexString((int)getVID() & 0xFFFF) + ";PID," + Integer.toHexString((int)getPID() & 0xFFFF) + ";run," + shouldProcessEvents + ((controller == null) ? ";uninitialised]" : ";initialised]");
+		return "[" + super.toString() + ";VID," + Integer.toHexString((int)getVID() & 0xFFFF) + ";PID," + Integer.toHexString((int)getPID() & 0xFFFF) + ";run," + isActive() + ((controller == null) ? ";uninitialised]" : ";initialised]");
 	}
+
+    @Override
+    public String getInfoText() {
+        return "Linux controller on " + getIdentifier();
+    }
+
 }

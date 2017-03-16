@@ -25,8 +25,13 @@
 
 package net.ash.HIDToVPADNetworkClient.util;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public class HandleFoundry {
-	private static int h = 1;
+    //We start with a random value, so we have at each startup a different clientID!
+	private static int h = ThreadLocalRandom.current().nextInt(1, 10000);
+	
+	private HandleFoundry(){}
 	
 	public static int next() {
 		return h++;

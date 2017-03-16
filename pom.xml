@@ -16,11 +16,30 @@
       </plugin>
     </plugins>
   </build>
+  <repositories>
+   <repository>
+        <id>jitpack.io</id>           <!-- JitPack allows github repo to be used as a maven repo -->
+        <url>https://jitpack.io</url> <!-- For documentation: http://jitpack.io/ -->
+    </repository>
+    
+	</repositories>
   <dependencies>
   	<dependency>
-  		<groupId>org.hid4java</groupId>
-  		<artifactId>hid4java</artifactId>
-  		<version>0.4.0</version>
+  		<groupId>org.projectlombok</groupId>
+  		<artifactId>lombok</artifactId>
+  		<version>1.16.12</version>
+  		<scope>provided</scope>
   	</dependency>
+  	  <dependency>
+        <groupId>com.github.strikerx3</groupId>
+        <artifactId>jxinput</artifactId>
+        <version>1eb4087</version>    <!-- JXInput 0.7 -->
+    </dependency>
+
+  	  <dependency>
+  	  	<groupId>purejavahidapi</groupId>
+  	  	<artifactId>purejavahidapi</artifactId>
+  	  	<version>0.0.1</version>
+  	  </dependency>
   </dependencies>
 </project>

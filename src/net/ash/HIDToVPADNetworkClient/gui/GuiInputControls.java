@@ -24,6 +24,8 @@ package net.ash.HIDToVPADNetworkClient.gui;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -31,19 +33,25 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
-public class GuiInputControls extends JPanel {	
+import net.ash.HIDToVPADNetworkClient.network.NetworkManager;
+
+public class GuiInputControls extends JPanel implements ActionListener {	
 	private static final long serialVersionUID = 1L;
 	private static GuiInputControls instance = null;
 	
-	private static final String DEFAULT_PACKET_INTERVAL = "1000";
+    private static final String CONNECT = "Connect";
+    private static final String DISCONNECT = "Disconnect";
+    private static final String RECONNECTING = "Reconnecting";
 	
 	private JButton connectButton;
 	private JTextField ipTextBox;
 	private JPanel ipTextBoxWrap;
 	private JTextField packetIntervalTextBox;
-	private JPanel piTextBoxWrap;
 	private JLabel statusLabel;
+	
 	public GuiInputControls() throws Exception {
 		super();
 		if (instance != null) {
@@ -54,33 +62,24 @@ public class GuiInputControls extends JPanel {
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		setPreferredSize(new Dimension(220, 150));
 		
-		connectButton = new JButton("Connect");
+		connectButton = new JButton(CONNECT);
 		connectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 		
 		
 		ipTextBox = new JTextField();
 		ipTextBox.setColumns(15);
+		ipTextBox.setText("192.168.0.35");
 		ipTextBoxWrap = new JPanel(new FlowLayout());
 		ipTextBoxWrap.add(new JLabel("IP: "));
 		ipTextBoxWrap.add(ipTextBox);
 		ipTextBoxWrap.setMaximumSize(new Dimension(1000, 20));
-		
-		packetIntervalTextBox = new JTextField();
-		packetIntervalTextBox.setColumns(3);
-		packetIntervalTextBox.setText(DEFAULT_PACKET_INTERVAL);
-		//TODO sanitize input
-		piTextBoxWrap = new JPanel(new FlowLayout());
-		piTextBoxWrap.add(new JLabel("Packet interval: "));
-		piTextBoxWrap.add(packetIntervalTextBox);
-		piTextBoxWrap.setMaximumSize(new Dimension(1000, 20));
-		
+			
 		statusLabel = new JLabel("Ready.");
 		statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		
 		add(Box.createVerticalGlue());
 
-		add(ipTextBoxWrap);		
-		add(piTextBoxWrap);
+		add(ipTextBoxWrap);
 		
 		add(Box.createRigidArea(new Dimension(1, 4)));
 		add(connectButton);
@@ -90,7 +89,24 @@ public class GuiInputControls extends JPanel {
 		
 		add(Box.createVerticalGlue());
 		
-		connectButton.addActionListener(GuiInteractionManager.instance());
+		connectButton.addActionListener(this);
+		
+		int delay = 100; //milliseconds
+        ActionListener taskPerformer = new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                if(NetworkManager.getInstance().isReconnecting()){
+                    connectButton.setText(RECONNECTING);
+                    connectButton.setEnabled(false);
+                }else if(NetworkManager.getInstance().isConnected()){
+                    connectButton.setText(DISCONNECT);
+                    connectButton.setEnabled(true);
+                }else{
+                    connectButton.setText(CONNECT);
+                    connectButton.setEnabled(true);
+                }
+            }
+        };
+        new Timer(delay, taskPerformer).start();
 	}
 
 	public static GuiInputControls instance() {
@@ -112,4 +128,22 @@ public class GuiInputControls extends JPanel {
 	public JLabel getStatusLabel() {
 		return statusLabel;
 	}
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                if(NetworkManager.getInstance().isReconnecting()){
+                    
+                }else{
+                    if(NetworkManager.getInstance().isConnected()){
+                        NetworkManager.getInstance().disconnect();
+                    }else{            
+                        NetworkManager.getInstance().connect(ipTextBox.getText());
+                    }
+                }
+            }
+        });
+       
+    }
 }

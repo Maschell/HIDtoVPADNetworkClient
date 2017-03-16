@@ -19,35 +19,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.network;
+package net.ash.HIDToVPADNetworkClient.util;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-
-public class UDPClient {
-	private final DatagramSocket sock;
-	private final InetAddress host;
-	
-	private UDPClient(String ip) throws SocketException, UnknownHostException{	
-        sock = new DatagramSocket();
-        host = InetAddress.getByName(ip);        
-	}
-	public static UDPClient createUDPClient(String ip){
-	    UDPClient result = null;
+public class Utilities{
+    
+    private Utilities(){}
+    
+    /**
+     * Let me just sleep!
+     * @param ms sleep duration in ms
+     */
+    public static void sleep(int ms) {
         try {
-            result = new UDPClient(ip);
-        } catch (Exception e) {
-            //handle?
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
         }
-        return result;
-	}
-	
-	public void send(byte[] data) throws IOException {
-		DatagramPacket packet = new DatagramPacket(data, data.length, host, Protocol.UDP_PORT);
-		sock.send(packet);
-	}
+    }
+    
+    /**
+     * Convert a byte array to a formated String
+     * @param ba byte array
+     * @return String representing the binary data
+     */
+    public static String ByteArrayToString(byte[] ba){
+      if(ba == null) return null;
+      StringBuilder hex = new StringBuilder(ba.length * 2);
+      for(byte b : ba){
+        hex.append(String.format("%02X", b));
+      }
+      return hex.toString();
+    }
+    
+    /**
+     * Converts a signed short value to a unsigned byte  
+     * @param value short value
+     * @return converted value
+     */
+    public static short signedShortToByte(int value){        
+        return (short) (((((short)value) + Short.MAX_VALUE + 1) >> 8) & 0xFF);
+    }
+    
+    /**
+     * Converts a signed short value to a unsigned byte  
+     * @param value short value
+     * @return converted value
+     */
+    public static short signedShortToByte(short value){
+        return signedShortToByte((int) value);
+    }
 }

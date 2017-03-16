@@ -21,28 +21,15 @@
  *******************************************************************************/
 package net.ash.HIDToVPADNetworkClient.controller;
 
-public class ControllerData {
-	private short vid;
-	private short pid;
-	protected byte[] data;
-	
-	public ControllerData(short vid, short pid, int handle, byte[] data) {
-		this.vid = vid;
-		this.pid = pid;
-		this.data = data;
-	}
-	
-	public ControllerData() {}
-	
-	public short getVID() {
-		return vid;
-	}
-	
-	public short getPID() {
-		return pid;
-	}
-	
-	public byte[] getData() {
-		return data;
-	}
+import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
+
+public class XInput13Controller extends XInputController {
+    public XInput13Controller(String identifier) throws ControllerInitializationFailedException {
+        super(ControllerType.XINPUT13, identifier);
+    }
+    
+    @Override
+    public String getInfoText(){
+        return "XInput 1.3 on " + getIdentifier();
+    }
 }
