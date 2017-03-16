@@ -25,6 +25,10 @@ public class Settings {
     public static final int DETECT_CONTROLLER_INTERVAL = 1000;
     public static final int HANDLE_INPUTS_INTERVAL = 15;
     public static final int MAXIMUM_TRIES_FOR_RECONNECTING = 10;
+    public static final int SLEEP_AFER_POLLING = 10;
+    public static final int SENDING_CMD_SLEEP_IF_NOT_CONNECTED = 500;
+    public static final int PING_INTERVAL = 1000;
+    public static final int PROCESS_CMD_INTERVAL = 10;
 
     private Settings(){}
 

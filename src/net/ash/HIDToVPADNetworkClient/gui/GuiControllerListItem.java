@@ -65,18 +65,7 @@ public class GuiControllerListItem extends JPanel implements ActionListener {
 	}
 	
 	private String getFlavorText() {
-		switch (controller.getType()) { //TODO: String.format with value from Settings.
-		    case XINPUT13:
-		        return "XInput 1.3 on " + controller.getIdentifier();
-		    case XINPUT14:
-		        return "XInput 1.4 on " + controller.getIdentifier();
-    		case HID4JAVA:
-    			return "USB HID on " + controller.getIdentifier();
-    		case LINUX:
-    			return "Linux controller on " + controller.getIdentifier();
-    		default:
-    			return controller.toString();
-		}
+		return controller.getInfoText();
 	}
 
     @Override

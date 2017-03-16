@@ -21,31 +21,30 @@
  *******************************************************************************/
 package net.ash.HIDToVPADNetworkClient.util;
 
-import org.hid4java.HidDevice;
-import org.hid4java.HidManager;
-import org.hid4java.HidServices;
+import java.io.IOException;
+import java.util.List;
 
-public class HID4JavaManager {
+import purejavahidapi.HidDevice;
+import purejavahidapi.HidDeviceInfo;
+import purejavahidapi.PureJavaHidApi;
+
+public class PureJavaHidApiManager {
     
-    private HID4JavaManager(){}
+    private PureJavaHidApiManager(){}
     
     /**
      * Searches the corresponding HIDDevice for the given path
      * @param path Path of the HIDDevice
      * @return It the device is found, it will be returned. Otherwise null is returned.
+     * @throws IOException 
      */
-    public static HidDevice getDeviceByPath(String path){
-        HidDevice result = null;
-        
-        HidServices services = HidManager.getHidServices();        
-        if(services == null) return result;
-        
-        for (HidDevice device : services.getAttachedHidDevices()) {
-            if (device.getPath().equals(path)) {
-                result = device;
-                break;
+    public static HidDevice getDeviceByPath(String path) throws IOException{
+        List<HidDeviceInfo> devList = PureJavaHidApi.enumerateDevices();
+        for (HidDeviceInfo info : devList) {
+            if(info.getPath().equals(path)){
+                return PureJavaHidApi.openDevice(info);
             }
         }
-        return result;
+        return null;
     }
 }

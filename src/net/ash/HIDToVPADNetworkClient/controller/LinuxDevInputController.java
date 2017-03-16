@@ -144,4 +144,9 @@ public class LinuxDevInputController extends Controller implements Runnable{
 		return "[" + super.toString() + ";VID," + Integer.toHexString((int)getVID() & 0xFFFF) + ";PID," + Integer.toHexString((int)getPID() & 0xFFFF) + ";run," + isActive() + ((controller == null) ? ";uninitialised]" : ";initialised]");
 	}
 
+    @Override
+    public String getInfoText() {
+        return "Linux controller on " + getIdentifier();
+    }
+
 }

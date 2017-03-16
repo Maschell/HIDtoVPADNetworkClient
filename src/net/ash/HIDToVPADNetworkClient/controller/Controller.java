@@ -25,6 +25,7 @@ import lombok.Getter;
 import lombok.Synchronized;
 import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
 import net.ash.HIDToVPADNetworkClient.manager.ControllerManager;
+import net.ash.HIDToVPADNetworkClient.util.Settings;
 import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
 /**
@@ -43,6 +44,9 @@ public abstract class Controller implements Runnable{
     boolean shutdownDone = false;
     private Object dataLock = new Object();
     private Object shutdownLock = new Object();
+    
+    private Object rumbleLock = new Object();
+    private boolean rumble = false;
         
     public Controller(ControllerType type, String identifier) throws ControllerInitializationFailedException{
         this.type = type;
@@ -56,7 +60,7 @@ public abstract class Controller implements Runnable{
     public void run() {
         boolean shutdownState = shutdown;
         while(!shutdownState){
-            Utilities.sleep(1000);
+            Utilities.sleep(Settings.DETECT_CONTROLLER_INTERVAL);
             while(isActive()) {
                 byte[] newData =  pollLatestData();
                 if(newData != null){
@@ -74,7 +78,7 @@ public abstract class Controller implements Runnable{
     }
     
     protected void doSleepAfterPollingData() {
-        Utilities.sleep(10);
+        Utilities.sleep(Settings.SLEEP_AFER_POLLING);
     }
 
     @Synchronized("dataLock")
@@ -189,7 +193,24 @@ public abstract class Controller implements Runnable{
         return true;
     }
     
-    public enum ControllerType {
-        HID4JAVA, LINUX, XINPUT13,XINPUT14
+    @Synchronized("rumbleLock")
+    public boolean isRumble() {
+        return rumble;
     }
+
+    @Synchronized("rumbleLock")
+    public void startRumble() {
+        this.rumble = true;
+    }
+    
+    @Synchronized("rumbleLock")
+    public void stopRumble() {
+        this.rumble = false;
+    }
+
+    public enum ControllerType {
+        PureJAVAHid, LINUX, XINPUT13,XINPUT14
+    }
+    
+    public abstract String getInfoText();
 }

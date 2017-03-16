@@ -52,7 +52,7 @@ public class XInputController extends Controller {
         try {
             device = XInputDevice.getDeviceFor(pad);
         } catch (XInputNotLoadedException e) {
-            //Log?
+            //TODO: Log?
         }
         if(device == null) return false;
         setDevice(device);
@@ -103,8 +103,8 @@ public class XInputController extends Controller {
            axesDataShoulderButtons |= axes.rtRaw << 0;
            
            buttonState |= axesDataShoulderButtons << 16;
-           data.putInt(axesData).putInt(buttonState);
-           
+           data.putInt(axesData).putInt(buttonState);    
+               
            return(data.array());
        }
        return null;
@@ -124,5 +124,10 @@ public class XInputController extends Controller {
     @Override
     public short getPID() {
         return  0x1337;
+    }
+
+    @Override
+    public String getInfoText(){
+        return "XInput on " + getIdentifier();
     }
 }

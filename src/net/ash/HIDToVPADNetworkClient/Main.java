@@ -23,19 +23,17 @@ package net.ash.HIDToVPADNetworkClient;
 
 import javax.swing.SwingUtilities;
 
-import org.hid4java.HidManager;
-
 import net.ash.HIDToVPADNetworkClient.gui.GuiMain;
 import net.ash.HIDToVPADNetworkClient.manager.ActiveControllerManager;
 import net.ash.HIDToVPADNetworkClient.network.NetworkManager;
 
 /* Ash's todo list
- * TODO finish Hid4JavaController
+ * TODO finish HidController
  * TODO locale
  */
 
 public class Main {
-	public static void main(String[] args) {
+	public static void main(String[] args) {	 
 		System.out.println("Hello World!");
 		try {
 			new Thread(ActiveControllerManager.getInstance()).start();
@@ -43,15 +41,14 @@ public class Main {
 		} catch (Exception e) {
 			e.printStackTrace();
 			fatal();
-		}
-		
+		}		
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				GuiMain.createGUI();
 			}
 		});
 	}
-	
+
     public static void fatal() {
 		System.err.println("HID To VPAD Network Client encountered an irrecoverable error.");
 		System.err.println("Exiting...");
@@ -59,7 +56,6 @@ public class Main {
 	}
 	
 	public static void initiateShutdown() {
-		HidManager.getHidServices().shutdown();
 		System.exit(0);
 	}
 }

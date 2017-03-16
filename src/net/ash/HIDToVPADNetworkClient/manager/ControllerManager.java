@@ -23,14 +23,12 @@ package net.ash.HIDToVPADNetworkClient.manager;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.hid4java.HidDevice;
-import org.hid4java.HidManager;
 
 import com.ivan.xinput.XInputDevice;
 import com.ivan.xinput.XInputDevice14;
@@ -39,12 +37,14 @@ import com.ivan.xinput.exceptions.XInputNotLoadedException;
 import lombok.Synchronized;
 import net.ash.HIDToVPADNetworkClient.controller.Controller;
 import net.ash.HIDToVPADNetworkClient.controller.Controller.ControllerType;
-import net.ash.HIDToVPADNetworkClient.controller.Hid4JavaController;
+import net.ash.HIDToVPADNetworkClient.controller.PureJavaHidController;
 import net.ash.HIDToVPADNetworkClient.controller.LinuxDevInputController;
 import net.ash.HIDToVPADNetworkClient.controller.XInput13Controller;
 import net.ash.HIDToVPADNetworkClient.controller.XInput14Controller;
 import net.ash.HIDToVPADNetworkClient.controller.XInputController;
 import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
+import purejavahidapi.HidDeviceInfo;
+import purejavahidapi.PureJavaHidApi;
 
 public class ControllerManager{
 	private static Map<String,Controller> attachedControllers = new HashMap<>();
@@ -64,12 +64,8 @@ public class ControllerManager{
         } else if (os.contains("Windows")) {
             connectedDevices.putAll(detectWindowsControllers());
         }
-        
-        /*TODO: Enable HID4Java again. Currently it's disabled because
-        * We can either use the WiiU directly OR have XInput anyway.
-        * Adding an option menu for enabling it?
-        */
-        //connectedDevices.putAll(detectHIDDevices());
+     
+        connectedDevices.putAll(detectHIDDevices());
         
         //Remove detached devices
         List<String> toRemove = new ArrayList<>();
@@ -89,11 +85,13 @@ public class ControllerManager{
             if(!attachedControllers.containsKey(deviceIdentifier)){
                 Controller c = null;
                 switch(entry.getValue()){
-                    case HID4JAVA:
+                    case PureJAVAHid:
                         try {
-                            c= new Hid4JavaController(deviceIdentifier);                            
+                            c= PureJavaHidController.getInstance(deviceIdentifier);
                         } catch (ControllerInitializationFailedException e) {
                             //e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
                         break;
                     case LINUX:
@@ -142,11 +140,13 @@ public class ControllerManager{
     
     private static Map<String, ControllerType> detectHIDDevices() {
         Map<String,ControllerType> connectedDevices = new HashMap<>();
-        for (HidDevice device : HidManager.getHidServices().getAttachedHidDevices()) {
-            if(device.getUsage() == 0x05 || device.getUsage() == 0x04){
-                connectedDevices.put(device.getPath(),ControllerType.HID4JAVA);  
+        
+        for (HidDeviceInfo info :  PureJavaHidApi.enumerateDevices()) {
+            if(info.getUsagePage() == 0x05 || info.getUsagePage() == 0x04 || (info.getVendorId() == 0x57e)){
+                connectedDevices.put(info.getPath(),ControllerType.PureJAVAHid);  
             }
         }
+        
         return connectedDevices;
     }
 

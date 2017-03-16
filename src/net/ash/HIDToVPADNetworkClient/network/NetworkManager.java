@@ -25,17 +25,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.omg.Messaging.SyncScopeHelper;
-
 import lombok.Getter;
 import lombok.Synchronized;
 import lombok.extern.java.Log;
-import net.ash.HIDToVPADNetworkClient.manager.ControllerManager;
 import net.ash.HIDToVPADNetworkClient.network.commands.AttachCommand;
 import net.ash.HIDToVPADNetworkClient.network.commands.DetachCommand;
 import net.ash.HIDToVPADNetworkClient.network.commands.DeviceCommand;
 import net.ash.HIDToVPADNetworkClient.network.commands.PingCommand;
 import net.ash.HIDToVPADNetworkClient.network.commands.ReadCommand;
+import net.ash.HIDToVPADNetworkClient.util.Settings;
 import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
 @Log
@@ -83,8 +81,8 @@ public class NetworkManager implements Runnable{
         int i = 0;
         while(true){
             proccessCommands();
-            Utilities.sleep(10);//TODO: move magic value to Settings
-            if(i++ > 1000/10){//TODO: move magic value to Settings
+            Utilities.sleep(Settings.PROCESS_CMD_INTERVAL);
+            if(i++ > Settings.PING_INTERVAL/Settings.PROCESS_CMD_INTERVAL){
                 ping();
                 i = 0;
             }
@@ -154,7 +152,7 @@ public class NetworkManager implements Runnable{
                 result = true;
             }
         }else{
-            Utilities.sleep(500); //TODO: move magic value to Settings
+            Utilities.sleep(Settings.SENDING_CMD_SLEEP_IF_NOT_CONNECTED); //TODO: move magic value to Settings
         }
         
         //Add the command again on errors

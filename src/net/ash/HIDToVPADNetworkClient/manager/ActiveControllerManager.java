@@ -27,12 +27,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.controller.Controller;
 import net.ash.HIDToVPADNetworkClient.network.NetworkHIDDevice;
 import net.ash.HIDToVPADNetworkClient.network.NetworkManager;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
 import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
+@Log
 public class ActiveControllerManager implements Runnable{
     private static ActiveControllerManager instance = new ActiveControllerManager();   
     
@@ -66,8 +68,7 @@ public class ActiveControllerManager implements Runnable{
             }
         }).start();
     }
-    
-    
+
     private Map<Controller,NetworkHIDDevice> activeControllers =  new HashMap<>();
     public void updateControllerStates() {
         List<Controller> currentControllers = ControllerManager.getActiveControllers();
@@ -79,7 +80,7 @@ public class ActiveControllerManager implements Runnable{
             
             for(Controller c: currentControllers){
                 if(!activeControllers.containsKey(c)){
-                    System.out.println("Added " + c); //TODO: real logging
+                    log.info("Added " + c);
                     toAdd.add(c);
                 }
             }
@@ -87,7 +88,7 @@ public class ActiveControllerManager implements Runnable{
             //removing all old          
             for(Controller c : activeControllers.keySet()){
                 if(!currentControllers.contains(c)){
-                    System.out.println("Removed " + c); //TODO: real logging
+                    log.info("Removed " + c);
                     toRemove.add(c);
                 }
             }
@@ -137,5 +138,19 @@ public class ActiveControllerManager implements Runnable{
                 device.sendAttach();
             }
         }
+    }
+    
+    /**
+     * 
+     * @param HIDhandle
+     * @return returns the controller for the given handle. returns null if the controller with the given handle is not found.
+     */
+    public Controller getControllerByHIDHandle(int HIDhandle) {
+        for(Entry<Controller, NetworkHIDDevice> entry: activeControllers.entrySet()){
+            if(entry.getValue().getHidHandle() == HIDhandle){
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 }

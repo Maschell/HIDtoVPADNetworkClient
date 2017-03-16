@@ -27,4 +27,9 @@ public class XInput14Controller extends XInputController {
     public XInput14Controller(String identifier) throws ControllerInitializationFailedException {
         super(ControllerType.XINPUT14, identifier);
     }
+    
+    @Override
+    public String getInfoText(){
+        return "XInput 1.4 on " + getIdentifier();
+    }
 }
