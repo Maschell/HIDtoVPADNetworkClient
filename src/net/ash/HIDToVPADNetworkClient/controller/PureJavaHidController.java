@@ -40,7 +40,10 @@ public class PureJavaHidController extends Controller implements InputReportList
         if(device.getHidDeviceInfo().getVendorId() == SwitchProController.SWITCH_PRO_CONTROLLER_VID &&
            device.getHidDeviceInfo().getProductId() == SwitchProController.SWITCH_PRO_CONTROLLER_PID){
             return new SwitchProController(deviceIdentifier);
-        }else{
+        }else if(device.getHidDeviceInfo().getVendorId() == DS4NewController.DS4_NEW_CONTROLLER_VID &&
+           device.getHidDeviceInfo().getProductId() == DS4NewController.DS4_NEW_CONTROLLER_PID){
+            return new DS4NewController(deviceIdentifier);
+        }else {
             return new PureJavaHidController(deviceIdentifier);
         }
     }
