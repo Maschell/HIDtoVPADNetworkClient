@@ -35,6 +35,7 @@ import net.ash.HIDToVPADNetworkClient.network.commands.DetachCommand;
 import net.ash.HIDToVPADNetworkClient.network.commands.DeviceCommand;
 import net.ash.HIDToVPADNetworkClient.network.commands.ReadCommand;
 import net.ash.HIDToVPADNetworkClient.util.HandleFoundry;
+import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
 public class NetworkHIDDevice {
     @Getter private final short vid;

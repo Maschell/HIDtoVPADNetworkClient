@@ -142,7 +142,7 @@ public class ControllerManager{
         Map<String,ControllerType> connectedDevices = new HashMap<>();
         
         for (HidDeviceInfo info :  PureJavaHidApi.enumerateDevices()) {
-            if(info.getUsagePage() == 0x05 || info.getUsagePage() == 0x04 || (info.getVendorId() == 0x57e)){
+            if(info.getUsagePage() == 0x05 || info.getUsagePage() == 0x04 || (info.getVendorId() == 0x57e) || (info.getVendorId() == 0x054c) ){
                 connectedDevices.put(info.getPath(),ControllerType.PureJAVAHid);  
             }
         }

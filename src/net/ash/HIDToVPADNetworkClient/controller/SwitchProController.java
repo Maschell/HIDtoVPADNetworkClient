@@ -27,7 +27,6 @@ public class SwitchProController extends PureJavaHidController {
     public static final short SWITCH_PRO_CONTROLLER_VID = 0x57e; 
     public static final short SWITCH_PRO_CONTROLLER_PID = 0x2009; 
     
-    
     public SwitchProController(String identifier) throws ControllerInitializationFailedException {
         super(identifier);
         //truncate package to 11;

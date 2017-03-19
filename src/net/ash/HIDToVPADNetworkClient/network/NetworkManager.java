@@ -270,8 +270,9 @@ public class NetworkManager implements Runnable{
         byte[] rawCommand;
         try {
             rawCommand = Protocol.getRawReadDataToSend(readCommands);
-            System.out.println("UDP Packet: "+ Utilities.ByteArrayToString(rawCommand));
-            sendUDP(rawCommand);
+            if(sendUDP(rawCommand) == true){
+                System.out.println("UDP Packet sent: "+ Utilities.ByteArrayToString(rawCommand));
+            }
         } catch (IOException e) {
             System.out.println("Sending read data failed.");
         }
@@ -279,7 +280,7 @@ public class NetworkManager implements Runnable{
     
     private boolean sendUDP(byte[] rawCommand) {
         boolean result = false;
-        if(udpClient != null){
+        if(udpClient != null && isConnected()){
             try {
                 udpClient.send(rawCommand);
                 result = true;
