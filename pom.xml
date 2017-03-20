@@ -1,60 +1,94 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>net.ash</groupId>
-  <artifactId>HIDToVPADNetworkClient</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <build>
-    <sourceDirectory>src</sourceDirectory>
-    <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.5.1</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
-      </plugin>
-      <plugin>
-		  <artifactId>maven-assembly-plugin</artifactId>
-		  <configuration>
-		  
-			<archive>
-			  <manifest>
-				<mainClass>net.ash.HIDToVPADNetworkClient.Main</mainClass>
-			  </manifest>
-			</archive>
-			<descriptorRefs>
-			  <descriptorRef>jar-with-dependencies</descriptorRef>
-			</descriptorRefs>
-			
-		  </configuration>
-		</plugin>
-    </plugins>
-  </build>
-  <repositories>
-   <repository>
-        <id>jitpack.io</id>           <!-- JitPack allows github repo to be used as a maven repo -->
-        <url>https://jitpack.io</url> <!-- For documentation: http://jitpack.io/ -->
-    </repository>
-    
-	</repositories>
-  <dependencies>
-  	<dependency>
-  		<groupId>org.projectlombok</groupId>
-  		<artifactId>lombok</artifactId>
-  		<version>1.16.12</version>
-  		<scope>provided</scope>
-  	</dependency>
-  	  <dependency>
-        <groupId>com.github.strikerx3</groupId>
-        <artifactId>jxinput</artifactId>
-        <version>1eb4087</version>    <!-- JXInput 0.7 -->
-    </dependency>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  	  <dependency>
-  	  	<groupId>purejavahidapi</groupId>
-  	  	<artifactId>purejavahidapi</artifactId>
-  	  	<version>0.0.1</version>
-  	  </dependency>
-  </dependencies>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>net.ash</groupId>
+	<artifactId>HIDToVPADNetworkClient</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+	</properties>
+
+	<name>HID To VPAD Network Client</name>
+	<url>https://github.com/QuarkTheAwesome/HIDToVPADNetworkClient</url>
+
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<defaultGoal>clean package</defaultGoal>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.5.1</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<!-- Generate a jar with dependencies -->
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>net.ash.HIDToVPADNetworkClient.Main</mainClass>
+						</manifest>
+					</archive>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					<!-- Stick jar in root dir, if you want -->
+					<!--<outputDirectory>./</outputDirectory>-->
+				</configuration>
+				<!-- Hook the "package" stage -->
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attached</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Disable the default jar output -->
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.3.1</version>
+				<executions>
+					<execution>
+						<id>default-jar</id>
+						<phase>none</phase>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>           <!-- JitPack allows github repo to be used as a maven repo -->
+			<url>https://jitpack.io</url> <!-- For documentation: http://jitpack.io/ -->
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.16.12</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.github.strikerx3</groupId>
+			<artifactId>jxinput</artifactId>
+			<version>1eb4087</version>    <!-- JXInput 0.7 -->
+		</dependency>
+		<dependency>
+			<groupId>com.github.QuarkTheAwesome</groupId>
+			<artifactId>purejavahidapi</artifactId>
+			<version>master-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
 </project>
