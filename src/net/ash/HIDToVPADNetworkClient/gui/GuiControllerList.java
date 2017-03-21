@@ -68,7 +68,7 @@ public class GuiControllerList extends JPanel {
 		
 		List<GuiControllerListItem> newComponents = new ArrayList<GuiControllerListItem>();
 		
-		Map<Controller,GuiControllerListItem> components = new HashMap<>();
+		Map<Controller,GuiControllerListItem> components = new HashMap<Controller,GuiControllerListItem>();
         for (Component component : innerScrollPanel.getComponents()) {
             if (component instanceof GuiControllerListItem) {
                 GuiControllerListItem comp = (GuiControllerListItem) component;

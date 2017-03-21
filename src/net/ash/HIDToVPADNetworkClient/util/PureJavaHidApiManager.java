@@ -32,6 +32,8 @@ public class PureJavaHidApiManager {
     
     private PureJavaHidApiManager(){}
     
+    public static boolean MAC_OS_X;
+    
     /**
      * Searches the corresponding HIDDevice for the given path
      * @param path Path of the HIDDevice
@@ -41,9 +43,15 @@ public class PureJavaHidApiManager {
     public static HidDevice getDeviceByPath(String path) throws IOException{
         List<HidDeviceInfo> devList = PureJavaHidApi.enumerateDevices();
         for (HidDeviceInfo info : devList) {
-            if(info.getPath().equals(path)){
-                return PureJavaHidApi.openDevice(info);
-            }
+        	if (MAC_OS_X) {
+        		if(info.getPath().substring(0, 13).equals(path)){
+                    return PureJavaHidApi.openDevice(info);
+                }
+        	} else {
+        		if(info.getPath().equals(path)){
+                    return PureJavaHidApi.openDevice(info);
+                }
+        	}
         }
         return null;
     }

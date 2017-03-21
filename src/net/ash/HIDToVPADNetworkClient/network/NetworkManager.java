@@ -43,7 +43,7 @@ public class NetworkManager implements Runnable{
         
     private static NetworkManager instance = null;
     
-    private List<DeviceCommand> ownCommands = new ArrayList<>();
+    private List<DeviceCommand> ownCommands = new ArrayList<DeviceCommand>();
     
     private NetworkManager() {
         
@@ -56,7 +56,7 @@ public class NetworkManager implements Runnable{
         return instance;
     }
     
-    @Getter private List<NetworkHIDDevice> devices = new ArrayList<>();
+    @Getter private List<NetworkHIDDevice> devices = new ArrayList<NetworkHIDDevice>();
     
     public void addHIDDevice(NetworkHIDDevice device){
         if(!getDevices().contains(device)){
@@ -69,7 +69,7 @@ public class NetworkManager implements Runnable{
     /*
      * We want to remove them at the end of a cycle. To make sure the detach was send before removing.
      */
-    @Getter private List<NetworkHIDDevice> toRemove = new ArrayList<>();
+    @Getter private List<NetworkHIDDevice> toRemove = new ArrayList<NetworkHIDDevice>();
     @Synchronized("toRemove")
     public void removeHIDDevice(NetworkHIDDevice device) {
         device.sendDetach();
@@ -94,7 +94,7 @@ public class NetworkManager implements Runnable{
     }
    
     public void proccessCommands(){
-        List<DeviceCommand> commands = new ArrayList<>();
+        List<DeviceCommand> commands = new ArrayList<DeviceCommand>();
         commands.addAll(ownCommands); //TODO: Does this need a synchronized block? It _should_ be only access from this thread. Need to think about it
         ownCommands.clear();
         synchronized (toRemove) {
@@ -108,7 +108,7 @@ public class NetworkManager implements Runnable{
         if(commands.isEmpty())return;
         
         //Split up into "read commands" and other commands.
-        List<ReadCommand> readCommands = new ArrayList<>();
+        List<ReadCommand> readCommands = new ArrayList<ReadCommand>();
         {                
             for(DeviceCommand command : commands){
                 if(command instanceof ReadCommand){

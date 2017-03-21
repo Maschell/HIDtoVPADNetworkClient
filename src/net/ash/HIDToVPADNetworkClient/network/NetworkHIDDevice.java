@@ -45,7 +45,7 @@ public class NetworkHIDDevice {
     @Getter @Setter private byte padslot;
     
     @Getter private int hidHandle = HandleFoundry.next();
-    @Getter(AccessLevel.PRIVATE) private List<DeviceCommand> commands = new ArrayList<>();
+    @Getter(AccessLevel.PRIVATE) private List<DeviceCommand> commands = new ArrayList<DeviceCommand>();
     
     @Getter(AccessLevel.PRIVATE) @Setter(AccessLevel.PRIVATE) private ReadCommand latestRead;
     
@@ -83,7 +83,7 @@ public class NetworkHIDDevice {
     }
     
     public Collection<? extends DeviceCommand> getCommandList() {
-        List<DeviceCommand> commands = new ArrayList<>();
+        List<DeviceCommand> commands = new ArrayList<DeviceCommand>();
         commands.addAll(getCommands());
         DeviceCommand lastRead;
         

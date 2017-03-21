@@ -69,12 +69,12 @@ public class ActiveControllerManager implements Runnable{
         }).start();
     }
 
-    private Map<Controller,NetworkHIDDevice> activeControllers =  new HashMap<>();
+    private Map<Controller,NetworkHIDDevice> activeControllers =  new HashMap<Controller,NetworkHIDDevice>();
     public void updateControllerStates() {
         List<Controller> currentControllers = ControllerManager.getActiveControllers();
         
-        List<Controller> toAdd = new ArrayList<>();
-        List<Controller> toRemove = new ArrayList<>();
+        List<Controller> toAdd = new ArrayList<Controller>();
+        List<Controller> toRemove = new ArrayList<Controller>();
         synchronized (activeControllers) {
             //Adding all missing.
             

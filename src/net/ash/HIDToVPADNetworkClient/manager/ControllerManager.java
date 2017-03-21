@@ -43,11 +43,12 @@ import net.ash.HIDToVPADNetworkClient.controller.XInput13Controller;
 import net.ash.HIDToVPADNetworkClient.controller.XInput14Controller;
 import net.ash.HIDToVPADNetworkClient.controller.XInputController;
 import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
+import net.ash.HIDToVPADNetworkClient.util.PureJavaHidApiManager;
 import purejavahidapi.HidDeviceInfo;
 import purejavahidapi.PureJavaHidApi;
 
 public class ControllerManager{
-	private static Map<String,Controller> attachedControllers = new HashMap<>();
+	private static Map<String,Controller> attachedControllers = new HashMap<String,Controller>();
     
 	/**
 	 * Detects all attached controller.
@@ -57,18 +58,24 @@ public class ControllerManager{
         String os = System.getProperty("os.name");
         //System.out.println("[ControllerDetector] OS: " + os);
         
-        Map<String,ControllerType> connectedDevices = new HashMap<>();
+        Map<String,ControllerType> connectedDevices = new HashMap<String,ControllerType>();
         
         if (os.contains("Linux")) {
             connectedDevices.putAll(detectLinuxControllers());
         } else if (os.contains("Windows")) {
             connectedDevices.putAll(detectWindowsControllers());
         }
-     
-        connectedDevices.putAll(detectHIDDevices());
+        
+        if (os.contains("Mac OS X")) {
+        	connectedDevices.putAll(detectOSXHIDDevices());
+        	PureJavaHidApiManager.MAC_OS_X = true;
+        } else {
+        	connectedDevices.putAll(detectHIDDevices());
+        	PureJavaHidApiManager.MAC_OS_X = false;
+        }
         
         //Remove detached devices
-        List<String> toRemove = new ArrayList<>();
+        List<String> toRemove = new ArrayList<String>();
         for(String s : attachedControllers.keySet()){
             if(!connectedDevices.containsKey(s)){
                 toRemove.add(s);
@@ -135,11 +142,11 @@ public class ControllerManager{
     
     @Synchronized("attachedControllers")
     public static List<Controller> getAttachedControllers() {
-        return new ArrayList<>(attachedControllers.values());
+        return new ArrayList<Controller>(attachedControllers.values());
     }
     
     private static Map<String, ControllerType> detectHIDDevices() {
-        Map<String,ControllerType> connectedDevices = new HashMap<>();
+        Map<String,ControllerType> connectedDevices = new HashMap<String,ControllerType>();
         
         for (HidDeviceInfo info :  PureJavaHidApi.enumerateDevices()) {
             if(info.getUsagePage() == 0x05 || info.getUsagePage() == 0x04 || (info.getVendorId() == 0x57e) || (info.getVendorId() == 0x054c) ){
@@ -149,9 +156,21 @@ public class ControllerManager{
         
         return connectedDevices;
     }
+    
+    private static Map<String, ControllerType> detectOSXHIDDevices() {
+    	Map<String,ControllerType> connectedDevices = new HashMap<String,ControllerType>();
+    	
+    	for (HidDeviceInfo info :  PureJavaHidApi.enumerateDevices()) {
+            if(info.getUsagePage() == 0x05 || info.getUsagePage() == 0x04 || (info.getVendorId() == 0x57e) || (info.getVendorId() == 0x054c) ){
+                connectedDevices.put(info.getPath().substring(0, 13),ControllerType.PureJAVAHid);  
+            }
+        }
+        
+        return connectedDevices;
+    }
 
     private static Map<String, ControllerType> detectWindowsControllers() {
-        Map<String,ControllerType> result = new HashMap<>();
+        Map<String,ControllerType> result = new HashMap<String,ControllerType>();
         ControllerType type = ControllerType.XINPUT13;
         if(XInputDevice.isAvailable() || XInputDevice14.isAvailable()) {
             if(XInputDevice14.isAvailable()){
@@ -175,7 +194,7 @@ public class ControllerManager{
     }
 
     private static Map<String, ControllerType> detectLinuxControllers() {
-        Map<String,ControllerType> result = new HashMap<>();
+        Map<String,ControllerType> result = new HashMap<String,ControllerType>();
         File devInput = new File("/dev/input");
         if (!devInput.exists()) return result;
         
@@ -194,7 +213,7 @@ public class ControllerManager{
     
     @Synchronized("attachedControllers")
     public static List<Controller> getActiveControllers() {
-        List<Controller> active = new ArrayList<>();
+        List<Controller> active = new ArrayList<Controller>();
         for(Controller c : attachedControllers.values()){
             if(c.isActive()){
                 active.add(c);
