@@ -60,7 +60,7 @@ public abstract class Controller implements Runnable{
     public void run() {
         boolean shutdownState = shutdown;
         while(!shutdownState){
-            Utilities.sleep(Settings.DETECT_CONTROLLER_INTERVAL);
+            Utilities.sleep(Settings.getDetectControllerInterval());
             while(isActive()) {
                 byte[] newData =  pollLatestData();
                 if(newData != null){
@@ -78,7 +78,7 @@ public abstract class Controller implements Runnable{
     }
     
     protected void doSleepAfterPollingData() {
-        Utilities.sleep(Settings.SLEEP_AFER_POLLING);
+        Utilities.sleep(Settings.getSleepAfterPolling());
     }
 
     @Synchronized("dataLock")

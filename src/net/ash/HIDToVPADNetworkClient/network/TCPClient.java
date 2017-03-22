@@ -45,7 +45,7 @@ public class TCPClient {
 	@Getter	private int clientID = HandleFoundry.next();
 	
 	@Getter @Setter(AccessLevel.PRIVATE)
-	private int shouldRetry = Settings.MAXIMUM_TRIES_FOR_RECONNECTING;
+	private int shouldRetry = Settings.getMaxTriesForReconnecting();
 	
 	private String ip;
 	
@@ -86,7 +86,7 @@ public class TCPClient {
 	
 	public synchronized boolean abort(){
 		try {
-		    shouldRetry = Settings.MAXIMUM_TRIES_FOR_RECONNECTING;
+		    shouldRetry = Settings.getMaxTriesForReconnecting();
             sock.close();
             clientID = HandleFoundry.next();
         } catch (IOException e) {
@@ -102,7 +102,7 @@ public class TCPClient {
             out.flush();
         }catch(IOException e){
             try {
-                if(shouldRetry++ < Settings.MAXIMUM_TRIES_FOR_RECONNECTING){
+                if(shouldRetry++ < Settings.getMaxTriesForReconnecting()){
                     System.out.println("Trying again to connect! Attempt number " + shouldRetry);
                     connect(ip); //TODO: this is for reconnecting when the WiiU switches the application. But this breaks disconnecting, woops.
                 }else{
@@ -142,6 +142,6 @@ public class TCPClient {
     }
 
     public boolean isShouldRetry() {
-        return this.shouldRetry < Settings.MAXIMUM_TRIES_FOR_RECONNECTING;
+        return this.shouldRetry < Settings.getMaxTriesForReconnecting();
     }
 }

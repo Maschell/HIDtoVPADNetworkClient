@@ -81,8 +81,8 @@ public class NetworkManager implements Runnable{
         int i = 0;
         while(true){
             proccessCommands();
-            Utilities.sleep(Settings.PROCESS_CMD_INTERVAL);
-            if(i++ > Settings.PING_INTERVAL/Settings.PROCESS_CMD_INTERVAL){
+            Utilities.sleep(Settings.getProcessCmdInterval());
+            if(i++ > Settings.getPingInterval() / Settings.getProcessCmdInterval()){
                 ping();
                 i = 0;
             }
@@ -152,7 +152,7 @@ public class NetworkManager implements Runnable{
                 result = true;
             }
         }else{
-            Utilities.sleep(Settings.SENDING_CMD_SLEEP_IF_NOT_CONNECTED); //TODO: move magic value to Settings
+            Utilities.sleep(Settings.getSendingCmdSleepIfNotConnected());
         }
         
         //Add the command again on errors

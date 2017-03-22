@@ -37,6 +37,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import net.ash.HIDToVPADNetworkClient.network.NetworkManager;
+import net.ash.HIDToVPADNetworkClient.util.Settings;
 
 public class GuiInputControls extends JPanel implements ActionListener {	
 	private static final long serialVersionUID = 1L;
@@ -68,7 +69,7 @@ public class GuiInputControls extends JPanel implements ActionListener {
 		
 		ipTextBox = new JTextField();
 		ipTextBox.setColumns(15);
-		ipTextBox.setText("192.168.0.35");
+		ipTextBox.setText(Settings.getIpAddr());
 		ipTextBoxWrap = new JPanel(new FlowLayout());
 		ipTextBoxWrap.add(new JLabel("IP: "));
 		ipTextBoxWrap.add(ipTextBox);

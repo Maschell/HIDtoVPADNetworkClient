@@ -26,6 +26,7 @@ import javax.swing.SwingUtilities;
 import net.ash.HIDToVPADNetworkClient.gui.GuiMain;
 import net.ash.HIDToVPADNetworkClient.manager.ActiveControllerManager;
 import net.ash.HIDToVPADNetworkClient.network.NetworkManager;
+import net.ash.HIDToVPADNetworkClient.util.Settings;
 
 /* Ash's todo list
  * TODO finish HidController
@@ -35,6 +36,7 @@ import net.ash.HIDToVPADNetworkClient.network.NetworkManager;
 public class Main {
 	public static void main(String[] args) {	 
 		System.out.println("Hello World!");
+		Settings.loadSettings();
 		try {
 			new Thread(ActiveControllerManager.getInstance()).start();
 			new Thread(NetworkManager.getInstance()).start();

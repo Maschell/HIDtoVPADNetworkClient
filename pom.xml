@@ -17,6 +17,12 @@
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
+		<!-- Band-aid over a knife wound, I know. Restructure is later. -->
+		<resources>
+			<resource>
+				<directory>resources</directory>
+			</resource>
+		</resources>
 		<defaultGoal>clean package</defaultGoal>
 		<plugins>
 			<plugin>
