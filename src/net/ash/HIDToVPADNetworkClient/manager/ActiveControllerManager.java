@@ -53,7 +53,7 @@ public class ActiveControllerManager implements Runnable{
                 while(true){
                     updateControllerStates();
                     ControllerManager.detectControllers();                        
-                    Utilities.sleep(Settings.getDetectControllerInterval());
+                    Utilities.sleep(Settings.DETECT_CONTROLLER_INTERVAL);
                 }
             }
         }).start();
@@ -63,7 +63,7 @@ public class ActiveControllerManager implements Runnable{
             public void run() {
                 while(true){
                     handleControllerInputs();
-                    Utilities.sleep(Settings.getHandleInputsInterval());
+                    Utilities.sleep(Settings.HANDLE_INPUTS_INTERVAL);
                 }
             }
         }).start();

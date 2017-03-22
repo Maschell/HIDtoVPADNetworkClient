@@ -134,6 +134,7 @@ public class GuiInputControls extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
+                Settings.setIpAddr(ipTextBox.getText());
                 if(NetworkManager.getInstance().isReconnecting()){
                     
                 }else{
