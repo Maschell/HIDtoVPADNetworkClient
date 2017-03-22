@@ -25,10 +25,13 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 import net.ash.HIDToVPADNetworkClient.Main;
+import net.ash.HIDToVPADNetworkClient.util.Settings;
+
 public class GuiCloseListener implements WindowListener {
 
     @Override
     public void windowClosing(WindowEvent arg0) {
+        Settings.saveSettings();
         Main.initiateShutdown();
     }
     

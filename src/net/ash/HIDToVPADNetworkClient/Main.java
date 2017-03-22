@@ -32,10 +32,8 @@ import net.ash.HIDToVPADNetworkClient.util.Settings;
  * TODO finish HidController
  * TODO locale
  */
-
 public class Main {
-	public static void main(String[] args) {	 
-		System.out.println("Hello World!");
+	public static void main(String[] args){	    
 		Settings.loadSettings();
 		try {
 			new Thread(ActiveControllerManager.getInstance()).start();
@@ -48,7 +46,7 @@ public class Main {
 			public void run() {
 				GuiMain.createGUI();
 			}
-		});
+		});		
 	}
 
     public static void fatal() {
