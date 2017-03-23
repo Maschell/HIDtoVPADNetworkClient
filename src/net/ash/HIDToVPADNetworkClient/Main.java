@@ -33,29 +33,29 @@ import net.ash.HIDToVPADNetworkClient.util.Settings;
  * TODO locale
  */
 public class Main {
-	public static void main(String[] args){	    
-		Settings.loadSettings();
-		try {
-			new Thread(ActiveControllerManager.getInstance()).start();
-			new Thread(NetworkManager.getInstance()).start();
-		} catch (Exception e) {
-			e.printStackTrace();
-			fatal();
-		}		
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				GuiMain.createGUI();
-			}
-		});		
-	}
+    public static void main(String[] args) {
+        Settings.loadSettings();
+        try {
+            new Thread(ActiveControllerManager.getInstance()).start();
+            new Thread(NetworkManager.getInstance()).start();
+        } catch (Exception e) {
+            e.printStackTrace();
+            fatal();
+        }
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                GuiMain.createGUI();
+            }
+        });
+    }
 
     public static void fatal() {
-		System.err.println("HID To VPAD Network Client encountered an irrecoverable error.");
-		System.err.println("Exiting...");
-		System.exit(1);
-	}
-	
-	public static void initiateShutdown() {
-		System.exit(0);
-	}
+        System.err.println("HID To VPAD Network Client encountered an irrecoverable error.");
+        System.err.println("Exiting...");
+        System.exit(1);
+    }
+
+    public static void initiateShutdown() {
+        System.exit(0);
+    }
 }

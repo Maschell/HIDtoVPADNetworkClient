@@ -29,25 +29,26 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 public class UDPClient {
-	private final DatagramSocket sock;
-	private final InetAddress host;
-	
-	private UDPClient(String ip) throws SocketException, UnknownHostException{	
+    private final DatagramSocket sock;
+    private final InetAddress host;
+
+    private UDPClient(String ip) throws SocketException, UnknownHostException {
         sock = new DatagramSocket();
-        host = InetAddress.getByName(ip);        
-	}
-	public static UDPClient createUDPClient(String ip){
-	    UDPClient result = null;
+        host = InetAddress.getByName(ip);
+    }
+
+    public static UDPClient createUDPClient(String ip) {
+        UDPClient result = null;
         try {
             result = new UDPClient(ip);
         } catch (Exception e) {
-            //handle?
+            // handle?
         }
         return result;
-	}
-	
-	public void send(byte[] data) throws IOException {
-		DatagramPacket packet = new DatagramPacket(data, data.length, host, Protocol.UDP_PORT);
-		sock.send(packet);
-	}
+    }
+
+    public void send(byte[] data) throws IOException {
+        DatagramPacket packet = new DatagramPacket(data, data.length, host, Protocol.UDP_PORT);
+        sock.send(packet);
+    }
 }

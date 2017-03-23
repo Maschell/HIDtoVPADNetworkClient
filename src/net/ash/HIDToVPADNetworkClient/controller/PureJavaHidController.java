@@ -36,73 +36,73 @@ import purejavahidapi.InputReportListener;
 public class PureJavaHidController extends Controller implements InputReportListener {
     public static Controller getInstance(String deviceIdentifier) throws IOException, ControllerInitializationFailedException {
         HidDevice device = PureJavaHidApiManager.getDeviceByPath(deviceIdentifier);
-        //We use a special version to optimize the data for the switch pro controller
-        if(device.getHidDeviceInfo().getVendorId() == SwitchProController.SWITCH_PRO_CONTROLLER_VID &&
-           device.getHidDeviceInfo().getProductId() == SwitchProController.SWITCH_PRO_CONTROLLER_PID){
+        // We use a special version to optimize the data for the switch pro
+        // controller
+        if (device.getHidDeviceInfo().getVendorId() == SwitchProController.SWITCH_PRO_CONTROLLER_VID
+                && device.getHidDeviceInfo().getProductId() == SwitchProController.SWITCH_PRO_CONTROLLER_PID) {
             return new SwitchProController(deviceIdentifier);
-        }else if(device.getHidDeviceInfo().getVendorId() == DS4NewController.DS4_NEW_CONTROLLER_VID &&
-           device.getHidDeviceInfo().getProductId() == DS4NewController.DS4_NEW_CONTROLLER_PID){
+        } else if (device.getHidDeviceInfo().getVendorId() == DS4NewController.DS4_NEW_CONTROLLER_VID
+                && device.getHidDeviceInfo().getProductId() == DS4NewController.DS4_NEW_CONTROLLER_PID) {
             return new DS4NewController(deviceIdentifier);
-        }else {
+        } else {
             return new PureJavaHidController(deviceIdentifier);
         }
     }
-    
+
     public PureJavaHidController(String identifier) throws ControllerInitializationFailedException {
         super(ControllerType.PureJAVAHid, identifier);
     }
-    
+
     private Object dataLock = new Object();
     protected byte[] currentData = new byte[1];
 
     protected int PACKET_LENGTH = 64;
-	
-	@Getter @Setter(AccessLevel.PRIVATE) 
-	private HidDevice hidDevice;
+
+    @Getter @Setter(AccessLevel.PRIVATE) private HidDevice hidDevice;
 
     @Override
-	public boolean initController(String identifier) {
+    public boolean initController(String identifier) {
         HidDevice device;
         try {
             device = PureJavaHidApiManager.getDeviceByPath(identifier);
-         
+
             device.setInputReportListener(this);
             setHidDevice(device);
             return true;
-            
+
         } catch (IOException e) {
             e.printStackTrace();
-        }       
-		return false;
-	}
-	
-	@Override
-	@Synchronized("dataLock")
+        }
+        return false;
+    }
+
+    @Override
+    @Synchronized("dataLock")
     public byte[] pollLatestData() {
         return currentData.clone();
     }
 
-	@Override
-	public void destroyDriver() {
-		getHidDevice().close();
-	}
-	
-	@Override
-	public short getVID() {
-		return getHidDevice().getHidDeviceInfo().getVendorId();
-	}
-	
-	@Override
-	public short getPID() {
-		return getHidDevice().getHidDeviceInfo().getProductId();
-	}
+    @Override
+    public void destroyDriver() {
+        getHidDevice().close();
+    }
+
+    @Override
+    public short getVID() {
+        return getHidDevice().getHidDeviceInfo().getVendorId();
+    }
+
+    @Override
+    public short getPID() {
+        return getHidDevice().getHidDeviceInfo().getProductId();
+    }
 
     @Override
     @Synchronized("dataLock")
     public void onInputReport(HidDevice source, byte reportID, byte[] reportData, int reportLength) {
-        if(isActive()){
+        if (isActive()) {
             int length = PACKET_LENGTH;
-            if(reportLength < length){
+            if (reportLength < length) {
                 length = reportLength;
             }
             currentData = Arrays.copyOfRange(reportData, 0, length);
@@ -111,15 +111,15 @@ public class PureJavaHidController extends Controller implements InputReportList
 
     @Override
     public String getInfoText() {
-        //TODO:
-        if(getVID() == 0x57e){
-            if(getPID() == 0x2006){
+        // TODO:
+        if (getVID() == 0x57e) {
+            if (getPID() == 0x2006) {
                 return "Joy-Con (L) on " + getIdentifier();
-            }else if(getPID() == 0x2007){
+            } else if (getPID() == 0x2007) {
                 return "Joy-Con (R) on " + getIdentifier();
             }
         }
-        
+
         return "USB HID on " + getIdentifier();
     }
 }

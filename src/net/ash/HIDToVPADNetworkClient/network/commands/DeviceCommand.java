@@ -20,18 +20,19 @@
  * SOFTWARE.
  *******************************************************************************/
 package net.ash.HIDToVPADNetworkClient.network.commands;
+
 import lombok.Data;
 import net.ash.HIDToVPADNetworkClient.network.NetworkHIDDevice;
 
 @Data
 public abstract class DeviceCommand {
-	private final int handle;
-	private final NetworkHIDDevice sender;
-	private final Class<? extends DeviceCommand> type;
-	
-	protected DeviceCommand(int hidHandle,NetworkHIDDevice sender){
-		this.handle = hidHandle;
-		this.sender = sender;
-		this.type = this.getClass();
-	}	
+    private final int handle;
+    private final NetworkHIDDevice sender;
+    private final Class<? extends DeviceCommand> type;
+
+    protected DeviceCommand(int hidHandle, NetworkHIDDevice sender) {
+        this.handle = hidHandle;
+        this.sender = sender;
+        this.type = this.getClass();
+    }
 }

@@ -24,13 +24,14 @@ package net.ash.HIDToVPADNetworkClient.network.commands;
 import lombok.Getter;
 import net.ash.HIDToVPADNetworkClient.network.NetworkHIDDevice;
 
-public class ReadCommand extends DeviceCommand{    
+public class ReadCommand extends DeviceCommand {
     @Getter private final byte[] data;
-    public ReadCommand(int hidHandle,byte[] data, NetworkHIDDevice sender) {
+
+    public ReadCommand(int hidHandle, byte[] data, NetworkHIDDevice sender) {
         super(hidHandle, sender);
         this.data = data;
     }
-    
+
     @Override
     public String toString() {
         return "ReadCommand [handle=" + getHandle() + ", sender=" + getSender() + "]";

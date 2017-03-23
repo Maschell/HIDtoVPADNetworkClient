@@ -35,33 +35,33 @@ import net.ash.HIDToVPADNetworkClient.util.Settings;
 import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
 @Log
-public class ActiveControllerManager implements Runnable{
-    private static ActiveControllerManager instance = new ActiveControllerManager();   
-    
-    private ActiveControllerManager(){        
+public class ActiveControllerManager implements Runnable {
+    private static ActiveControllerManager instance = new ActiveControllerManager();
+
+    private ActiveControllerManager() {
     }
-    
-    public static ActiveControllerManager getInstance(){
+
+    public static ActiveControllerManager getInstance() {
         return instance;
     }
-    
+
     @Override
-    public void run() { //TODO: Add mechanism to stop these threads?
-        new Thread(new Runnable() {            
+    public void run() { // TODO: Add mechanism to stop these threads?
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                while(true){
+                while (true) {
                     updateControllerStates();
-                    ControllerManager.detectControllers();                        
+                    ControllerManager.detectControllers();
                     Utilities.sleep(Settings.DETECT_CONTROLLER_INTERVAL);
                 }
             }
         }).start();
-        
-        new Thread(new Runnable() {            
+
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                while(true){
+                while (true) {
                     handleControllerInputs();
                     Utilities.sleep(Settings.HANDLE_INPUTS_INTERVAL);
                 }
@@ -69,38 +69,39 @@ public class ActiveControllerManager implements Runnable{
         }).start();
     }
 
-    private Map<Controller,NetworkHIDDevice> activeControllers =  new HashMap<Controller,NetworkHIDDevice>();
+    private Map<Controller, NetworkHIDDevice> activeControllers = new HashMap<Controller, NetworkHIDDevice>();
+
     public void updateControllerStates() {
         List<Controller> currentControllers = ControllerManager.getActiveControllers();
-        
+
         List<Controller> toAdd = new ArrayList<Controller>();
         List<Controller> toRemove = new ArrayList<Controller>();
         synchronized (activeControllers) {
-            //Adding all missing.
-            
-            for(Controller c: currentControllers){
-                if(!activeControllers.containsKey(c)){
+            // Adding all missing.
+
+            for (Controller c : currentControllers) {
+                if (!activeControllers.containsKey(c)) {
                     log.info("Added " + c);
                     toAdd.add(c);
                 }
             }
-            
-            //removing all old          
-            for(Controller c : activeControllers.keySet()){
-                if(!currentControllers.contains(c)){
+
+            // removing all old
+            for (Controller c : activeControllers.keySet()) {
+                if (!currentControllers.contains(c)) {
                     log.info("Removed " + c);
                     toRemove.add(c);
                 }
             }
         }
-            
+
         addController(toAdd);
         removeController(toRemove);
     }
-    
+
     private void removeController(List<Controller> toRemove) {
         synchronized (activeControllers) {
-            for(Controller c : toRemove){
+            for (Controller c : toRemove) {
                 NetworkManager.getInstance().removeHIDDevice(activeControllers.get(c));
                 c.destroyDriver();
                 activeControllers.remove(c);
@@ -110,44 +111,44 @@ public class ActiveControllerManager implements Runnable{
 
     private void addController(List<Controller> toAdd) {
         synchronized (activeControllers) {
-            for(Controller c : toAdd){
+            for (Controller c : toAdd) {
                 NetworkHIDDevice hiddevice = new NetworkHIDDevice(c.getVID(), c.getPID());
                 hiddevice.sendAttach();
                 NetworkManager.getInstance().addHIDDevice(hiddevice);
-                activeControllers.put(c,hiddevice);
+                activeControllers.put(c, hiddevice);
             }
         }
     }
-    
+
     private void handleControllerInputs() {
         synchronized (activeControllers) {
-            for(Entry<Controller, NetworkHIDDevice> entry : activeControllers.entrySet()){
+            for (Entry<Controller, NetworkHIDDevice> entry : activeControllers.entrySet()) {
                 byte[] data = entry.getKey().getLatestData();
-                if(data != null){
+                if (data != null) {
                     NetworkHIDDevice device = entry.getValue();
                     device.sendRead(data);
                 }
             }
         }
     }
-    
+
     public void attachAllActiveControllers() {
         synchronized (activeControllers) {
-            for(Entry<Controller, NetworkHIDDevice> entry : activeControllers.entrySet()){
+            for (Entry<Controller, NetworkHIDDevice> entry : activeControllers.entrySet()) {
                 NetworkHIDDevice device = entry.getValue();
                 device.sendAttach();
             }
         }
     }
-    
+
     /**
      * 
      * @param HIDhandle
      * @return returns the controller for the given handle. returns null if the controller with the given handle is not found.
      */
     public Controller getControllerByHIDHandle(int HIDhandle) {
-        for(Entry<Controller, NetworkHIDDevice> entry: activeControllers.entrySet()){
-            if(entry.getValue().getHidHandle() == HIDhandle){
+        for (Entry<Controller, NetworkHIDDevice> entry : activeControllers.entrySet()) {
+            if (entry.getValue().getHidHandle() == HIDhandle) {
                 return entry.getKey();
             }
         }

@@ -31,42 +31,43 @@ import javax.swing.JPanel;
 import net.ash.HIDToVPADNetworkClient.Main;
 
 public class GuiMain extends JPanel {
-	private static final long serialVersionUID = 1L;
-	private static GuiMain instance;
+    private static final long serialVersionUID = 1L;
+    private static GuiMain instance;
 
-	public static void createGUI() {
-		JFrame frame = new JFrame("HID To VPAD Network Client");
-		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		frame.addWindowListener(new GuiCloseListener());
-		
-		instance = new GuiMain();
-		JComponent newContentPane = instance;
-		newContentPane.setOpaque(true);
-		frame.setContentPane(newContentPane);
-		
-		frame.pack();
-		frame.setVisible(true);
-	}
+    public static void createGUI() {
+        JFrame frame = new JFrame("HID To VPAD Network Client");
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        frame.addWindowListener(new GuiCloseListener());
 
-	private GuiControllerList leftControllerList;
-	private GuiInputControls rightSideControls;
-	public GuiMain() {
-		super(new BorderLayout());
-		
-		leftControllerList = new GuiControllerList();
-		leftControllerList.setPreferredSize(new Dimension(300, 100));
-		add(leftControllerList, BorderLayout.CENTER);
-		
-		try {
-			rightSideControls = new GuiInputControls();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Main.fatal();
-		}
-		add(rightSideControls, BorderLayout.LINE_END);
-	}
-	
-	public static GuiMain instance() {
-		return instance;
-	}
+        instance = new GuiMain();
+        JComponent newContentPane = instance;
+        newContentPane.setOpaque(true);
+        frame.setContentPane(newContentPane);
+
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    private GuiControllerList leftControllerList;
+    private GuiInputControls rightSideControls;
+
+    public GuiMain() {
+        super(new BorderLayout());
+
+        leftControllerList = new GuiControllerList();
+        leftControllerList.setPreferredSize(new Dimension(300, 100));
+        add(leftControllerList, BorderLayout.CENTER);
+
+        try {
+            rightSideControls = new GuiInputControls();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Main.fatal();
+        }
+        add(rightSideControls, BorderLayout.LINE_END);
+    }
+
+    public static GuiMain instance() {
+        return instance;
+    }
 }

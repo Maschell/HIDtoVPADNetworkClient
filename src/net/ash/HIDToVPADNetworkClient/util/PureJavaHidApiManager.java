@@ -29,29 +29,32 @@ import purejavahidapi.HidDeviceInfo;
 import purejavahidapi.PureJavaHidApi;
 
 public class PureJavaHidApiManager {
-    
-    private PureJavaHidApiManager(){}
-    
+
+    private PureJavaHidApiManager() {
+    }
+
     public static boolean MAC_OS_X;
-    
+
     /**
      * Searches the corresponding HIDDevice for the given path
-     * @param path Path of the HIDDevice
+     * 
+     * @param path
+     *            Path of the HIDDevice
      * @return It the device is found, it will be returned. Otherwise null is returned.
-     * @throws IOException 
+     * @throws IOException
      */
-    public static HidDevice getDeviceByPath(String path) throws IOException{
+    public static HidDevice getDeviceByPath(String path) throws IOException {
         List<HidDeviceInfo> devList = PureJavaHidApi.enumerateDevices();
         for (HidDeviceInfo info : devList) {
-        	if (MAC_OS_X) {
-        		if(info.getPath().substring(0, 13).equals(path)){
+            if (MAC_OS_X) {
+                if (info.getPath().substring(0, 13).equals(path)) {
                     return PureJavaHidApi.openDevice(info);
                 }
-        	} else {
-        		if(info.getPath().equals(path)){
+            } else {
+                if (info.getPath().equals(path)) {
                     return PureJavaHidApi.openDevice(info);
                 }
-        	}
+            }
         }
         return null;
     }

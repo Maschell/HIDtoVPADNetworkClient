@@ -20,21 +20,22 @@
  * SOFTWARE.
  *******************************************************************************/
 package net.ash.HIDToVPADNetworkClient.network.commands;
+
 import lombok.Getter;
 import net.ash.HIDToVPADNetworkClient.network.NetworkHIDDevice;
 
 public class AttachCommand extends DeviceCommand {
     @Getter private final short vid;
-    @Getter private final short pid;    
+    @Getter private final short pid;
 
     public AttachCommand(int hidHandle, short vid, short pid, NetworkHIDDevice sender) {
-        super(hidHandle,sender);
+        super(hidHandle, sender);
         this.vid = vid;
         this.pid = pid;
     }
 
     @Override
     public String toString() {
-        return "AttachCommand [vid=" + vid + ", pid=" + pid+ ", handle=" + getHandle() + ", sender=" + getSender() + "]";
+        return "AttachCommand [vid=" + vid + ", pid=" + pid + ", handle=" + getHandle() + ", sender=" + getSender() + "]";
     }
 }

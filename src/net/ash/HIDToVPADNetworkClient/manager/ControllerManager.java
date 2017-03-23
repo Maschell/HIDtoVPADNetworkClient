@@ -47,144 +47,146 @@ import net.ash.HIDToVPADNetworkClient.util.PureJavaHidApiManager;
 import purejavahidapi.HidDeviceInfo;
 import purejavahidapi.PureJavaHidApi;
 
-public class ControllerManager{
-	private static Map<String,Controller> attachedControllers = new HashMap<String,Controller>();
-    
-	/**
-	 * Detects all attached controller.
-	 */
-	@Synchronized("attachedControllers")
+public class ControllerManager {
+    private static Map<String, Controller> attachedControllers = new HashMap<String, Controller>();
+
+    /**
+     * Detects all attached controller.
+     */
+    @Synchronized("attachedControllers")
     public static void detectControllers() {
         String os = System.getProperty("os.name");
-        //System.out.println("[ControllerDetector] OS: " + os);
-        
-        Map<String,ControllerType> connectedDevices = new HashMap<String,ControllerType>();
-        
+        // System.out.println("[ControllerDetector] OS: " + os);
+
+        Map<String, ControllerType> connectedDevices = new HashMap<String, ControllerType>();
+
         if (os.contains("Linux")) {
             connectedDevices.putAll(detectLinuxControllers());
         } else if (os.contains("Windows")) {
             connectedDevices.putAll(detectWindowsControllers());
         }
-        
+
         if (os.contains("Mac OS X")) {
-        	connectedDevices.putAll(detectOSXHIDDevices());
-        	PureJavaHidApiManager.MAC_OS_X = true;
+            connectedDevices.putAll(detectOSXHIDDevices());
+            PureJavaHidApiManager.MAC_OS_X = true;
         } else {
-        	connectedDevices.putAll(detectHIDDevices());
-        	PureJavaHidApiManager.MAC_OS_X = false;
+            connectedDevices.putAll(detectHIDDevices());
+            PureJavaHidApiManager.MAC_OS_X = false;
         }
-        
-        //Remove detached devices
+
+        // Remove detached devices
         List<String> toRemove = new ArrayList<String>();
-        for(String s : attachedControllers.keySet()){
-            if(!connectedDevices.containsKey(s)){
+        for (String s : attachedControllers.keySet()) {
+            if (!connectedDevices.containsKey(s)) {
                 toRemove.add(s);
             }
         }
-        for(String remove : toRemove){
+        for (String remove : toRemove) {
             attachedControllers.get(remove).destroyAll();
             attachedControllers.remove(remove);
         }
-        
-        //Add attached devices!
-        for(Entry<String, ControllerType> entry : connectedDevices.entrySet()){
+
+        // Add attached devices!
+        for (Entry<String, ControllerType> entry : connectedDevices.entrySet()) {
             String deviceIdentifier = entry.getKey();
-            if(!attachedControllers.containsKey(deviceIdentifier)){
+            if (!attachedControllers.containsKey(deviceIdentifier)) {
                 Controller c = null;
-                switch(entry.getValue()){
-                    case PureJAVAHid:
-                        try {
-                            c= PureJavaHidController.getInstance(deviceIdentifier);
-                        } catch (ControllerInitializationFailedException e) {
-                            //e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    case LINUX:
-                        try {
-                            c = new LinuxDevInputController(deviceIdentifier);
-                        } catch (ControllerInitializationFailedException e) {
-                            //e.printStackTrace();
-                        }
-                        break;
-                    /*
-                     * TODO:
-                     * Currently the XInput will be set active automatically.
-                     * But this should move to something for the settings? 
-                     */
-                    case XINPUT14:
-                        try {
-                            c = new XInput14Controller(deviceIdentifier);
-                            c.setActive(true);
-                        } catch (ControllerInitializationFailedException e) {
-                            //e.printStackTrace();
-                        }
-                        break;
-                    case XINPUT13:
-                        try {
-                            c = new XInput13Controller(deviceIdentifier);
-                            c.setActive(true);
-                        } catch (ControllerInitializationFailedException e) {
-                            //e.printStackTrace();
-                        }
-                        break;
+                switch (entry.getValue()) {
+                case PureJAVAHid:
+                    try {
+                        c = PureJavaHidController.getInstance(deviceIdentifier);
+                    } catch (ControllerInitializationFailedException e) {
+                        // e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case LINUX:
+                    try {
+                        c = new LinuxDevInputController(deviceIdentifier);
+                    } catch (ControllerInitializationFailedException e) {
+                        // e.printStackTrace();
+                    }
+                    break;
+                /*
+                 * TODO: Currently the XInput will be set active automatically. But this should move to something for the settings?
+                 */
+                case XINPUT14:
+                    try {
+                        c = new XInput14Controller(deviceIdentifier);
+                        c.setActive(true);
+                    } catch (ControllerInitializationFailedException e) {
+                        // e.printStackTrace();
+                    }
+                    break;
+                case XINPUT13:
+                    try {
+                        c = new XInput13Controller(deviceIdentifier);
+                        c.setActive(true);
+                    } catch (ControllerInitializationFailedException e) {
+                        // e.printStackTrace();
+                    }
+                    break;
                 default:
                     break;
-                }        
-                if(c != null){ //I don't like that starting the Thread happens here =/
+                }
+                if (c != null) { // I don't like that starting the Thread
+                                 // happens here =/
                     new Thread(c).start();
-                    attachedControllers.put(deviceIdentifier,c);
+                    attachedControllers.put(deviceIdentifier, c);
                 }
             }
         }
     }
-    
+
     @Synchronized("attachedControllers")
     public static List<Controller> getAttachedControllers() {
         return new ArrayList<Controller>(attachedControllers.values());
     }
-    
+
     private static Map<String, ControllerType> detectHIDDevices() {
-        Map<String,ControllerType> connectedDevices = new HashMap<String,ControllerType>();
-        
-        for (HidDeviceInfo info :  PureJavaHidApi.enumerateDevices()) {
-            if(info.getUsagePage() == 0x05 || info.getUsagePage() == 0x04 || (info.getVendorId() == 0x57e) || (info.getVendorId() == 0x054c) ){
-                connectedDevices.put(info.getPath(),ControllerType.PureJAVAHid);  
+        Map<String, ControllerType> connectedDevices = new HashMap<String, ControllerType>();
+
+        for (HidDeviceInfo info : PureJavaHidApi.enumerateDevices()) {
+            if (info.getUsagePage() == 0x05 || info.getUsagePage() == 0x04 || (info.getVendorId() == 0x57e) || (info.getVendorId() == 0x054c)) {
+                connectedDevices.put(info.getPath(), ControllerType.PureJAVAHid);
             }
         }
-        
+
         return connectedDevices;
     }
-    
+
     private static Map<String, ControllerType> detectOSXHIDDevices() {
-    	Map<String,ControllerType> connectedDevices = new HashMap<String,ControllerType>();
-    	
-    	for (HidDeviceInfo info :  PureJavaHidApi.enumerateDevices()) {
-            if(info.getUsagePage() == 0x05 || info.getUsagePage() == 0x04 || (info.getVendorId() == 0x57e) || (info.getVendorId() == 0x054c) ){
-                connectedDevices.put(info.getPath().substring(0, 13),ControllerType.PureJAVAHid);  
+        Map<String, ControllerType> connectedDevices = new HashMap<String, ControllerType>();
+
+        for (HidDeviceInfo info : PureJavaHidApi.enumerateDevices()) {
+            if (info.getUsagePage() == 0x05 || info.getUsagePage() == 0x04 || (info.getVendorId() == 0x57e) || (info.getVendorId() == 0x054c)) {
+                connectedDevices.put(info.getPath().substring(0, 13), ControllerType.PureJAVAHid);
             }
         }
-        
+
         return connectedDevices;
     }
 
     private static Map<String, ControllerType> detectWindowsControllers() {
-        Map<String,ControllerType> result = new HashMap<String,ControllerType>();
+        Map<String, ControllerType> result = new HashMap<String, ControllerType>();
         ControllerType type = ControllerType.XINPUT13;
-        if(XInputDevice.isAvailable() || XInputDevice14.isAvailable()) {
-            if(XInputDevice14.isAvailable()){
+        if (XInputDevice.isAvailable() || XInputDevice14.isAvailable()) {
+            if (XInputDevice14.isAvailable()) {
                 type = ControllerType.XINPUT14;
             }
-            for(int i =0;i<4;i++){
+            for (int i = 0; i < 4; i++) {
                 XInputDevice device;
                 try {
                     device = XInputDevice.getDeviceFor(i);
-                    if(device.poll() && device.isConnected()){ //Check if it is this controller is connected
+                    if (device.poll() && device.isConnected()) { // Check if it
+                                                                 // is this
+                                                                 // controller
+                                                                 // is connected
                         result.put(XInputController.XINPUT_INDENTIFER + i, type);
                     }
                 } catch (XInputNotLoadedException e) {
-                    //This shouln't happen?
+                    // This shouln't happen?
                     e.printStackTrace();
                 }
             }
@@ -194,28 +196,29 @@ public class ControllerManager{
     }
 
     private static Map<String, ControllerType> detectLinuxControllers() {
-        Map<String,ControllerType> result = new HashMap<String,ControllerType>();
+        Map<String, ControllerType> result = new HashMap<String, ControllerType>();
         File devInput = new File("/dev/input");
-        if (!devInput.exists()) return result;
-        
+        if (!devInput.exists())
+            return result;
+
         File[] linuxControllers = devInput.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
-                return name.startsWith("js"); //js0, js1, etc...
+                return name.startsWith("js"); // js0, js1, etc...
             }
         });
-        
+
         for (File controller : linuxControllers) {
-            result.put(controller.getAbsolutePath(),ControllerType.LINUX);
+            result.put(controller.getAbsolutePath(), ControllerType.LINUX);
         }
-        
+
         return result;
     }
-    
+
     @Synchronized("attachedControllers")
     public static List<Controller> getActiveControllers() {
         List<Controller> active = new ArrayList<Controller>();
-        for(Controller c : attachedControllers.values()){
-            if(c.isActive()){
+        for (Controller c : attachedControllers.values()) {
+            if (c.isActive()) {
                 active.add(c);
             }
         }
@@ -224,7 +227,7 @@ public class ControllerManager{
 
     @Synchronized("attachedControllers")
     public static void deactivateAllAttachedControllers() {
-        for(Controller c : attachedControllers.values()){
+        for (Controller c : attachedControllers.values()) {
             c.setActive(false);
         }
     }
