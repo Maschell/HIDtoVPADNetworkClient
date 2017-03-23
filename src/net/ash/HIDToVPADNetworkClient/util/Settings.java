@@ -36,58 +36,58 @@ import lombok.extern.java.Log;
 
 @Log
 public class Settings {
-	private static final String CONFIG_FILE_NAME = "hidtovpad.properties";
-	
+    private static final String CONFIG_FILE_NAME = "hidtovpad.properties";
+
     public static final int DETECT_CONTROLLER_INTERVAL = 1000;
     public static final int HANDLE_INPUTS_INTERVAL = 15;
     public static final int MAXIMUM_TRIES_FOR_RECONNECTING = 10;
     public static final int SLEEP_AFER_POLLING = 10;
     public static final int SENDING_CMD_SLEEP_IF_NOT_CONNECTED = 500;
     public static final int PING_INTERVAL = 1000;
-    public static final int PROCESS_CMD_INTERVAL = 10; 
-    
-	@Getter @Setter
-	private static String ipAddr = "192.168.0.35"; //@Maschell, you're welcome
+    public static final int PROCESS_CMD_INTERVAL = 10;
 
-    private Settings() {}
+    @Getter @Setter private static String ipAddr = "192.168.0.35"; // @Maschell, you're welcome
+
+    private Settings() {
+    }
 
     public static void loadSettings() {
-    	File configDir = new File(getConfigDir());
-    	if (!configDir.exists()) {
-    		log.info("Creating " + configDir.getAbsolutePath() + "...");
-    		configDir.mkdirs();
-    	}
-    	File configFile = getConfigFile();
-    	if (!configFile.exists()) {
-    		log.info("Creating " + configFile.getAbsolutePath() + " with default values...");
-    		try {
-				configFile.createNewFile();
-			} catch (IOException e) {
-				log.severe("Could not create config file!");
-				e.printStackTrace();
-				log.warning("Using default values");
-			}
-    		saveSettings(configFile);
-    		return;
-    	}
-    	
-    	log.info("Loading config from " + configFile.getAbsolutePath() + "...");
-    	
-    	Properties prop = new Properties();
-    	try {
-			prop.load(new FileInputStream(configFile));
-		} catch (IOException e) {
-			log.severe("Error while loading config file!");
-			e.printStackTrace();
-			log.warning("Using default values");
-			return;
-		}
-    	
-    	Settings.ipAddr = prop.getProperty("ipAddr");
-    	
-    	log.info("Loaded config successfully!");
+        File configDir = new File(getConfigDir());
+        if (!configDir.exists()) {
+            log.info("Creating " + configDir.getAbsolutePath() + "...");
+            configDir.mkdirs();
+        }
+        File configFile = getConfigFile();
+        if (!configFile.exists()) {
+            log.info("Creating " + configFile.getAbsolutePath() + " with default values...");
+            try {
+                configFile.createNewFile();
+            } catch (IOException e) {
+                log.severe("Could not create config file!");
+                e.printStackTrace();
+                log.warning("Using default values");
+            }
+            saveSettings(configFile);
+            return;
+        }
+
+        log.info("Loading config from " + configFile.getAbsolutePath() + "...");
+
+        Properties prop = new Properties();
+        try {
+            prop.load(new FileInputStream(configFile));
+        } catch (IOException e) {
+            log.severe("Error while loading config file!");
+            e.printStackTrace();
+            log.warning("Using default values");
+            return;
+        }
+
+        Settings.ipAddr = prop.getProperty("ipAddr");
+
+        log.info("Loaded config successfully!");
     }
-    
+
     private static File getConfigFile() {
         return new File(getConfigDir() + CONFIG_FILE_NAME);
     }
@@ -99,29 +99,29 @@ public class Settings {
             saveSettings(configFile);
         }
     }
-    
+
     private static void saveSettings(File configFile) {
-    	Properties prop = new Properties();
-    	
-		prop.setProperty("ipAddr", Settings.ipAddr);
-		
-		try {
-			FileOutputStream outStream = new FileOutputStream(configFile);
-			prop.store(outStream, "HIDToVPADNetworkClient");
-			outStream.close();
-		} catch (FileNotFoundException e) {
-			log.severe("Could not open the new config file!");
-			e.printStackTrace();
-			log.warning("New file will not be written.");
-			return;
-		} catch (IOException e) {
-			log.severe("Could not write the new config file!");
-			e.printStackTrace();
-			log.warning("New file will not be written.");
-			return;
-		}
+        Properties prop = new Properties();
+
+        prop.setProperty("ipAddr", Settings.ipAddr);
+
+        try {
+            FileOutputStream outStream = new FileOutputStream(configFile);
+            prop.store(outStream, "HIDToVPADNetworkClient");
+            outStream.close();
+        } catch (FileNotFoundException e) {
+            log.severe("Could not open the new config file!");
+            e.printStackTrace();
+            log.warning("New file will not be written.");
+            return;
+        } catch (IOException e) {
+            log.severe("Could not write the new config file!");
+            e.printStackTrace();
+            log.warning("New file will not be written.");
+            return;
+        }
     }
-    
+
     private static String getConfigDir() {
         return "config/";
     }

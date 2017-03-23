@@ -39,113 +39,112 @@ import javax.swing.Timer;
 import net.ash.HIDToVPADNetworkClient.network.NetworkManager;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
 
-public class GuiInputControls extends JPanel implements ActionListener {	
-	private static final long serialVersionUID = 1L;
-	private static GuiInputControls instance = null;
-	
+public class GuiInputControls extends JPanel implements ActionListener {
+    private static final long serialVersionUID = 1L;
+    private static GuiInputControls instance = null;
+
     private static final String CONNECT = "Connect";
     private static final String DISCONNECT = "Disconnect";
     private static final String RECONNECTING = "Reconnecting";
-	
-	private JButton connectButton;
-	private JTextField ipTextBox;
-	private JPanel ipTextBoxWrap;
-	private JTextField packetIntervalTextBox;
-	private JLabel statusLabel;
-	
-	public GuiInputControls() throws Exception {
-		super();
-		if (instance != null) {
-			throw new Exception("GuiInputControls already has an instance!");
-		}
-		instance = this;
-		
-		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-		setPreferredSize(new Dimension(220, 150));
-		
-		connectButton = new JButton(CONNECT);
-		connectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-		
-		
-		ipTextBox = new JTextField();
-		ipTextBox.setColumns(15);
-		ipTextBox.setText(Settings.getIpAddr());
-		ipTextBoxWrap = new JPanel(new FlowLayout());
-		ipTextBoxWrap.add(new JLabel("IP: "));
-		ipTextBoxWrap.add(ipTextBox);
-		ipTextBoxWrap.setMaximumSize(new Dimension(1000, 20));
-			
-		statusLabel = new JLabel("Ready.");
-		statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		
-		add(Box.createVerticalGlue());
 
-		add(ipTextBoxWrap);
-		
-		add(Box.createRigidArea(new Dimension(1, 4)));
-		add(connectButton);
-		add(Box.createRigidArea(new Dimension(1, 8)));
-		
-		add(statusLabel);
-		
-		add(Box.createVerticalGlue());
-		
-		connectButton.addActionListener(this);
-		
-		int delay = 100; //milliseconds
+    private JButton connectButton;
+    private JTextField ipTextBox;
+    private JPanel ipTextBoxWrap;
+    private JTextField packetIntervalTextBox;
+    private JLabel statusLabel;
+
+    public GuiInputControls() throws Exception {
+        super();
+        if (instance != null) {
+            throw new Exception("GuiInputControls already has an instance!");
+        }
+        instance = this;
+
+        setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+        setPreferredSize(new Dimension(220, 150));
+
+        connectButton = new JButton(CONNECT);
+        connectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        ipTextBox = new JTextField();
+        ipTextBox.setColumns(15);
+        ipTextBox.setText(Settings.getIpAddr());
+        ipTextBoxWrap = new JPanel(new FlowLayout());
+        ipTextBoxWrap.add(new JLabel("IP: "));
+        ipTextBoxWrap.add(ipTextBox);
+        ipTextBoxWrap.setMaximumSize(new Dimension(1000, 20));
+
+        statusLabel = new JLabel("Ready.");
+        statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        add(Box.createVerticalGlue());
+
+        add(ipTextBoxWrap);
+
+        add(Box.createRigidArea(new Dimension(1, 4)));
+        add(connectButton);
+        add(Box.createRigidArea(new Dimension(1, 8)));
+
+        add(statusLabel);
+
+        add(Box.createVerticalGlue());
+
+        connectButton.addActionListener(this);
+
+        int delay = 100; // milliseconds
         ActionListener taskPerformer = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                if(NetworkManager.getInstance().isReconnecting()){
+                if (NetworkManager.getInstance().isReconnecting()) {
                     connectButton.setText(RECONNECTING);
                     connectButton.setEnabled(false);
-                }else if(NetworkManager.getInstance().isConnected()){
+                } else if (NetworkManager.getInstance().isConnected()) {
                     connectButton.setText(DISCONNECT);
                     connectButton.setEnabled(true);
-                }else{
+                } else {
                     connectButton.setText(CONNECT);
                     connectButton.setEnabled(true);
                 }
             }
         };
         new Timer(delay, taskPerformer).start();
-	}
+    }
 
-	public static GuiInputControls instance() {
-		return instance;
-	}
+    public static GuiInputControls instance() {
+        return instance;
+    }
 
-	public JTextField getPacketIntervalTextBox() {
-		return packetIntervalTextBox;
-	}
+    public JTextField getPacketIntervalTextBox() {
+        return packetIntervalTextBox;
+    }
 
-	public JTextField getIpTextBox() {
-		return ipTextBox;
-	}
+    public JTextField getIpTextBox() {
+        return ipTextBox;
+    }
 
-	public JButton getConnectButton() {
-		return connectButton;
-	}
+    public JButton getConnectButton() {
+        return connectButton;
+    }
 
-	public JLabel getStatusLabel() {
-		return statusLabel;
-	}
+    public JLabel getStatusLabel() {
+        return statusLabel;
+    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 Settings.setIpAddr(ipTextBox.getText());
-                if(NetworkManager.getInstance().isReconnecting()){
-                    
-                }else{
-                    if(NetworkManager.getInstance().isConnected()){
+                if (NetworkManager.getInstance().isReconnecting()) {
+
+                } else {
+                    if (NetworkManager.getInstance().isConnected()) {
                         NetworkManager.getInstance().disconnect();
-                    }else{            
+                    } else {
                         NetworkManager.getInstance().connect(ipTextBox.getText());
                     }
                 }
             }
         });
-       
+
     }
 }

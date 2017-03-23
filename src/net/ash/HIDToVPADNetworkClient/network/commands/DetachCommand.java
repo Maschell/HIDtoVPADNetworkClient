@@ -23,9 +23,9 @@ package net.ash.HIDToVPADNetworkClient.network.commands;
 
 import net.ash.HIDToVPADNetworkClient.network.NetworkHIDDevice;
 
-public class DetachCommand extends DeviceCommand{
-    public DetachCommand(int hidHandle, NetworkHIDDevice sender){
-        super(hidHandle,sender);
+public class DetachCommand extends DeviceCommand {
+    public DetachCommand(int hidHandle, NetworkHIDDevice sender) {
+        super(hidHandle, sender);
     }
 
     @Override
