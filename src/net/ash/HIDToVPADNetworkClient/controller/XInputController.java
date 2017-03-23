@@ -54,8 +54,7 @@ public class XInputController extends Controller {
         } catch (XInputNotLoadedException e) {
             // TODO: Log?
         }
-        if (device == null)
-            return false;
+        if (device == null) return false;
         setDevice(device);
         return true;
     }
@@ -69,41 +68,25 @@ public class XInputController extends Controller {
             XInputButtons buttons = components.getButtons();
 
             int buttonState = 0;
-            if (buttons.a)
-                buttonState |= (1 << 0);
-            if (buttons.b)
-                buttonState |= (1 << 1);
-            if (buttons.x)
-                buttonState |= (1 << 2);
-            if (buttons.y)
-                buttonState |= (1 << 3);
+            if (buttons.a) buttonState |= (1 << 0);
+            if (buttons.b) buttonState |= (1 << 1);
+            if (buttons.x) buttonState |= (1 << 2);
+            if (buttons.y) buttonState |= (1 << 3);
 
-            if (buttons.left)
-                buttonState |= (1 << 4);
-            if (buttons.up)
-                buttonState |= (1 << 5);
-            if (buttons.right)
-                buttonState |= (1 << 6);
-            if (buttons.down)
-                buttonState |= (1 << 7);
+            if (buttons.left) buttonState |= (1 << 4);
+            if (buttons.up) buttonState |= (1 << 5);
+            if (buttons.right) buttonState |= (1 << 6);
+            if (buttons.down) buttonState |= (1 << 7);
 
-            if (buttons.back)
-                buttonState |= (1 << 8);
-            if (buttons.start)
-                buttonState |= (1 << 9);
-            if (buttons.lShoulder)
-                buttonState |= (1 << 10);
-            if (buttons.rShoulder)
-                buttonState |= (1 << 11);
-            if (buttons.lThumb)
-                buttonState |= (1 << 12);
-            if (buttons.rThumb)
-                buttonState |= (1 << 13);
-            if (buttons.unknown)
-                buttonState |= (1 << 14);
+            if (buttons.back) buttonState |= (1 << 8);
+            if (buttons.start) buttonState |= (1 << 9);
+            if (buttons.lShoulder) buttonState |= (1 << 10);
+            if (buttons.rShoulder) buttonState |= (1 << 11);
+            if (buttons.lThumb) buttonState |= (1 << 12);
+            if (buttons.rThumb) buttonState |= (1 << 13);
+            if (buttons.unknown) buttonState |= (1 << 14);
             if (XInputDevice.isGuideButtonSupported()) {
-                if (buttons.guide)
-                    buttonState |= (1 << 15);
+                if (buttons.guide) buttonState |= (1 << 15);
             }
 
             XInputAxes axes = components.getAxes();

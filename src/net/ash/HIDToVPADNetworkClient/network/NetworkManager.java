@@ -92,8 +92,7 @@ public class NetworkManager implements Runnable {
     }
 
     private void ping() {
-        if (isConnected() || tcpClient.isShouldRetry())
-            sendingCommand(new PingCommand());
+        if (isConnected() || tcpClient.isShouldRetry()) sendingCommand(new PingCommand());
     }
 
     public void proccessCommands() {
@@ -110,8 +109,7 @@ public class NetworkManager implements Runnable {
             }
         }
 
-        if (commands.isEmpty())
-            return;
+        if (commands.isEmpty()) return;
 
         // Split up into "read commands" and other commands.
         List<ReadCommand> readCommands = new ArrayList<ReadCommand>();

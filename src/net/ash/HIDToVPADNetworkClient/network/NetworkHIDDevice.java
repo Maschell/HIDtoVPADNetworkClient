@@ -108,15 +108,11 @@ public class NetworkHIDDevice {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         NetworkHIDDevice other = (NetworkHIDDevice) obj;
-        if (hidHandle != other.hidHandle)
-            return false;
+        if (hidHandle != other.hidHandle) return false;
         return true;
     }
 }

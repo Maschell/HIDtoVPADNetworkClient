@@ -140,8 +140,7 @@ public abstract class Controller implements Runnable {
                         done = shutdownDone;
                     }
                     Utilities.sleep(50);
-                    if (i++ > 50)
-                        System.out.println("Thread doesn't stop!!");
+                    if (i++ > 50) System.out.println("Thread doesn't stop!!");
                 }
             }
         }).start();
@@ -176,20 +175,14 @@ public abstract class Controller implements Runnable {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         Controller other = (Controller) obj;
         if (identifier == null) {
-            if (other.identifier != null)
-                return false;
-        } else if (!identifier.equals(other.identifier))
-            return false;
-        if (type != other.type)
-            return false;
+            if (other.identifier != null) return false;
+        } else if (!identifier.equals(other.identifier)) return false;
+        if (type != other.type) return false;
         return true;
     }
 

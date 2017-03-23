@@ -85,18 +85,13 @@ public class GuiControllerListItem extends JPanel implements ActionListener {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         GuiControllerListItem other = (GuiControllerListItem) obj;
         if (controller == null) {
-            if (other.controller != null)
-                return false;
-        } else if (!controller.equals(other.controller))
-            return false;
+            if (other.controller != null) return false;
+        } else if (!controller.equals(other.controller)) return false;
         return true;
     }
 }

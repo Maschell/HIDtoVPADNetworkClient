@@ -37,15 +37,15 @@ import com.ivan.xinput.exceptions.XInputNotLoadedException;
 import lombok.Synchronized;
 import net.ash.HIDToVPADNetworkClient.controller.Controller;
 import net.ash.HIDToVPADNetworkClient.controller.Controller.ControllerType;
-import net.ash.HIDToVPADNetworkClient.controller.PureJavaHidController;
 import net.ash.HIDToVPADNetworkClient.controller.LinuxDevInputController;
+import net.ash.HIDToVPADNetworkClient.controller.PureJavaHidController;
 import net.ash.HIDToVPADNetworkClient.controller.XInput13Controller;
 import net.ash.HIDToVPADNetworkClient.controller.XInput14Controller;
 import net.ash.HIDToVPADNetworkClient.controller.XInputController;
 import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
 import net.ash.HIDToVPADNetworkClient.util.PureJavaHidApiManager;
+import net.ash.HIDToVPADNetworkClient.util.Settings;
 import purejavahidapi.HidDeviceInfo;
-import purejavahidapi.PureJavaHidApi;
 
 public class ControllerManager {
     private static Map<String, Controller> attachedControllers = new HashMap<String, Controller>();
@@ -55,24 +55,15 @@ public class ControllerManager {
      */
     @Synchronized("attachedControllers")
     public static void detectControllers() {
-        String os = System.getProperty("os.name");
-        // System.out.println("[ControllerDetector] OS: " + os);
-
         Map<String, ControllerType> connectedDevices = new HashMap<String, ControllerType>();
 
-        if (os.contains("Linux")) {
+        if (Settings.isLinux()) {
             connectedDevices.putAll(detectLinuxControllers());
-        } else if (os.contains("Windows")) {
+        } else if (Settings.isWindows()) {
             connectedDevices.putAll(detectWindowsControllers());
         }
 
-        if (os.contains("Mac OS X")) {
-            connectedDevices.putAll(detectOSXHIDDevices());
-            PureJavaHidApiManager.MAC_OS_X = true;
-        } else {
-            connectedDevices.putAll(detectHIDDevices());
-            PureJavaHidApiManager.MAC_OS_X = false;
-        }
+        connectedDevices.putAll(detectHIDDevices());
 
         // Remove detached devices
         List<String> toRemove = new ArrayList<String>();
@@ -147,22 +138,11 @@ public class ControllerManager {
     private static Map<String, ControllerType> detectHIDDevices() {
         Map<String, ControllerType> connectedDevices = new HashMap<String, ControllerType>();
 
-        for (HidDeviceInfo info : PureJavaHidApi.enumerateDevices()) {
-            if (info.getUsagePage() == 0x05 || info.getUsagePage() == 0x04 || (info.getVendorId() == 0x57e) || (info.getVendorId() == 0x054c)) {
-                connectedDevices.put(info.getPath(), ControllerType.PureJAVAHid);
-            }
-        }
+        for (HidDeviceInfo info : PureJavaHidApiManager.getAttachedController()) {
+            String path = info.getPath();
 
-        return connectedDevices;
-    }
-
-    private static Map<String, ControllerType> detectOSXHIDDevices() {
-        Map<String, ControllerType> connectedDevices = new HashMap<String, ControllerType>();
-
-        for (HidDeviceInfo info : PureJavaHidApi.enumerateDevices()) {
-            if (info.getUsagePage() == 0x05 || info.getUsagePage() == 0x04 || (info.getVendorId() == 0x57e) || (info.getVendorId() == 0x054c)) {
-                connectedDevices.put(info.getPath().substring(0, 13), ControllerType.PureJAVAHid);
-            }
+            if (Settings.isMacOSX()) path = path.substring(0, 13);
+            connectedDevices.put(path, ControllerType.PureJAVAHid);
         }
 
         return connectedDevices;
@@ -179,10 +159,7 @@ public class ControllerManager {
                 XInputDevice device;
                 try {
                     device = XInputDevice.getDeviceFor(i);
-                    if (device.poll() && device.isConnected()) { // Check if it
-                                                                 // is this
-                                                                 // controller
-                                                                 // is connected
+                    if (device.poll() && device.isConnected()) { // Check if it is this controller is connected
                         result.put(XInputController.XINPUT_INDENTIFER + i, type);
                     }
                 } catch (XInputNotLoadedException e) {
@@ -198,8 +175,7 @@ public class ControllerManager {
     private static Map<String, ControllerType> detectLinuxControllers() {
         Map<String, ControllerType> result = new HashMap<String, ControllerType>();
         File devInput = new File("/dev/input");
-        if (!devInput.exists())
-            return result;
+        if (!devInput.exists()) return result;
 
         File[] linuxControllers = devInput.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {

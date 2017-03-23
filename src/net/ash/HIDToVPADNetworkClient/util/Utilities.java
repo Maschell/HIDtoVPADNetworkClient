@@ -47,8 +47,7 @@ public class Utilities {
      * @return String representing the binary data
      */
     public static String ByteArrayToString(byte[] ba) {
-        if (ba == null)
-            return null;
+        if (ba == null) return null;
         StringBuilder hex = new StringBuilder(ba.length * 2);
         for (byte b : ba) {
             hex.append(String.format("%02X", b));

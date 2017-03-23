@@ -26,11 +26,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
+import net.ash.HIDToVPADNetworkClient.controller.Controller.ControllerType;
+import net.ash.HIDToVPADNetworkClient.util.Settings.Platform;
 
 //TODO autosave IP addr
 
@@ -124,5 +128,34 @@ public class Settings {
 
     private static String getConfigDir() {
         return "config/";
+    }
+
+    public static boolean isLinux() {
+        return getPlattform() == Platform.LINUX;
+    }
+
+    public static boolean isWindows() {
+        return getPlattform() == Platform.WINDOWS;
+    }
+
+    public static boolean isMacOSX() {
+        return getPlattform() == Platform.MAC_OS_X;
+    }
+
+    public static Platform getPlattform() {
+        String os = System.getProperty("os.name");
+
+        if (os.contains("Linux")) {
+            return Platform.LINUX;
+        } else if (os.contains("Windows")) {
+            return Platform.WINDOWS;
+        } else if (os.contains("Mac OS X")) {
+            return Platform.MAC_OS_X;
+        }
+        return null;
+    }
+
+    public enum Platform {
+        LINUX, WINDOWS, MAC_OS_X, UNKNOWN
     }
 }

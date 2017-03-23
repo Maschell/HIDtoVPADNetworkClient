@@ -22,6 +22,7 @@
 package net.ash.HIDToVPADNetworkClient.util;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import purejavahidapi.HidDevice;
@@ -33,8 +34,6 @@ public class PureJavaHidApiManager {
     private PureJavaHidApiManager() {
     }
 
-    public static boolean MAC_OS_X;
-
     /**
      * Searches the corresponding HIDDevice for the given path
      * 
@@ -45,17 +44,36 @@ public class PureJavaHidApiManager {
      */
     public static HidDevice getDeviceByPath(String path) throws IOException {
         List<HidDeviceInfo> devList = PureJavaHidApi.enumerateDevices();
+        HidDevice result = null;
         for (HidDeviceInfo info : devList) {
-            if (MAC_OS_X) {
-                if (info.getPath().substring(0, 13).equals(path)) {
-                    return PureJavaHidApi.openDevice(info);
-                }
-            } else {
-                if (info.getPath().equals(path)) {
-                    return PureJavaHidApi.openDevice(info);
-                }
+            result = openDeviceByPath(info, path);
+            if (result != null) return result;
+        }
+        return result;
+    }
+
+    private static HidDevice openDeviceByPath(HidDeviceInfo info, String expected_path) throws IOException {
+        if (info == null) return null;
+        String real_path = info.getPath();
+
+        if (Settings.isMacOSX()) real_path = real_path.substring(0, 13);
+
+        if (real_path.equals(expected_path)){
+            return PureJavaHidApi.openDevice(info);
+        }
+        
+        return null;
+    }
+
+    public static List<HidDeviceInfo> getAttachedController() {
+        List<HidDeviceInfo> connectedGamepads = new ArrayList<HidDeviceInfo>();
+
+        for (HidDeviceInfo info : PureJavaHidApi.enumerateDevices()) {
+            if (info.getUsagePage() == 0x05 || info.getUsagePage() == 0x04 || (info.getVendorId() == 0x57e) || (info.getVendorId() == 0x054c)) {
+                connectedGamepads.add(info);
             }
         }
-        return null;
+
+        return connectedGamepads;
     }
 }

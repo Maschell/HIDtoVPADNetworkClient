@@ -78,8 +78,7 @@ public class TCPClient {
     }
 
     private synchronized HandshakeReturnCode doHandshake() throws Exception {
-        if (recvByte() != Protocol.TCP_HANDSHAKE)
-            return HandshakeReturnCode.BAD_HANDSHAKE;
+        if (recvByte() != Protocol.TCP_HANDSHAKE) return HandshakeReturnCode.BAD_HANDSHAKE;
         send(clientID);
         log.info("[TCP] Handshaking...");
         HandshakeReturnCode test = (recvByte() == Protocol.TCP_NEW_CLIENT) ? HandshakeReturnCode.NEW_CLIENT : HandshakeReturnCode.SAME_CLIENT;
