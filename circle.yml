@@ -4,7 +4,7 @@ machine:
 
 compile:
   override:
-    - mvn package -Dci-build=true -X
+    - mvn package -Dci-build=true
 
 general:
   artifacts:
@@ -15,6 +15,4 @@ deployment:
     branch: master
     commands:
       - go get github.com/tcnksm/ghr
-      - export commit="$(git rev-parse --short=7 HEAD)"
-      - export GIT_TAG=v0.0.1-nightly-$commit
-      - ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME -prerelease -b 'Nightly release. Use caution! We recommend downloading a stable release from the README.' $GIT_TAG ci/
+      - ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME -prerelease -b 'Nightly release. Use caution! We recommend downloading a stable release from the README.' `echo "v0.0.1-nightly-$(git rev-parse --short=7 HEAD)"` ci/
