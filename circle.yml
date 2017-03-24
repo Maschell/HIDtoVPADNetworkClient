@@ -9,3 +9,10 @@ compile:
 general:
   artifacts:
     - "ci"
+
+deployment:
+  nightlies:
+    branch: master
+    commands:
+      - go get github.com/tcnksm/ghr
+      - ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME -prerelease -b 'Nightly release. Use caution! We recommend using a stable release instead.' `git describe --tags` ci/
