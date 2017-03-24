@@ -4,7 +4,7 @@ machine:
 
 compile:
   override:
-    - mvn package -Dci-build=true
+    - mvn package -Dci-build=true 
 
 general:
   artifacts:
