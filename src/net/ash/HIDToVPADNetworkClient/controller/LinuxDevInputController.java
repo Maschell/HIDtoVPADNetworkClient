@@ -36,7 +36,7 @@ public class LinuxDevInputController extends Controller implements Runnable {
     }
 
     public static final int NUM_SUPPORTED_AXIS = 10; // possibly off-by-one
-    public static final int CONTROLLER_DATA_SIZE = Long.BYTES + (Byte.BYTES * NUM_SUPPORTED_AXIS);
+    public static final int CONTROLLER_DATA_SIZE = (Long.SIZE / Byte.SIZE) + ((Byte.SIZE / Byte.SIZE) * NUM_SUPPORTED_AXIS);
 
     private static final byte JS_EVENT_BUTTON = 0x01;
     private static final byte JS_EVENT_INIT = (byte) 0x80;
@@ -58,7 +58,7 @@ public class LinuxDevInputController extends Controller implements Runnable {
         }
 
         setVID((short) (identifier.hashCode() & 0xFFFF));
-        setPID((short) ((identifier.hashCode() >> Short.BYTES) & 0xFFFF));
+        setPID((short) ((identifier.hashCode() >> (Short.SIZE / Byte.SIZE)) & 0xFFFF));
         System.out.println("[LinuxDevInputController] " + identifier.toString() + " fakevid: " + Integer.toHexString((int) getVID() & 0xFFFF) + " fakepid: "
                 + Integer.toHexString((int) getPID() & 0xFFFF));
 
@@ -117,12 +117,12 @@ public class LinuxDevInputController extends Controller implements Runnable {
 
         byte[] newData = new byte[CONTROLLER_DATA_SIZE];
         // Copy in button states
-        for (int i = 0; i < Long.BYTES; i++) {
-            newData[i] = (byte) ((buttonState >> (i * Byte.SIZE)) & 0xFF);
+        for (int i = 0; i < (Long.SIZE / Byte.SIZE); i++) {
+            newData[i] = (byte) ((buttonState >> (i * (Byte.SIZE / Byte.SIZE))) & 0xFF);
         }
         // Copy in axis data
-        for (int i = Long.BYTES; i < CONTROLLER_DATA_SIZE; i++) {
-            newData[i] = axisState[i - Long.BYTES];
+        for (int i = (Long.SIZE / Byte.SIZE); i < CONTROLLER_DATA_SIZE; i++) {
+            newData[i] = axisState[i - (Long.SIZE / Byte.SIZE)];
         }
         return newData;
     }
