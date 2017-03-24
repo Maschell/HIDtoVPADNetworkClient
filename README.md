@@ -1,9 +1,13 @@
+
 # HIDtoVPADNetworkClient
+[![Build Status](https://circleci.com/gh/QuarkTheAwesome/HIDtoVPADNetworkClient.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/QuarkTheAwesome/HIDtoVPADNetworkClient)
+---
+[Current Stable Release](https://github.com/QuarkTheAwesome/HIDtoVPADNetworkClient/releases/latest) | [Nightly builds](https://github.com/QuarkTheAwesome/HIDtoVPADNetworkClient/releases) | [Issue Tracker](https://github.com/QuarkTheAwesome/HIDtoVPADNetworkClient/issues) | [Support Thread](https://gbatemp.net/threads/hid-to-vpad.424127/)
 
 A Java application to send data from various controllers to [HID to VPAD](https://github.com/Maschell/hid_to_vpad); a homebrew application for the Wii U.
 
-Using this client, you can use unsuported devices such as XBox 360 controllers with HID to VPAD!
+Using this client, you can use unsuported devices such as XInput and Bluetooth controllers with HID to VPAD!
 
-Please check the releases page for the latest feature list; as this program is under heavy development and is still incomplete. At this point only Linux /dev/input controllers are supported.
+Please check the releases page for the latest feature list.
 
-A sample HID to VPAD .ini for an XBox 360 controller on /dev/input/js0 (the path determines the VID/PID when using Linux controllers) can be found [here](https://puu.sh/tHYS4/d73791d987.ini).
+Configuration files for HID to VPAD can be found [here](https://github.com/Maschell/controller_patcher_configs).
