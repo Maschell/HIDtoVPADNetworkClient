@@ -29,41 +29,42 @@ import net.ash.HIDToVPADNetworkClient.util.Settings;
 import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
 /**
- * Main controller interface, extended by controller drivers.
- * <br><br>
+ * Main controller interface, extended by controller drivers. <br>
+ * <br>
  * See {@link LinuxDevInputController} for a full implementation.
+ * 
  * @author ash
  */
-public abstract class Controller implements Runnable{
+public abstract class Controller implements Runnable {
     private boolean active;
     @Getter private final ControllerType type;
     @Getter private final String identifier;
     private byte[] latestData = null;
-        
+
     boolean shutdown = false;
     boolean shutdownDone = false;
     private Object dataLock = new Object();
     private Object shutdownLock = new Object();
-    
+
     private Object rumbleLock = new Object();
     private boolean rumble = false;
-        
-    public Controller(ControllerType type, String identifier) throws ControllerInitializationFailedException{
+
+    public Controller(ControllerType type, String identifier) throws ControllerInitializationFailedException {
         this.type = type;
         this.identifier = identifier;
-        if(!initController(identifier)){
+        if (!initController(identifier)) {
             throw new ControllerInitializationFailedException();
         }
     }
-    
+
     @Override
     public void run() {
         boolean shutdownState = shutdown;
-        while(!shutdownState){
-            Utilities.sleep(Settings.getDetectControllerInterval());
-            while(isActive()) {
-                byte[] newData =  pollLatestData();
-                if(newData != null){
+        while (!shutdownState) {
+            Utilities.sleep(Settings.DETECT_CONTROLLER_INTERVAL);
+            while (isActive()) {
+                byte[] newData = pollLatestData();
+                if (newData != null) {
                     setLatestData(newData);
                 }
                 doSleepAfterPollingData();
@@ -76,82 +77,80 @@ public abstract class Controller implements Runnable{
             shutdownDone = true;
         }
     }
-    
+
     protected void doSleepAfterPollingData() {
-        Utilities.sleep(Settings.getSleepAfterPolling());
+        Utilities.sleep(Settings.SLEEP_AFER_POLLING);
     }
 
     @Synchronized("dataLock")
     private void setLatestData(byte[] newData) {
-        this.latestData = newData;      
+        this.latestData = newData;
     }
-    
+
     @Synchronized("dataLock")
     public byte[] getLatestData() {
-        if(latestData != null){
+        if (latestData != null) {
             byte[] data = this.latestData.clone();
             this.latestData = null;
             return data;
-        }else{
+        } else {
             return null;
         }
     }
 
     public abstract byte[] pollLatestData();
-    
-	/**
-	 * Sets up the driver.
-	 * <br>
-	 * During this method call, a connection will be made with the controller hardware (if required).
-	 * 
-	 * @param arg Driver-specific init argument, see {@link ControllerManager} and {@link ControllerDetector}.
-	 * @return Whether initialization was successful.
-	 */
-	public abstract boolean initController(String identifier);
 
-	
-	/**
-	 * Destroys the controller driver and ends the polling thread.
-	 */
-	public void destroyAll(){
-	    destroyDriver();
-	    endThread();
-	}
-	
-	/**
+    /**
+     * Sets up the driver. <br>
+     * During this method call, a connection will be made with the controller hardware (if required).
+     * 
+     * @param arg
+     *            Driver-specific init argument, see {@link ControllerManager} and {@link ControllerDetector}.
+     * @return Whether initialization was successful.
+     */
+    public abstract boolean initController(String identifier);
+
+    /**
+     * Destroys the controller driver and ends the polling thread.
+     */
+    public void destroyAll() {
+        destroyDriver();
+        endThread();
+    }
+
+    /**
      * Destroys the controller driver.
      */
-	public abstract void destroyDriver();
-    
-	
-	private void endThread() {
-	    new Thread(new Runnable() {
+    public abstract void destroyDriver();
+
+    private void endThread() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
                 setActive(false);
-                
+
                 synchronized (shutdownLock) {
                     shutdown = true;
                 }
-               
+
                 boolean done = false;
                 int i = 0;
-                while(!done){
+                while (!done) {
                     synchronized (shutdownLock) {
                         done = shutdownDone;
                     }
                     Utilities.sleep(50);
-                    if(i++ > 50) System.out.println("Thread doesn't stop!!");
+                    if (i++ > 50) System.out.println("Thread doesn't stop!!");
                 }
             }
         }).start();
     }
 
     public abstract short getVID();
-    
+
     public abstract short getPID();
 
-	@Synchronized("shutdownLock")
+    @Synchronized("shutdownLock")
     public boolean isActive() {
         return active;
     }
@@ -159,9 +158,9 @@ public abstract class Controller implements Runnable{
     public void setActive(boolean active) {
         this.active = active;
     }
-    
+
     @Override
-    public String toString(){
+    public String toString() {
         return getType() + " " + getIdentifier();
     }
 
@@ -176,23 +175,17 @@ public abstract class Controller implements Runnable{
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         Controller other = (Controller) obj;
         if (identifier == null) {
-            if (other.identifier != null)
-                return false;
-        } else if (!identifier.equals(other.identifier))
-            return false;
-        if (type != other.type)
-            return false;
+            if (other.identifier != null) return false;
+        } else if (!identifier.equals(other.identifier)) return false;
+        if (type != other.type) return false;
         return true;
     }
-    
+
     @Synchronized("rumbleLock")
     public boolean isRumble() {
         return rumble;
@@ -202,15 +195,15 @@ public abstract class Controller implements Runnable{
     public void startRumble() {
         this.rumble = true;
     }
-    
+
     @Synchronized("rumbleLock")
     public void stopRumble() {
         this.rumble = false;
     }
 
     public enum ControllerType {
-        PureJAVAHid, LINUX, XINPUT13,XINPUT14
+        PureJAVAHid, LINUX, XINPUT13, XINPUT14
     }
-    
+
     public abstract String getInfoText();
 }

@@ -35,26 +35,26 @@ import net.ash.HIDToVPADNetworkClient.controller.Controller;
 import net.ash.HIDToVPADNetworkClient.network.NetworkManager;
 
 public class GuiControllerListItem extends JPanel implements ActionListener {
-	private static final long serialVersionUID = 1L;
-	
-	@Getter private final Controller controller;
-	private JCheckBox checkbox;
+    private static final long serialVersionUID = 1L;
 
-	public GuiControllerListItem(Controller data) {
-		super(new BorderLayout());
-		
-		setMinimumSize(new Dimension (300, 30));
-		setPreferredSize(new Dimension(300, 30));
-		setMaximumSize(new Dimension(2000, 30));
-		
-		this.controller = data;
-		
-		checkbox = new JCheckBox(getFlavorText());
-		checkbox.setSelected(data.isActive());
-		checkbox.addActionListener(this);
-		add(checkbox);
-		
-		int delay = 100; //milliseconds
+    @Getter private final Controller controller;
+    private JCheckBox checkbox;
+
+    public GuiControllerListItem(Controller data) {
+        super(new BorderLayout());
+
+        setMinimumSize(new Dimension(300, 30));
+        setPreferredSize(new Dimension(300, 30));
+        setMaximumSize(new Dimension(2000, 30));
+
+        this.controller = data;
+
+        checkbox = new JCheckBox(getFlavorText());
+        checkbox.setSelected(data.isActive());
+        checkbox.addActionListener(this);
+        add(checkbox);
+
+        int delay = 100; // milliseconds
         ActionListener taskPerformer = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 checkbox.setEnabled(NetworkManager.getInstance().isConnected());
@@ -62,17 +62,17 @@ public class GuiControllerListItem extends JPanel implements ActionListener {
             }
         };
         new Timer(delay, taskPerformer).start();
-	}
-	
-	private String getFlavorText() {
-		return controller.getInfoText();
-	}
+    }
+
+    private String getFlavorText() {
+        return controller.getInfoText();
+    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-       boolean selected = ((JCheckBox) e.getSource()).isSelected();
-       controller.setActive(selected);
-       checkbox.setSelected(controller.isActive());
+        boolean selected = ((JCheckBox) e.getSource()).isSelected();
+        controller.setActive(selected);
+        checkbox.setSelected(controller.isActive());
     }
 
     @Override
@@ -85,18 +85,13 @@ public class GuiControllerListItem extends JPanel implements ActionListener {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         GuiControllerListItem other = (GuiControllerListItem) obj;
         if (controller == null) {
-            if (other.controller != null)
-                return false;
-        } else if (!controller.equals(other.controller))
-            return false;
+            if (other.controller != null) return false;
+        } else if (!controller.equals(other.controller)) return false;
         return true;
-    }    
+    }
 }

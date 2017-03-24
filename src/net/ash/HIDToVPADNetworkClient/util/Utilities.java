@@ -21,13 +21,16 @@
  *******************************************************************************/
 package net.ash.HIDToVPADNetworkClient.util;
 
-public class Utilities{
-    
-    private Utilities(){}
-    
+public class Utilities {
+
+    private Utilities() {
+    }
+
     /**
      * Let me just sleep!
-     * @param ms sleep duration in ms
+     * 
+     * @param ms
+     *            sleep duration in ms
      */
     public static void sleep(int ms) {
         try {
@@ -35,36 +38,42 @@ public class Utilities{
         } catch (InterruptedException e) {
         }
     }
-    
+
     /**
      * Convert a byte array to a formated String
-     * @param ba byte array
+     * 
+     * @param ba
+     *            byte array
      * @return String representing the binary data
      */
-    public static String ByteArrayToString(byte[] ba){
-      if(ba == null) return null;
-      StringBuilder hex = new StringBuilder(ba.length * 2);
-      for(byte b : ba){
-        hex.append(String.format("%02X", b));
-      }
-      return hex.toString();
+    public static String ByteArrayToString(byte[] ba) {
+        if (ba == null) return null;
+        StringBuilder hex = new StringBuilder(ba.length * 2);
+        for (byte b : ba) {
+            hex.append(String.format("%02X", b));
+        }
+        return hex.toString();
     }
-    
+
     /**
-     * Converts a signed short value to a unsigned byte  
-     * @param value short value
+     * Converts a signed short value to a unsigned byte
+     * 
+     * @param value
+     *            short value
      * @return converted value
      */
-    public static short signedShortToByte(int value){        
-        return (short) (((((short)value) + Short.MAX_VALUE + 1) >> 8) & 0xFF);
+    public static short signedShortToByte(int value) {
+        return (short) (((((short) value) + Short.MAX_VALUE + 1) >> 8) & 0xFF);
     }
-    
+
     /**
-     * Converts a signed short value to a unsigned byte  
-     * @param value short value
+     * Converts a signed short value to a unsigned byte
+     * 
+     * @param value
+     *            short value
      * @return converted value
      */
-    public static short signedShortToByte(short value){
+    public static short signedShortToByte(short value) {
         return signedShortToByte((int) value);
     }
 }

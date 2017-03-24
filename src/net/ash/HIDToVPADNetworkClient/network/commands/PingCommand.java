@@ -25,12 +25,13 @@ import net.ash.HIDToVPADNetworkClient.network.NetworkHIDDevice;
 
 public class PingCommand extends DeviceCommand {
     public PingCommand() {
-        this((short) 0,null);
+        this((short) 0, null);
     }
+
     private PingCommand(int hidHandle, NetworkHIDDevice sender) {
         super(hidHandle, sender);
     }
-    
+
     @Override
     public String toString() {
         return "PingCommand []";

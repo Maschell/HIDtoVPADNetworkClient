@@ -25,29 +25,37 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 import net.ash.HIDToVPADNetworkClient.Main;
+import net.ash.HIDToVPADNetworkClient.util.Settings;
+
 public class GuiCloseListener implements WindowListener {
 
     @Override
     public void windowClosing(WindowEvent arg0) {
+        Settings.saveSettings();
         Main.initiateShutdown();
     }
-    
-    @Override
-    public void windowActivated(WindowEvent arg0) {}
 
     @Override
-    public void windowClosed(WindowEvent arg0) {}
+    public void windowActivated(WindowEvent arg0) {
+    }
 
     @Override
-    public void windowDeactivated(WindowEvent arg0) {}
+    public void windowClosed(WindowEvent arg0) {
+    }
 
     @Override
-    public void windowDeiconified(WindowEvent arg0) {}
+    public void windowDeactivated(WindowEvent arg0) {
+    }
 
     @Override
-    public void windowIconified(WindowEvent arg0) {}
+    public void windowDeiconified(WindowEvent arg0) {
+    }
 
     @Override
-    public void windowOpened(WindowEvent arg0) {}
+    public void windowIconified(WindowEvent arg0) {
+    }
+
+    @Override
+    public void windowOpened(WindowEvent arg0) {
+    }
 }
-

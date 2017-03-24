@@ -35,66 +35,66 @@ import net.ash.HIDToVPADNetworkClient.network.commands.DetachCommand;
 import net.ash.HIDToVPADNetworkClient.network.commands.DeviceCommand;
 import net.ash.HIDToVPADNetworkClient.network.commands.ReadCommand;
 import net.ash.HIDToVPADNetworkClient.util.HandleFoundry;
-import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
 public class NetworkHIDDevice {
     @Getter private final short vid;
     @Getter private final short pid;
-    
+
     @Getter @Setter private short deviceslot;
     @Getter @Setter private byte padslot;
-    
+
     @Getter private int hidHandle = HandleFoundry.next();
     @Getter(AccessLevel.PRIVATE) private List<DeviceCommand> commands = new ArrayList<DeviceCommand>();
-    
+
     @Getter(AccessLevel.PRIVATE) @Setter(AccessLevel.PRIVATE) private ReadCommand latestRead;
-    
+
     private Object readCommandLock = new Object();
-    
-    public NetworkHIDDevice(short vid, short pid){
+
+    public NetworkHIDDevice(short vid, short pid) {
         this.vid = vid;
         this.pid = pid;
     }
-    
-    private void addCommand(DeviceCommand command){
+
+    private void addCommand(DeviceCommand command) {
         this.commands.add(command);
     }
-    
-    private void clearCommands(){
+
+    private void clearCommands() {
         this.commands.clear();
     }
-    
-    public void sendAttach(){
-        addCommand(new AttachCommand(getHidHandle(), getVid(), getPid(),this));
+
+    public void sendAttach() {
+        addCommand(new AttachCommand(getHidHandle(), getVid(), getPid(), this));
     }
-    
-    public void sendDetach(){
-        addCommand(new DetachCommand(getHidHandle(),this));
+
+    public void sendDetach() {
+        addCommand(new DetachCommand(getHidHandle(), this));
     }
-    
+
     private byte[] lastdata = null;
-    public void sendRead(byte[] data){
-        if(!Arrays.equals(lastdata, data)){
+
+    public void sendRead(byte[] data) {
+        if (!Arrays.equals(lastdata, data)) {
             synchronized (readCommandLock) {
-                setLatestRead(new ReadCommand(getHidHandle(),data, this)); //Only get the latest Value.
+                setLatestRead(new ReadCommand(getHidHandle(), data, this)); // Only get the latest Value.
             }
             lastdata = data.clone();
         }
     }
-    
+
     public Collection<? extends DeviceCommand> getCommandList() {
         List<DeviceCommand> commands = new ArrayList<DeviceCommand>();
         commands.addAll(getCommands());
         DeviceCommand lastRead;
-        
+
         synchronized (readCommandLock) {
-            if((lastRead = getLatestRead()) != null){
+            if ((lastRead = getLatestRead()) != null) {
                 commands.add(lastRead);
                 setLatestRead(null);
             }
         }
-        
-        clearCommands();        
+
+        clearCommands();
         return commands;
     }
 
@@ -108,15 +108,11 @@ public class NetworkHIDDevice {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         NetworkHIDDevice other = (NetworkHIDDevice) obj;
-        if (hidHandle != other.hidHandle)
-            return false;
+        if (hidHandle != other.hidHandle) return false;
         return true;
     }
 }

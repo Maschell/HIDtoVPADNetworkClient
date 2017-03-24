@@ -35,77 +35,67 @@ import net.ash.HIDToVPADNetworkClient.network.commands.ReadCommand;
 
 @Log
 public class Protocol {
-	public static final int TCP_PORT = 8112;
-	public static final int UDP_PORT = 8113;
-	
-	public static final byte TCP_HANDSHAKE = 0x12;
-	public static final byte TCP_SAME_CLIENT = 0x20;
-	public static final byte TCP_NEW_CLIENT = 0x21;
-	
-	public static final byte TCP_CMD_ATTACH = 0x01;
-	public static final byte TCP_CMD_DETACH = 0x02;
-	public static final byte TCP_CMD_PING = (byte)0xF0;
-	
-	public static final byte UDP_CMD_DATA = 0x03;
-	
-	
-	public static final byte TCP_CMD_ATTACH_CONFIG_FOUND =      (byte) 0xE0;
-    public static final byte TCP_CMD_ATTACH_CONFIG_NOT_FOUND =  (byte) 0xE1;
-    public static final byte TCP_CMD_ATTACH_USERDATA_OKAY =     (byte) 0xE8;
-    public static final byte TCP_CMD_ATTACH_USERDATA_BAD =      (byte) 0xE9;
-	
-	private Protocol(){}
-	
-	public enum HandshakeReturnCode {
-        BAD_HANDSHAKE,
-        SAME_CLIENT,
-        NEW_CLIENT
-    }
-	
-	public static byte[] getRawAttachDataToSend(AttachCommand command) throws IOException {
-        return ByteBuffer.allocate(9)
-                .put(Protocol.TCP_CMD_ATTACH)
-                .putInt(command.getHandle())
-                .putShort(command.getVid())
-                .putShort(command.getPid())
-                .array();
-    }
-	
-	public static byte[] getRawDetachDataToSend(DetachCommand command) throws IOException {
-        return ByteBuffer.allocate(5)
-                .put(Protocol.TCP_CMD_DETACH)
-                .putInt(command.getHandle())
-                .array();
-    }
-    
-	public static byte[] getRawPingDataToSend(PingCommand command){
-        return new byte[]{Protocol.TCP_CMD_PING};
-    }   
+    public static final int TCP_PORT = 8112;
+    public static final int UDP_PORT = 8113;
 
-	public static byte[] getRawReadDataToSend(List<ReadCommand> readCommands) throws IOException {
+    public static final byte TCP_HANDSHAKE = 0x12;
+    public static final byte TCP_SAME_CLIENT = 0x20;
+    public static final byte TCP_NEW_CLIENT = 0x21;
+
+    public static final byte TCP_CMD_ATTACH = 0x01;
+    public static final byte TCP_CMD_DETACH = 0x02;
+    public static final byte TCP_CMD_PING = (byte) 0xF0;
+
+    public static final byte UDP_CMD_DATA = 0x03;
+
+    public static final byte TCP_CMD_ATTACH_CONFIG_FOUND = (byte) 0xE0;
+    public static final byte TCP_CMD_ATTACH_CONFIG_NOT_FOUND = (byte) 0xE1;
+    public static final byte TCP_CMD_ATTACH_USERDATA_OKAY = (byte) 0xE8;
+    public static final byte TCP_CMD_ATTACH_USERDATA_BAD = (byte) 0xE9;
+
+    private Protocol() {
+    }
+
+    public enum HandshakeReturnCode {
+        BAD_HANDSHAKE, SAME_CLIENT, NEW_CLIENT
+    }
+
+    public static byte[] getRawAttachDataToSend(AttachCommand command) throws IOException {
+        return ByteBuffer.allocate(9).put(Protocol.TCP_CMD_ATTACH).putInt(command.getHandle()).putShort(command.getVid()).putShort(command.getPid()).array();
+    }
+
+    public static byte[] getRawDetachDataToSend(DetachCommand command) throws IOException {
+        return ByteBuffer.allocate(5).put(Protocol.TCP_CMD_DETACH).putInt(command.getHandle()).array();
+    }
+
+    public static byte[] getRawPingDataToSend(PingCommand command) {
+        return new byte[] { Protocol.TCP_CMD_PING };
+    }
+
+    public static byte[] getRawReadDataToSend(List<ReadCommand> readCommands) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(bos);
         dos.writeByte(Protocol.UDP_CMD_DATA);
         dos.writeByte(readCommands.size());
-        
-        for(ReadCommand command : readCommands){
-            NetworkHIDDevice sender = command.getSender();            
+
+        for (ReadCommand command : readCommands) {
+            NetworkHIDDevice sender = command.getSender();
             byte[] data = command.getData();
-            if(data.length > 0xFF){
+            if (data.length > 0xFF) {
                 log.info("Tried to send too much data. Maximum is 0xFF bytes read command.");
                 continue;
             }
 
-            byte newLength = (byte)(data.length & 0xFF);
-           
-            dos.writeInt(command.getHandle());                  
+            byte newLength = (byte) (data.length & 0xFF);
+
+            dos.writeInt(command.getHandle());
             dos.writeShort(sender.getDeviceslot());
             dos.writeByte(sender.getPadslot());
-            
+
             dos.write(newLength);
             dos.write(data, 0, newLength);
         }
-        
+
         return bos.toByteArray();
     }
 }
