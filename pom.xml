@@ -15,6 +15,30 @@
 	<name>HID To VPAD Network Client</name>
 	<url>https://github.com/QuarkTheAwesome/HIDToVPADNetworkClient</url>
 
+	<profiles>
+		<profile>
+			<id>normal-build</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<jar_dir>./target</jar_dir>
+			</properties>
+		</profile>
+		<profile>
+			<id>ci-build</id>
+			<activation>
+				<property>
+					<name>ci-build</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<properties>
+				<jar_dir>./ci</jar_dir>
+			</properties>
+		</profile>
+	</profiles>
+
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<!-- Band-aid over a knife wound, I know. Restructure is later. -->
@@ -46,7 +70,7 @@
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
 					<!-- Stick jar in root dir, if you want -->
-					<!--<outputDirectory>./</outputDirectory>-->
+					<outputDirectory>${jar_dir}</outputDirectory>
 				</configuration>
 				<!-- Hook the "package" stage -->
 				<executions>
