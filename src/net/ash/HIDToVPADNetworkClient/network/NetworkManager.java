@@ -29,6 +29,8 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Synchronized;
 import lombok.extern.java.Log;
+import net.ash.HIDToVPADNetworkClient.controller.Controller;
+import net.ash.HIDToVPADNetworkClient.manager.ActiveControllerManager;
 import net.ash.HIDToVPADNetworkClient.network.commands.AttachCommand;
 import net.ash.HIDToVPADNetworkClient.network.commands.DetachCommand;
 import net.ash.HIDToVPADNetworkClient.network.commands.DeviceCommand;
@@ -206,13 +208,20 @@ public class NetworkManager implements Runnable {
             try {
                 configFound = recvTCPByte();
             } catch (IOException e1) {
-                e1.printStackTrace();
+                log.info("Failed to get byte.");
+                disconnect();
+                return false;
             }
             if (configFound == Protocol.TCP_CMD_ATTACH_CONFIG_FOUND) {
                 // log.info("Config on the console found!");
             } else if (configFound == Protocol.TCP_CMD_ATTACH_CONFIG_NOT_FOUND) {
                 log.info("NO CONFIG FOUND.");
-                return false;
+                Controller c = ActiveControllerManager.getInstance().getControllerByHIDHandle(command.getSender().getHidHandle());
+                if (c != null) {
+                    c.setHasConfig(false);
+                    c.setActive(false);
+                }
+                return true;
             } else if (configFound == 0) {
                 log.info("Failed to get byte.");
                 disconnect();

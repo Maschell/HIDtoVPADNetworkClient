@@ -58,9 +58,9 @@ public class Protocol {
     }
 
     public enum HandshakeReturnCode {
-        GOOD_HANDSHAKE,BAD_HANDSHAKE
+        GOOD_HANDSHAKE, BAD_HANDSHAKE
     }
-    
+
     public static byte[] getRawAttachDataToSend(AttachCommand command) throws IOException {
         return ByteBuffer.allocate(9).put(Protocol.TCP_CMD_ATTACH).putInt(command.getHandle()).putShort(command.getVid()).putShort(command.getPid()).array();
     }
@@ -99,5 +99,5 @@ public class Protocol {
 
         return bos.toByteArray();
     }
-    
+
 }

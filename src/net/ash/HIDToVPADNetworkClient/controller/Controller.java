@@ -48,6 +48,7 @@ public abstract class Controller implements Runnable {
 
     private Object rumbleLock = new Object();
     private boolean rumble = false;
+    private boolean hasConfig = true; // Let's be optimistic
 
     public Controller(ControllerType type, String identifier) throws ControllerInitializationFailedException {
         this.type = type;
@@ -206,4 +207,12 @@ public abstract class Controller implements Runnable {
     }
 
     public abstract String getInfoText();
+
+    public boolean hasConfig() {
+        return this.hasConfig;
+    }
+
+    public void setHasConfig(boolean b) {
+        this.hasConfig = b;
+    }
 }

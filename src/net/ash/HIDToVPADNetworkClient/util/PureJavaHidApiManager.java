@@ -58,10 +58,10 @@ public class PureJavaHidApiManager {
 
         if (Settings.isMacOSX()) real_path = real_path.substring(0, 13);
 
-        if (real_path.equals(expected_path)){
+        if (real_path.equals(expected_path)) {
             return PureJavaHidApi.openDevice(info);
         }
-        
+
         return null;
     }
 

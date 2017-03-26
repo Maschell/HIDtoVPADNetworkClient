@@ -133,7 +133,7 @@ public class ControllerManager {
     public static List<Controller> getAttachedControllers() {
         return new ArrayList<Controller>(attachedControllers.values());
     }
-  
+
     private static Map<String, ControllerType> detectHIDDevices() {
         Map<String, ControllerType> connectedDevices = new HashMap<String, ControllerType>();
 

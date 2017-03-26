@@ -33,12 +33,16 @@ import javax.swing.Timer;
 import lombok.Getter;
 import net.ash.HIDToVPADNetworkClient.controller.Controller;
 import net.ash.HIDToVPADNetworkClient.network.NetworkManager;
+import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
 public class GuiControllerListItem extends JPanel implements ActionListener {
     private static final long serialVersionUID = 1L;
 
     @Getter private final Controller controller;
     private JCheckBox checkbox;
+
+    private boolean clicked = false;
+    private boolean hasConfigCache = true;
 
     public GuiControllerListItem(Controller data) {
         super(new BorderLayout());
@@ -57,6 +61,11 @@ public class GuiControllerListItem extends JPanel implements ActionListener {
         int delay = 100; // milliseconds
         ActionListener taskPerformer = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
+                if (hasConfigCache != controller.hasConfig()) {
+                    hasConfigCache = controller.hasConfig();
+                    checkIfDisplayNoConfigMessage();
+                }
+
                 checkbox.setEnabled(NetworkManager.getInstance().isConnected());
                 checkbox.setSelected(controller.isActive());
             }
@@ -68,8 +77,15 @@ public class GuiControllerListItem extends JPanel implements ActionListener {
         return controller.getInfoText();
     }
 
+    private void checkIfDisplayNoConfigMessage() {
+        if (hasConfigCache == false) {
+            Utilities.messageBox("No configuration for this controller found on the console.");
+        }
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
+        checkIfDisplayNoConfigMessage();
         boolean selected = ((JCheckBox) e.getSource()).isSelected();
         controller.setActive(selected);
         checkbox.setSelected(controller.isActive());

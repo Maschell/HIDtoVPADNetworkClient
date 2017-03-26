@@ -103,7 +103,7 @@ public class ActiveControllerManager implements Runnable {
         synchronized (activeControllers) {
             for (Controller c : toRemove) {
                 NetworkManager.getInstance().removeHIDDevice(activeControllers.get(c));
-                //c.destroyDriver(); Removing it from the list doesn't require to close the connection.
+                // c.destroyDriver(); Removing it from the list doesn't require to close the connection.
                 activeControllers.remove(c);
             }
         }

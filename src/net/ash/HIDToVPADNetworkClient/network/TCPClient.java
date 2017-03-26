@@ -55,20 +55,20 @@ public class TCPClient {
         sock.connect(new InetSocketAddress(ip, Protocol.TCP_PORT), 2000);
         in = new DataInputStream(sock.getInputStream());
         out = new DataOutputStream(sock.getOutputStream());
-        
-        HandshakeReturnCode resultHandshake = HandshakeReturnCode.GOOD_HANDSHAKE;        
-        if (recvByte() != Protocol.TCP_HANDSHAKE) resultHandshake =  HandshakeReturnCode.BAD_HANDSHAKE;    
-        
+
+        HandshakeReturnCode resultHandshake = HandshakeReturnCode.GOOD_HANDSHAKE;
+        if (recvByte() != Protocol.TCP_HANDSHAKE) resultHandshake = HandshakeReturnCode.BAD_HANDSHAKE;
+
         if (resultHandshake == HandshakeReturnCode.GOOD_HANDSHAKE) {
             ActiveControllerManager.getInstance().attachAllActiveControllers();
             this.ip = ip;
             shouldRetry = 0;
-        }else{
+        } else {
             log.info("[TCP] Handshaking failed");
             throw new Exception();
         }
     }
-    
+
     public synchronized boolean abort() {
         try {
             shouldRetry = Settings.MAXIMUM_TRIES_FOR_RECONNECTING;
@@ -104,12 +104,7 @@ public class TCPClient {
     }
 
     public synchronized byte recvByte() throws IOException {
-        try {
-            return in.readByte();
-        } catch (IOException e) {
-            log.info(e.getMessage());
-            throw e;
-        }
+        return in.readByte();
     }
 
     public synchronized short recvShort() throws IOException {

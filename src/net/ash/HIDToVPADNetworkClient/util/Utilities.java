@@ -21,6 +21,9 @@
  *******************************************************************************/
 package net.ash.HIDToVPADNetworkClient.util;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 public class Utilities {
 
     private Utilities() {
@@ -75,5 +78,9 @@ public class Utilities {
      */
     public static short signedShortToByte(short value) {
         return signedShortToByte((int) value);
+    }
+
+    public static void messageBox(String string) {
+        JOptionPane.showMessageDialog(new JFrame(), string);
     }
 }
