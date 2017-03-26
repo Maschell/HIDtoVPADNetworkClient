@@ -121,8 +121,7 @@ public class ControllerManager {
                 default:
                     break;
                 }
-                if (c != null) { // I don't like that starting the Thread
-                                 // happens here =/
+                if (c != null) { // I don't like that starting the Thread happens here =/
                     new Thread(c).start();
                     attachedControllers.put(deviceIdentifier, c);
                 }
@@ -134,7 +133,7 @@ public class ControllerManager {
     public static List<Controller> getAttachedControllers() {
         return new ArrayList<Controller>(attachedControllers.values());
     }
-
+  
     private static Map<String, ControllerType> detectHIDDevices() {
         Map<String, ControllerType> connectedDevices = new HashMap<String, ControllerType>();
 

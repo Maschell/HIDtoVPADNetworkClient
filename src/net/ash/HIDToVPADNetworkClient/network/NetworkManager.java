@@ -278,7 +278,7 @@ public class NetworkManager implements Runnable {
                 System.out.println("UDP Packet sent: " + Utilities.ByteArrayToString(rawCommand));
             }
         } catch (IOException e) {
-            System.out.println("Sending read data failed.");
+            log.info("Sending read data failed.");
         }
     }
 
@@ -331,13 +331,13 @@ public class NetworkManager implements Runnable {
         log.info("Trying to connect to: " + ip);
         try {
             tcpClient.connect(ip);
-            System.out.println("TCP Connected!");
+            log.info("TCP Connected!");
             udpClient = UDPClient.createUDPClient(ip);
             if (udpClient != null) {
                 result = true;
             }
         } catch (Exception e) {
-            System.out.println("Error while connecting: " + e.getMessage());
+            log.info("Error while connecting: " + e.getMessage());
         }
         return result;
     }

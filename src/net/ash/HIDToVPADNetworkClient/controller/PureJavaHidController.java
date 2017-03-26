@@ -36,8 +36,7 @@ import purejavahidapi.InputReportListener;
 public class PureJavaHidController extends Controller implements InputReportListener {
     public static Controller getInstance(String deviceIdentifier) throws IOException, ControllerInitializationFailedException {
         HidDevice device = PureJavaHidApiManager.getDeviceByPath(deviceIdentifier);
-        // We use a special version to optimize the data for the switch pro
-        // controller
+        // We use a special version to optimize the data for the switch pro controller
         if (device.getHidDeviceInfo().getVendorId() == SwitchProController.SWITCH_PRO_CONTROLLER_VID
                 && device.getHidDeviceInfo().getProductId() == SwitchProController.SWITCH_PRO_CONTROLLER_PID) {
             return new SwitchProController(deviceIdentifier);

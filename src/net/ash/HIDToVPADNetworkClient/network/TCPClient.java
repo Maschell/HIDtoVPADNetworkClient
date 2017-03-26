@@ -42,7 +42,6 @@ public class TCPClient {
     private Socket sock;
     private DataInputStream in;
     private DataOutputStream out;
-    @Getter private int clientID = HandleFoundry.next();
 
     @Getter @Setter(AccessLevel.PRIVATE) private int shouldRetry = Settings.MAXIMUM_TRIES_FOR_RECONNECTING;
 
@@ -52,46 +51,30 @@ public class TCPClient {
     }
 
     public synchronized void connect(String ip) throws Exception {
-
         sock = new Socket();
         sock.connect(new InetSocketAddress(ip, Protocol.TCP_PORT), 2000);
         in = new DataInputStream(sock.getInputStream());
         out = new DataOutputStream(sock.getOutputStream());
-
-        HandshakeReturnCode resultHandshake = doHandshake();
-        if (resultHandshake == HandshakeReturnCode.BAD_HANDSHAKE) {
-            log.info("[TCP] Handshaking failed");
-            throw new Exception();
-        } else {
-            if (resultHandshake == HandshakeReturnCode.NEW_CLIENT && this.ip != null) {
-                // We check the IP to be sure it's the first time we connect to
-                // a WiiU. //TODO: Sending a ID from the WiiU which will be
-                // compared?
-                // we are new to the client.
-                ActiveControllerManager.getInstance().attachAllActiveControllers();
-            } else if (resultHandshake == HandshakeReturnCode.SAME_CLIENT) {
-
-            }
+        
+        HandshakeReturnCode resultHandshake = HandshakeReturnCode.GOOD_HANDSHAKE;        
+        if (recvByte() != Protocol.TCP_HANDSHAKE) resultHandshake =  HandshakeReturnCode.BAD_HANDSHAKE;    
+        
+        if (resultHandshake == HandshakeReturnCode.GOOD_HANDSHAKE) {
+            ActiveControllerManager.getInstance().attachAllActiveControllers();
             this.ip = ip;
             shouldRetry = 0;
+        }else{
+            log.info("[TCP] Handshaking failed");
+            throw new Exception();
         }
     }
-
-    private synchronized HandshakeReturnCode doHandshake() throws Exception {
-        if (recvByte() != Protocol.TCP_HANDSHAKE) return HandshakeReturnCode.BAD_HANDSHAKE;
-        send(clientID);
-        log.info("[TCP] Handshaking...");
-        HandshakeReturnCode test = (recvByte() == Protocol.TCP_NEW_CLIENT) ? HandshakeReturnCode.NEW_CLIENT : HandshakeReturnCode.SAME_CLIENT;
-        return test;
-    }
-
+    
     public synchronized boolean abort() {
         try {
             shouldRetry = Settings.MAXIMUM_TRIES_FOR_RECONNECTING;
             sock.close();
-            clientID = HandleFoundry.next();
         } catch (IOException e) {
-            System.out.println(e.getMessage()); // TODO: handle
+            log.info(e.getMessage()); // TODO: handle
             return false;
         }
         return true;
@@ -104,10 +87,8 @@ public class TCPClient {
         } catch (IOException e) {
             try {
                 if (shouldRetry++ < Settings.MAXIMUM_TRIES_FOR_RECONNECTING) {
-                    System.out.println("Trying again to connect! Attempt number " + shouldRetry);
-                    connect(ip); // TODO: this is for reconnecting when the WiiU
-                                 // switches the application. But this breaks
-                                 // disconnecting, woops.
+                    log.info("Trying again to connect! Attempt number " + shouldRetry);
+                    connect(ip); // TODO: this is for reconnecting when the WiiU switches the application. But this breaks disconnecting, woops.
                 } else {
                     abort();
                 }
@@ -126,7 +107,7 @@ public class TCPClient {
         try {
             return in.readByte();
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            log.info(e.getMessage());
             throw e;
         }
     }
@@ -135,7 +116,7 @@ public class TCPClient {
         try {
             return in.readShort();
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            log.info(e.getMessage());
             throw e;
         }
     }

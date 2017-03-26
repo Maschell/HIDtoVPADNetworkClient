@@ -28,6 +28,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import lombok.extern.java.Log;
+import net.ash.HIDToVPADNetworkClient.network.Protocol.HandshakeReturnCode;
 import net.ash.HIDToVPADNetworkClient.network.commands.AttachCommand;
 import net.ash.HIDToVPADNetworkClient.network.commands.DetachCommand;
 import net.ash.HIDToVPADNetworkClient.network.commands.PingCommand;
@@ -57,9 +58,9 @@ public class Protocol {
     }
 
     public enum HandshakeReturnCode {
-        BAD_HANDSHAKE, SAME_CLIENT, NEW_CLIENT
+        GOOD_HANDSHAKE,BAD_HANDSHAKE
     }
-
+    
     public static byte[] getRawAttachDataToSend(AttachCommand command) throws IOException {
         return ByteBuffer.allocate(9).put(Protocol.TCP_CMD_ATTACH).putInt(command.getHandle()).putShort(command.getVid()).putShort(command.getPid()).array();
     }
@@ -98,4 +99,5 @@ public class Protocol {
 
         return bos.toByteArray();
     }
+    
 }
