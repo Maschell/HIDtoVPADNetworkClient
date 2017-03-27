@@ -30,6 +30,7 @@ import java.awt.event.ActionListener;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -50,8 +51,10 @@ public class GuiInputControls extends JPanel implements ActionListener {
     private JButton connectButton;
     private JTextField ipTextBox;
     private JPanel ipTextBoxWrap;
-    private JTextField packetIntervalTextBox;
     private JLabel statusLabel;
+    
+    private JPanel autoActivateWrap;
+    private JCheckBox cbautoActivateController;
 
     public GuiInputControls() throws Exception {
         super();
@@ -76,7 +79,25 @@ public class GuiInputControls extends JPanel implements ActionListener {
 
         statusLabel = new JLabel("Ready.");
         statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
+        
+        
+        cbautoActivateController =  new JCheckBox();
+        cbautoActivateController.setSelected(Settings.AUTO_ACTIVATE_CONTROLLER);
+        cbautoActivateController.addActionListener(new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boolean selected = ((JCheckBox) e.getSource()).isSelected();
+                Settings.AUTO_ACTIVATE_CONTROLLER = selected;
+                cbautoActivateController.setSelected(selected);
+            }
+        });
+        
+        autoActivateWrap = new JPanel(new FlowLayout());
+        autoActivateWrap.add(new JLabel("Auto Activate Controller: "));
+        autoActivateWrap.add(cbautoActivateController);
+        autoActivateWrap.setMaximumSize(new Dimension(1000, 20));
+ 
         add(Box.createVerticalGlue());
 
         add(ipTextBoxWrap);
@@ -86,6 +107,7 @@ public class GuiInputControls extends JPanel implements ActionListener {
         add(Box.createRigidArea(new Dimension(1, 8)));
 
         add(statusLabel);
+        add(autoActivateWrap);
 
         add(Box.createVerticalGlue());
 
@@ -111,22 +133,6 @@ public class GuiInputControls extends JPanel implements ActionListener {
 
     public static GuiInputControls instance() {
         return instance;
-    }
-
-    public JTextField getPacketIntervalTextBox() {
-        return packetIntervalTextBox;
-    }
-
-    public JTextField getIpTextBox() {
-        return ipTextBox;
-    }
-
-    public JButton getConnectButton() {
-        return connectButton;
-    }
-
-    public JLabel getStatusLabel() {
-        return statusLabel;
     }
 
     @Override

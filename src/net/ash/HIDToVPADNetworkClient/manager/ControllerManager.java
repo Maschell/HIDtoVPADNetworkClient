@@ -98,22 +98,17 @@ public class ControllerManager {
                     } catch (ControllerInitializationFailedException e) {
                         // e.printStackTrace();
                     }
-                    break;
-                /*
-                 * TODO: Currently the XInput will be set active automatically. But this should move to something for the settings?
-                 */
+                    break;                
                 case XINPUT14:
                     try {
                         c = new XInput14Controller(deviceIdentifier);
-                        c.setActive(true);
                     } catch (ControllerInitializationFailedException e) {
                         // e.printStackTrace();
                     }
                     break;
                 case XINPUT13:
                     try {
-                        c = new XInput13Controller(deviceIdentifier);
-                        c.setActive(true);
+                        c = new XInput13Controller(deviceIdentifier);                        
                     } catch (ControllerInitializationFailedException e) {
                         // e.printStackTrace();
                     }
@@ -122,6 +117,9 @@ public class ControllerManager {
                     break;
                 }
                 if (c != null) { // I don't like that starting the Thread happens here =/
+                    if(Settings.AUTO_ACTIVATE_CONTROLLER){
+                        c.setActive(true);
+                    }
                     new Thread(c).start();
                     attachedControllers.put(deviceIdentifier, c);
                 }
