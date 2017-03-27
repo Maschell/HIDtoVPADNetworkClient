@@ -43,6 +43,8 @@ public class NetworkHIDDevice {
     @Getter @Setter private short deviceslot;
     @Getter @Setter private byte padslot;
 
+    @Getter @Setter private boolean needFirstData = false;
+
     @Getter private int hidHandle = HandleFoundry.next();
     @Getter(AccessLevel.PRIVATE) private List<DeviceCommand> commands = new ArrayList<DeviceCommand>();
 
@@ -74,11 +76,14 @@ public class NetworkHIDDevice {
     private byte[] lastdata = null;
 
     public void sendRead(byte[] data) {
-        if (!Arrays.equals(lastdata, data)) {
+        if (!Arrays.equals(lastdata, data) || isNeedFirstData()) {
             synchronized (readCommandLock) {
                 setLatestRead(new ReadCommand(getHidHandle(), data, this)); // Only get the latest Value.
             }
             lastdata = data.clone();
+            if (isNeedFirstData()) {
+                setNeedFirstData(false);
+            }
         }
     }
 

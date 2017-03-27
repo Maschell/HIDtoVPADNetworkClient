@@ -262,11 +262,12 @@ public class NetworkManager implements Runnable {
                 return false;
             }
 
-            // Let's save them for later.
+            // Let's save them for later and demand the first data packet.
             NetworkHIDDevice sender = command.getSender();
             if (sender != null) {
                 sender.setDeviceslot(deviceslot);
                 sender.setPadslot(padslot);
+                sender.setNeedFirstData(true); // Please send data after connecting.
             } else {
                 log.info("Something really went wrong. Got an attach event with out an " + NetworkHIDDevice.class.getSimpleName());
                 return false;

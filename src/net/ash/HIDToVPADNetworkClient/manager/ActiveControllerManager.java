@@ -31,6 +31,7 @@ import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.controller.Controller;
 import net.ash.HIDToVPADNetworkClient.network.NetworkHIDDevice;
 import net.ash.HIDToVPADNetworkClient.network.NetworkManager;
+import net.ash.HIDToVPADNetworkClient.network.TCPClient;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
 import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
@@ -113,7 +114,8 @@ public class ActiveControllerManager implements Runnable {
         synchronized (activeControllers) {
             for (Controller c : toAdd) {
                 NetworkHIDDevice hiddevice = new NetworkHIDDevice(c.getVID(), c.getPID());
-                hiddevice.sendAttach();
+                if (NetworkManager.getInstance().isConnected()) hiddevice.sendAttach(); // Only send the attach when we're connected. Because on connecting the
+                                                                                        // TCPClient will automatically attach all active controller
                 NetworkManager.getInstance().addHIDDevice(hiddevice);
                 activeControllers.put(c, hiddevice);
             }
@@ -141,6 +143,15 @@ public class ActiveControllerManager implements Runnable {
         }
     }
 
+    public void detachAllActiveControllers() {
+        synchronized (activeControllers) {
+            for (Entry<Controller, NetworkHIDDevice> entry : activeControllers.entrySet()) {
+                NetworkHIDDevice device = entry.getValue();
+                device.sendDetach();
+            }
+        }
+    }
+
     /**
      * 
      * @param HIDhandle
@@ -154,4 +165,5 @@ public class ActiveControllerManager implements Runnable {
         }
         return null;
     }
+
 }

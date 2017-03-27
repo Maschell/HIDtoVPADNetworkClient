@@ -29,7 +29,7 @@ import java.util.Random;
 
 public class HandleFoundry {
     // We start with a random value, so we have at each startup a different clientID!
-    private static int h = new Random().nextInt(100000);
+    private static int h = new Random().nextInt(Short.MAX_VALUE);
 
     private HandleFoundry() {
     }
