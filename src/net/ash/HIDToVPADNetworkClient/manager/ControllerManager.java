@@ -98,7 +98,7 @@ public class ControllerManager {
                     } catch (ControllerInitializationFailedException e) {
                         // e.printStackTrace();
                     }
-                    break;                
+                    break;
                 case XINPUT14:
                     try {
                         c = new XInput14Controller(deviceIdentifier);
@@ -108,7 +108,7 @@ public class ControllerManager {
                     break;
                 case XINPUT13:
                     try {
-                        c = new XInput13Controller(deviceIdentifier);                        
+                        c = new XInput13Controller(deviceIdentifier);
                     } catch (ControllerInitializationFailedException e) {
                         // e.printStackTrace();
                     }
@@ -117,7 +117,7 @@ public class ControllerManager {
                     break;
                 }
                 if (c != null) { // I don't like that starting the Thread happens here =/
-                    if(Settings.AUTO_ACTIVATE_CONTROLLER){
+                    if (Settings.AUTO_ACTIVATE_CONTROLLER) {
                         c.setActive(true);
                     }
                     new Thread(c).start();

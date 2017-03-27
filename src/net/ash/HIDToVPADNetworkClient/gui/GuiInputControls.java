@@ -52,7 +52,7 @@ public class GuiInputControls extends JPanel implements ActionListener {
     private JTextField ipTextBox;
     private JPanel ipTextBoxWrap;
     private JLabel statusLabel;
-    
+
     private JPanel autoActivateWrap;
     private JCheckBox cbautoActivateController;
 
@@ -79,12 +79,11 @@ public class GuiInputControls extends JPanel implements ActionListener {
 
         statusLabel = new JLabel("Ready.");
         statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
-        
-        cbautoActivateController =  new JCheckBox();
+
+        cbautoActivateController = new JCheckBox();
         cbautoActivateController.setSelected(Settings.AUTO_ACTIVATE_CONTROLLER);
         cbautoActivateController.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 boolean selected = ((JCheckBox) e.getSource()).isSelected();
@@ -92,12 +91,12 @@ public class GuiInputControls extends JPanel implements ActionListener {
                 cbautoActivateController.setSelected(selected);
             }
         });
-        
+
         autoActivateWrap = new JPanel(new FlowLayout());
         autoActivateWrap.add(new JLabel("Auto Activate Controller: "));
         autoActivateWrap.add(cbautoActivateController);
         autoActivateWrap.setMaximumSize(new Dimension(1000, 20));
- 
+
         add(Box.createVerticalGlue());
 
         add(ipTextBoxWrap);

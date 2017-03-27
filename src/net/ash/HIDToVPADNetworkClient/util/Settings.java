@@ -26,17 +26,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
-import net.ash.HIDToVPADNetworkClient.controller.Controller.ControllerType;
-import net.ash.HIDToVPADNetworkClient.util.Settings.Platform;
-
-//TODO autosave IP addr
 
 @Log
 public class Settings {
@@ -91,11 +85,11 @@ public class Settings {
 
         Settings.ipAddr = prop.getProperty("ipAddr");
         String autoActivatingControllerString = prop.getProperty("autoActivatingController");
-        
-        if(autoActivatingControllerString != null){ //We don't combine the if statements to keep the default value.
-            if(autoActivatingControllerString.equals("true")){
+
+        if (autoActivatingControllerString != null) { // We don't combine the if statements to keep the default value.
+            if (autoActivatingControllerString.equals("true")) {
                 Settings.AUTO_ACTIVATE_CONTROLLER = true;
-            }else{
+            } else {
                 Settings.AUTO_ACTIVATE_CONTROLLER = false;
             }
         }
