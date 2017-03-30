@@ -284,7 +284,7 @@ public class NetworkManager implements Runnable {
         byte[] rawCommand;
         try {
             rawCommand = Protocol.getRawReadDataToSend(readCommands);
-            if (sendUDP(rawCommand) == true) {
+            if (sendUDP(rawCommand) == true && Settings.DEBUG_UDP_OUTPUT) {
                 System.out.println("UDP Packet sent: " + Utilities.ByteArrayToString(rawCommand));
             }
         } catch (IOException e) {

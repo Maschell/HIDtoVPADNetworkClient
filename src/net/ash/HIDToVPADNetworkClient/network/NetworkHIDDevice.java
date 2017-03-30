@@ -35,6 +35,7 @@ import net.ash.HIDToVPADNetworkClient.network.commands.DetachCommand;
 import net.ash.HIDToVPADNetworkClient.network.commands.DeviceCommand;
 import net.ash.HIDToVPADNetworkClient.network.commands.ReadCommand;
 import net.ash.HIDToVPADNetworkClient.util.HandleFoundry;
+import net.ash.HIDToVPADNetworkClient.util.Settings;
 
 public class NetworkHIDDevice {
     @Getter private final short vid;
@@ -76,7 +77,7 @@ public class NetworkHIDDevice {
     private byte[] lastdata = null;
 
     public void sendRead(byte[] data) {
-        if (!Arrays.equals(lastdata, data) || isNeedFirstData()) {
+        if (!Settings.SEND_DATA_ONLY_ON_CHANGE || !Arrays.equals(lastdata, data) && Settings.SEND_DATA_ONLY_ON_CHANGE || isNeedFirstData()) {
             synchronized (readCommandLock) {
                 setLatestRead(new ReadCommand(getHidHandle(), data, this)); // Only get the latest Value.
             }
