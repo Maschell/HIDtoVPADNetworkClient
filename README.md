@@ -13,6 +13,6 @@ Please check the releases page for the latest feature list.
 Configuration files for HID to VPAD can be found [here](https://github.com/Maschell/controller_patcher_configs).
 
 ## Used Libraries
-Lombok - https://projectlombok.org/index.html
-purejavahidapi - https://github.com/nyholku/purejavahidapi
-JXInput - https://github.com/StrikerX3/JXInput
+Lombok - https://projectlombok.org/index.html  
+purejavahidapi - https://github.com/nyholku/purejavahidapi  
+JXInput - https://github.com/StrikerX3/JXInput  
