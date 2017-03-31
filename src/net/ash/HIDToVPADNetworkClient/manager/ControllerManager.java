@@ -54,6 +54,8 @@ import purejavahidapi.HidDeviceInfo;
 public final class ControllerManager {
     private static Map<String, Controller> attachedControllers = new HashMap<String, Controller>();
 
+    private static boolean threwUnsatisfiedLinkError = false;
+
     private ControllerManager() {
         // Utility Class
     }
@@ -152,8 +154,6 @@ public final class ControllerManager {
 
         return connectedDevices;
     }
-
-    private static boolean threwUnsatisfiedLinkError = false;
 
     private static Map<String, ControllerType> detectWindowsControllers() {
         Map<String, ControllerType> result = new HashMap<String, ControllerType>();

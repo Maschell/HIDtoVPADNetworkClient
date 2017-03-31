@@ -124,7 +124,7 @@ public final class ActiveControllerManager implements Runnable {
         synchronized (activeControllers) {
             for (Entry<Controller, NetworkHIDDevice> entry : activeControllers.entrySet()) {
                 byte[] data = entry.getKey().getLatestData();
-                if (data != null) {
+                if (data != null && data.length > 0) {
                     NetworkHIDDevice device = entry.getValue();
                     device.sendRead(data);
                 }

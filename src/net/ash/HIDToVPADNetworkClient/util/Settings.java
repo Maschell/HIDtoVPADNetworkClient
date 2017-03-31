@@ -33,7 +33,7 @@ import lombok.Setter;
 import lombok.extern.java.Log;
 
 @Log
-public class Settings {
+public final class Settings {
     private static final String CONFIG_FILE_NAME = "hidtovpad.properties";
 
     public static final int DETECT_CONTROLLER_INTERVAL = 1000;

@@ -34,7 +34,7 @@ import purejavahidapi.HidDevice;
 import purejavahidapi.InputReportListener;
 
 public class PureJavaHidController extends Controller implements InputReportListener {
-    private Object dataLock = new Object();
+    private final Object dataLock = new Object();
     protected byte[] currentData = new byte[1];
 
     protected int PACKET_LENGTH = 64;

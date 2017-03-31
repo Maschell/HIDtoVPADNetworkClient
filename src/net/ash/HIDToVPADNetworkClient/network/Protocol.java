@@ -30,45 +30,45 @@ import java.util.List;
 import lombok.extern.java.Log;
 
 @Log
-class Protocol {
-    protected static final int TCP_PORT = 8112;
-    protected static final int UDP_PORT = 8113;
+final class Protocol {
+    static final int TCP_PORT = 8112;
+    static final int UDP_PORT = 8113;
 
-    protected static final byte TCP_HANDSHAKE = 0x12;
-    protected static final byte TCP_SAME_CLIENT = 0x20;
-    protected static final byte TCP_NEW_CLIENT = 0x21;
+    static final byte TCP_HANDSHAKE = 0x12;
+    static final byte TCP_SAME_CLIENT = 0x20;
+    static final byte TCP_NEW_CLIENT = 0x21;
 
-    protected static final byte TCP_CMD_ATTACH = 0x01;
-    protected static final byte TCP_CMD_DETACH = 0x02;
-    protected static final byte TCP_CMD_PING = (byte) 0xF0;
+    static final byte TCP_CMD_ATTACH = 0x01;
+    static final byte TCP_CMD_DETACH = 0x02;
+    static final byte TCP_CMD_PING = (byte) 0xF0;
 
-    protected static final byte UDP_CMD_DATA = 0x03;
+    static final byte UDP_CMD_DATA = 0x03;
 
-    protected static final byte TCP_CMD_ATTACH_CONFIG_FOUND = (byte) 0xE0;
-    protected static final byte TCP_CMD_ATTACH_CONFIG_NOT_FOUND = (byte) 0xE1;
-    protected static final byte TCP_CMD_ATTACH_USERDATA_OKAY = (byte) 0xE8;
-    protected static final byte TCP_CMD_ATTACH_USERDATA_BAD = (byte) 0xE9;
+    static final byte TCP_CMD_ATTACH_CONFIG_FOUND = (byte) 0xE0;
+    static final byte TCP_CMD_ATTACH_CONFIG_NOT_FOUND = (byte) 0xE1;
+    static final byte TCP_CMD_ATTACH_USERDATA_OKAY = (byte) 0xE8;
+    static final byte TCP_CMD_ATTACH_USERDATA_BAD = (byte) 0xE9;
 
     private Protocol() {
     }
 
-    protected enum HandshakeReturnCode {
+    enum HandshakeReturnCode {
         GOOD_HANDSHAKE, BAD_HANDSHAKE
     }
 
-    protected static byte[] getRawAttachDataToSend(AttachCommand command) throws IOException {
+    static byte[] getRawAttachDataToSend(AttachCommand command) throws IOException {
         return ByteBuffer.allocate(9).put(Protocol.TCP_CMD_ATTACH).putInt(command.getHandle()).putShort(command.getVid()).putShort(command.getPid()).array();
     }
 
-    protected static byte[] getRawDetachDataToSend(DetachCommand command) throws IOException {
+    static byte[] getRawDetachDataToSend(DetachCommand command) throws IOException {
         return ByteBuffer.allocate(5).put(Protocol.TCP_CMD_DETACH).putInt(command.getHandle()).array();
     }
 
-    protected static byte[] getRawPingDataToSend(PingCommand command) {
+    static byte[] getRawPingDataToSend(PingCommand command) {
         return new byte[] { Protocol.TCP_CMD_PING };
     }
 
-    protected static byte[] getRawReadDataToSend(List<ReadCommand> readCommands) throws IOException {
+    static byte[] getRawReadDataToSend(List<ReadCommand> readCommands) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(bos);
         dos.writeByte(Protocol.UDP_CMD_DATA);

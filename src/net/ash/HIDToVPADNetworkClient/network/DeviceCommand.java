@@ -24,7 +24,7 @@ package net.ash.HIDToVPADNetworkClient.network;
 import lombok.Data;
 
 @Data
-abstract class DeviceCommand {
+class DeviceCommand {
     private final int handle;
     private final NetworkHIDDevice sender;
     private final Class<? extends DeviceCommand> type;

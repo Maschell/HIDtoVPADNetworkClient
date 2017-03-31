@@ -47,7 +47,7 @@ public class NetworkHIDDevice {
     @Getter private final int hidHandle = HandleFoundry.next();
 
     private Object readCommandLock = new Object();
-    @Getter(AccessLevel.PRIVATE) private List<DeviceCommand> commands = new ArrayList<DeviceCommand>();
+    @Getter(AccessLevel.PRIVATE) private final List<DeviceCommand> commands = new ArrayList<DeviceCommand>();
     @Getter(AccessLevel.PRIVATE) @Setter(AccessLevel.PRIVATE) private ReadCommand latestRead;
 
     public NetworkHIDDevice(short vid, short pid) {
@@ -113,7 +113,6 @@ public class NetworkHIDDevice {
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         NetworkHIDDevice other = (NetworkHIDDevice) obj;
-        if (hidHandle != other.hidHandle) return false;
-        return true;
+        return (hidHandle != other.hidHandle);
     }
 }

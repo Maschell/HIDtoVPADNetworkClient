@@ -33,7 +33,7 @@ import net.ash.HIDToVPADNetworkClient.util.Settings;
  * TODO finish HidController
  * TODO locale
  */
-public class Main {
+public final class Main {
     public static void main(String[] args) {
         Settings.loadSettings();
         try {

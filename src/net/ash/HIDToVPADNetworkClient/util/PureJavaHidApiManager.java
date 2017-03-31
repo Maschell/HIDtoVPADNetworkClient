@@ -29,7 +29,7 @@ import purejavahidapi.HidDevice;
 import purejavahidapi.HidDeviceInfo;
 import purejavahidapi.PureJavaHidApi;
 
-public class PureJavaHidApiManager {
+public final class PureJavaHidApiManager {
 
     private PureJavaHidApiManager() {
     }

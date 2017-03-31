@@ -38,7 +38,7 @@ import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
 @Log
 public final class NetworkManager implements Runnable {
-    private final TCPClient tcpClient = new TCPClient();
+    private final TCPClient tcpClient = TCPClient.getInstance();
     private UDPClient udpClient = null;
 
     @Getter private static NetworkManager instance = new NetworkManager();
@@ -254,14 +254,15 @@ public final class NetworkManager implements Runnable {
 
             // Let's save them for later and demand the first data packet.
             NetworkHIDDevice sender = command.getSender();
-            if (sender != null) {
-                sender.setDeviceslot(deviceslot);
-                sender.setPadslot(padslot);
-                sender.setNeedFirstData(true); // Please send data after connecting.
-            } else {
+            if (sender == null) {
                 log.info("Something really went wrong. Got an attach event with out an " + NetworkHIDDevice.class.getSimpleName());
                 return false;
             }
+            
+            sender.setDeviceslot(deviceslot);
+            sender.setPadslot(padslot);
+            sender.setNeedFirstData(true); // Please send data after connecting.
+            
             log.info("Attaching done!");
             return true;
         } else {
@@ -274,7 +275,7 @@ public final class NetworkManager implements Runnable {
         byte[] rawCommand;
         try {
             rawCommand = Protocol.getRawReadDataToSend(readCommands);
-            if (sendUDP(rawCommand) == true && Settings.DEBUG_UDP_OUTPUT) {
+            if (sendUDP(rawCommand) && Settings.DEBUG_UDP_OUTPUT) {
                 System.out.println("UDP Packet sent: " + Utilities.ByteArrayToString(rawCommand));
             }
         } catch (IOException e) {
@@ -312,6 +313,7 @@ public final class NetworkManager implements Runnable {
     public void disconnect() {
         // ControllerManager.deactivateAllAttachedControllers();
         tcpClient.abort();
+        udpClient = null;
     }
 
     private short recvTCPShort() throws IOException {

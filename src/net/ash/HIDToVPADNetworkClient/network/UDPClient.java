@@ -27,8 +27,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-
-class UDPClient {
+final class UDPClient {
     private final DatagramSocket sock;
     private final InetAddress host;
 
@@ -37,7 +36,7 @@ class UDPClient {
         host = InetAddress.getByName(ip);
     }
 
-    protected static UDPClient createUDPClient(String ip) {
+    static UDPClient createUDPClient(String ip) {
         UDPClient result = null;
         try {
             result = new UDPClient(ip);
@@ -47,7 +46,7 @@ class UDPClient {
         return result;
     }
 
-    protected void send(byte[] data) throws IOException {
+    void send(byte[] data) throws IOException {
         DatagramPacket packet = new DatagramPacket(data, data.length, host, Protocol.UDP_PORT);
         sock.send(packet);
     }

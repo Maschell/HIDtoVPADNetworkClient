@@ -90,12 +90,12 @@ public abstract class Controller implements Runnable {
 
     @Synchronized("dataLock")
     public byte[] getLatestData() {
-        if (latestData != null) {
+        if (latestData == null) {
+            return new byte[0];
+        }else{
             byte[] data = this.latestData.clone();
             this.latestData = null;
             return data;
-        } else {
-            return null;
         }
     }
 
@@ -183,8 +183,7 @@ public abstract class Controller implements Runnable {
         if (identifier == null) {
             if (other.identifier != null) return false;
         } else if (!identifier.equals(other.identifier)) return false;
-        if (type != other.type) return false;
-        return true;
+        return (type != other.type);
     }
 
     @Synchronized("rumbleLock")

@@ -41,7 +41,7 @@ import lombok.Getter;
 import net.ash.HIDToVPADNetworkClient.network.NetworkManager;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
 
-public class GuiInputControls extends JPanel implements ActionListener {
+public final class GuiInputControls extends JPanel implements ActionListener {
     private static final long serialVersionUID = 1L;
     @Getter private static GuiInputControls instance = new GuiInputControls();
 
@@ -56,7 +56,7 @@ public class GuiInputControls extends JPanel implements ActionListener {
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         setPreferredSize(new Dimension(220, 150));
 
-        JButton connectButton = new JButton(CONNECT);
+        final JButton connectButton = new JButton(CONNECT);
         connectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         ipTextBox = new JTextField();
@@ -70,7 +70,7 @@ public class GuiInputControls extends JPanel implements ActionListener {
         JLabel statusLabel = new JLabel("Ready.");
         statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JCheckBox cbautoActivateController = new JCheckBox();
+        final JCheckBox cbautoActivateController = new JCheckBox();
         cbautoActivateController.setSelected(Settings.AUTO_ACTIVATE_CONTROLLER);
         cbautoActivateController.addActionListener(new ActionListener() {
 

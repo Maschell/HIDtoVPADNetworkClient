@@ -38,8 +38,10 @@ import net.ash.HIDToVPADNetworkClient.network.Protocol.HandshakeReturnCode;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
 
 @Log
-class TCPClient {
+final class TCPClient {
     private final Object lock = new Object();
+    @Getter
+    private static TCPClient instance = new TCPClient();
     private Socket sock;
     private DataInputStream in;
     private DataOutputStream out;
@@ -48,11 +50,11 @@ class TCPClient {
 
     private String ip;
 
-    protected TCPClient() {
+    private TCPClient() {
     }
 
     @Synchronized("lock")
-    protected void connect(String ip) throws Exception {
+    void connect(String ip) throws Exception {
         sock = new Socket();
         sock.connect(new InetSocketAddress(ip, Protocol.TCP_PORT), 2000);
         in = new DataInputStream(sock.getInputStream());
@@ -72,7 +74,7 @@ class TCPClient {
     }
 
     @Synchronized("lock")
-    protected boolean abort() {
+    boolean abort() {
         try {
             shouldRetry = Settings.MAXIMUM_TRIES_FOR_RECONNECTING;
             sock.close();
@@ -84,7 +86,7 @@ class TCPClient {
     }
 
     @Synchronized("lock")
-    protected void send(byte[] rawCommand) throws IOException {
+    void send(byte[] rawCommand) throws IOException {
         try {
             out.write(rawCommand);
             out.flush();
@@ -103,17 +105,17 @@ class TCPClient {
         }
     }
 
-    protected void send(int value) throws IOException {
+    void send(int value) throws IOException {
         send(ByteBuffer.allocate(4).putInt(value).array());
     }
 
     @Synchronized("lock")
-    protected byte recvByte() throws IOException {
+    byte recvByte() throws IOException {
         return in.readByte();
     }
 
     @Synchronized("lock")
-    protected short recvShort() throws IOException {
+    short recvShort() throws IOException {
         try {
             return in.readShort();
         } catch (IOException e) {
@@ -123,11 +125,11 @@ class TCPClient {
     }
 
     @Synchronized("lock")
-    protected boolean isConnected() {
+    boolean isConnected() {
         return (sock != null && sock.isConnected() && !sock.isClosed());
     }
 
-    protected boolean isShouldRetry() {
+    boolean isShouldRetry() {
         return this.shouldRetry < Settings.MAXIMUM_TRIES_FOR_RECONNECTING;
     }
 }

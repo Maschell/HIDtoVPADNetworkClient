@@ -97,12 +97,12 @@ public class LinuxDevInputController extends Controller implements Runnable {
                 return null;
             }
 
-            if (value != 0) {
-                // Set bit with button number
-                buttonState |= (1 << number);
-            } else {
+            if (value == 0) {
                 // Clear bit with button number
                 buttonState &= ~(1 << number);
+            }else{
+                // Set bit with button number
+                buttonState |= (1 << number);
             }
         } else if (type == JS_EVENT_AXIS) {
             if (number >= NUM_SUPPORTED_AXIS) {
