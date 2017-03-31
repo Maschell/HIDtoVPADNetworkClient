@@ -35,6 +35,7 @@ import com.ivan.xinput.XInputDevice14;
 import com.ivan.xinput.exceptions.XInputNotLoadedException;
 
 import lombok.Synchronized;
+import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.controller.Controller;
 import net.ash.HIDToVPADNetworkClient.controller.Controller.ControllerType;
 import net.ash.HIDToVPADNetworkClient.controller.LinuxDevInputController;
@@ -47,6 +48,7 @@ import net.ash.HIDToVPADNetworkClient.util.PureJavaHidApiManager;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
 import purejavahidapi.HidDeviceInfo;
 
+@Log
 public class ControllerManager {
     private static Map<String, Controller> attachedControllers = new HashMap<String, Controller>();
 
@@ -145,9 +147,24 @@ public class ControllerManager {
         return connectedDevices;
     }
 
+    private static boolean threwUnsatisfiedLinkError = false;
     private static Map<String, ControllerType> detectWindowsControllers() {
         Map<String, ControllerType> result = new HashMap<String, ControllerType>();
         ControllerType type = ControllerType.XINPUT13;
+        
+        //Try and catch missing C++ redist
+        try {
+        	XInputDevice.isAvailable();
+        } catch (UnsatisfiedLinkError e) {
+        	if (!threwUnsatisfiedLinkError) {
+        		e.printStackTrace();
+            	log.info("This error can be fixed! Please install the Visual C++ Redistributables:");
+            	log.info("https://www.microsoft.com/en-us/download/details.aspx?id=48145");
+            	log.info("If that doesn't help, create an issue on GitHub.");
+            	threwUnsatisfiedLinkError = true;
+        	}
+        }
+        
         if (XInputDevice.isAvailable() || XInputDevice14.isAvailable()) {
             if (XInputDevice14.isAvailable()) {
                 type = ControllerType.XINPUT14;
