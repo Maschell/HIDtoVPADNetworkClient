@@ -44,6 +44,7 @@ import net.ash.HIDToVPADNetworkClient.controller.XInput13Controller;
 import net.ash.HIDToVPADNetworkClient.controller.XInput14Controller;
 import net.ash.HIDToVPADNetworkClient.controller.XInputController;
 import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
+import net.ash.HIDToVPADNetworkClient.util.MessageBox;
 import net.ash.HIDToVPADNetworkClient.util.PureJavaHidApiManager;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
 import purejavahidapi.HidDeviceInfo;
@@ -161,6 +162,7 @@ public class ControllerManager {
             	log.info("This error can be fixed! Please install the Visual C++ Redistributables:");
             	log.info("https://www.microsoft.com/en-us/download/details.aspx?id=48145");
             	log.info("If that doesn't help, create an issue on GitHub.");
+            	MessageBox.show(new MessageBox("There was a problem setting up XInput.\nTo fix this, try installing the Visual C++\nredistributables: https://tinyurl.com/vcredist2015.\n\nOther controller types should still work.", MessageBox.MESSAGE_ERROR));
             	threwUnsatisfiedLinkError = true;
         	}
         }

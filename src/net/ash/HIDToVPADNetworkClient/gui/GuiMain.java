@@ -23,12 +23,17 @@ package net.ash.HIDToVPADNetworkClient.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 
 import net.ash.HIDToVPADNetworkClient.Main;
+import net.ash.HIDToVPADNetworkClient.util.MessageBox;
 
 public class GuiMain extends JPanel {
     private static final long serialVersionUID = 1L;
@@ -65,6 +70,18 @@ public class GuiMain extends JPanel {
             Main.fatal();
         }
         add(rightSideControls, BorderLayout.LINE_END);
+        
+        int delay = 100;
+        ActionListener messageBoxPerformer = new ActionListener() {
+        	public void actionPerformed(ActionEvent evt) {
+        		MessageBox msg = MessageBox.getNextMessage();
+        		if (msg != null) {
+        			JOptionPane.showMessageDialog(GuiMain.instance(), msg.getMessage(), "HID To VPAD Network Client", msg.getType());
+        			MessageBox.bumpQueue();
+        		}
+        	}
+        };
+        new Timer(delay, messageBoxPerformer).start();
     }
 
     public static GuiMain instance() {
