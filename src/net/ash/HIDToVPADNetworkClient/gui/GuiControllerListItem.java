@@ -33,7 +33,7 @@ import javax.swing.Timer;
 import lombok.Getter;
 import net.ash.HIDToVPADNetworkClient.controller.Controller;
 import net.ash.HIDToVPADNetworkClient.network.NetworkManager;
-import net.ash.HIDToVPADNetworkClient.util.Utilities;
+import net.ash.HIDToVPADNetworkClient.util.MessageBox;
 
 public class GuiControllerListItem extends JPanel implements ActionListener {
     private static final long serialVersionUID = 1L;
@@ -78,7 +78,7 @@ public class GuiControllerListItem extends JPanel implements ActionListener {
 
     private void checkIfDisplayNoConfigMessage() {
         if (hasConfigCache == false) {
-            Utilities.messageBox("No configuration for this controller found on the console.");
+            MessageBox.show(new MessageBox("No configuration for this controller found on the console.", MessageBox.MESSAGE_ERROR));
         }
     }
 
