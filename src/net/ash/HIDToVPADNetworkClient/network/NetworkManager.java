@@ -57,9 +57,9 @@ public final class NetworkManager implements Runnable {
     }
 
     public void addHIDDevice(NetworkHIDDevice device) {
-        if (!getDevices().contains(device)) {
+        if (!devices.contains(device)) {
             synchronized (devices) {
-                getDevices().add(device);
+                devices.add(device);
             }
         }
     }
@@ -258,11 +258,11 @@ public final class NetworkManager implements Runnable {
                 log.info("Something really went wrong. Got an attach event with out an " + NetworkHIDDevice.class.getSimpleName());
                 return false;
             }
-            
+
             sender.setDeviceslot(deviceslot);
             sender.setPadslot(padslot);
             sender.setNeedFirstData(true); // Please send data after connecting.
-            
+
             log.info("Attaching done!");
             return true;
         } else {

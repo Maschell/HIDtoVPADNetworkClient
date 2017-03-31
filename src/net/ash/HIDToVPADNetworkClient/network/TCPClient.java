@@ -40,8 +40,7 @@ import net.ash.HIDToVPADNetworkClient.util.Settings;
 @Log
 final class TCPClient {
     private final Object lock = new Object();
-    @Getter
-    private static TCPClient instance = new TCPClient();
+    @Getter private static TCPClient instance = new TCPClient();
     private Socket sock;
     private DataInputStream in;
     private DataOutputStream out;

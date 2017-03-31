@@ -100,7 +100,7 @@ public class LinuxDevInputController extends Controller implements Runnable {
             if (value == 0) {
                 // Clear bit with button number
                 buttonState &= ~(1 << number);
-            }else{
+            } else {
                 // Set bit with button number
                 buttonState |= (1 << number);
             }

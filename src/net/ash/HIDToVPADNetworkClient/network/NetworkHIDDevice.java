@@ -30,6 +30,7 @@ import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Synchronized;
 import net.ash.HIDToVPADNetworkClient.util.HandleFoundry;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
 
@@ -46,8 +47,9 @@ public class NetworkHIDDevice {
 
     @Getter private final int hidHandle = HandleFoundry.next();
 
-    private Object readCommandLock = new Object();
-    @Getter(AccessLevel.PRIVATE) private final List<DeviceCommand> commands = new ArrayList<DeviceCommand>();
+    private final Object readCommandLock = new Object();
+    private final Object pullCommandsLock = new Object();
+    private final List<DeviceCommand> commands = new ArrayList<DeviceCommand>();
     @Getter(AccessLevel.PRIVATE) @Setter(AccessLevel.PRIVATE) private ReadCommand latestRead;
 
     public NetworkHIDDevice(short vid, short pid) {
@@ -55,10 +57,12 @@ public class NetworkHIDDevice {
         this.pid = pid;
     }
 
+    @Synchronized("commands")
     private void addCommand(DeviceCommand command) {
         this.commands.add(command);
     }
 
+    @Synchronized("commands")
     private void clearCommands() {
         this.commands.clear();
     }
@@ -85,17 +89,24 @@ public class NetworkHIDDevice {
 
     protected Collection<? extends DeviceCommand> getCommandList() {
         List<DeviceCommand> commands = new ArrayList<DeviceCommand>();
-        commands.addAll(getCommands());
-        DeviceCommand lastRead;
+        synchronized (pullCommandsLock) {
+            commands.addAll(getCommands());
+            clearCommands();
+        }
 
         synchronized (readCommandLock) {
-            if ((lastRead = getLatestRead()) != null) {
+            DeviceCommand lastRead = getLatestRead();
+            if (lastRead != null) {
                 commands.add(lastRead);
                 setLatestRead(null);
             }
         }
 
-        clearCommands();
+        return commands;
+    }
+
+    @Synchronized("commands")
+    private List<DeviceCommand> getCommands() {
         return commands;
     }
 
@@ -113,6 +124,6 @@ public class NetworkHIDDevice {
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         NetworkHIDDevice other = (NetworkHIDDevice) obj;
-        return (hidHandle != other.hidHandle);
+        return (hidHandle == other.hidHandle);
     }
 }
