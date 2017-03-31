@@ -23,34 +23,36 @@ package net.ash.HIDToVPADNetworkClient.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.Timer;
 
+import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.Main;
 import net.ash.HIDToVPADNetworkClient.util.MessageBox;
+import net.ash.HIDToVPADNetworkClient.util.MessageBoxListener;
 
-public class GuiMain extends JPanel {
+@Log
+public class GuiMain extends JPanel implements MessageBoxListener {
     private static final long serialVersionUID = 1L;
     private static GuiMain instance;
 
-    public static void createGUI() {
+    private static GuiMain createGUI() {
         JFrame frame = new JFrame("HID To VPAD Network Client");
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.addWindowListener(new GuiCloseListener());
 
-        instance = new GuiMain();
+        GuiMain instance = new GuiMain();
+
         JComponent newContentPane = instance;
         newContentPane.setOpaque(true);
         frame.setContentPane(newContentPane);
 
         frame.pack();
         frame.setVisible(true);
+        return instance;
     }
 
     private GuiControllerList leftControllerList;
@@ -70,21 +72,22 @@ public class GuiMain extends JPanel {
             Main.fatal();
         }
         add(rightSideControls, BorderLayout.LINE_END);
-        
-        int delay = 100;
-        ActionListener messageBoxPerformer = new ActionListener() {
-        	public void actionPerformed(ActionEvent evt) {
-        		MessageBox msg = MessageBox.getNextMessage();
-        		if (msg != null) {
-        			JOptionPane.showMessageDialog(GuiMain.instance(), msg.getMessage(), "HID To VPAD Network Client", msg.getType());
-        			MessageBox.bumpQueue();
-        		}
-        	}
-        };
-        new Timer(delay, messageBoxPerformer).start();
     }
 
-    public static GuiMain instance() {
+    public synchronized static GuiMain getInstance() {
+        if (instance == null) {
+            instance = createGUI();
+        }
         return instance;
+    }
+
+    @Override
+    public void showMessageBox(MessageBox msg) {
+        if (msg == null || msg.getMessage() == null) {
+            log.info("Can't show the message box");
+        }
+        String real_title = "HID To VPAD Network Client";
+
+        JOptionPane.showMessageDialog(this, msg.getMessage(), real_title, msg.getType());
     }
 }

@@ -45,6 +45,7 @@ import net.ash.HIDToVPADNetworkClient.controller.XInput14Controller;
 import net.ash.HIDToVPADNetworkClient.controller.XInputController;
 import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
 import net.ash.HIDToVPADNetworkClient.util.MessageBox;
+import net.ash.HIDToVPADNetworkClient.util.MessageBoxManager;
 import net.ash.HIDToVPADNetworkClient.util.PureJavaHidApiManager;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
 import purejavahidapi.HidDeviceInfo;
@@ -149,24 +150,27 @@ public class ControllerManager {
     }
 
     private static boolean threwUnsatisfiedLinkError = false;
+
     private static Map<String, ControllerType> detectWindowsControllers() {
         Map<String, ControllerType> result = new HashMap<String, ControllerType>();
         ControllerType type = ControllerType.XINPUT13;
-        
-        //Try and catch missing C++ redist
+
+        // Try and catch missing C++ redist
         try {
-        	XInputDevice.isAvailable();
+            XInputDevice.isAvailable();
         } catch (UnsatisfiedLinkError e) {
-        	if (!threwUnsatisfiedLinkError) {
-        		e.printStackTrace();
-            	log.info("This error can be fixed! Please install the Visual C++ Redistributables:");
-            	log.info("https://www.microsoft.com/en-us/download/details.aspx?id=48145");
-            	log.info("If that doesn't help, create an issue on GitHub.");
-            	MessageBox.show(new MessageBox("There was a problem setting up XInput.\nTo fix this, try installing the Visual C++\nredistributables: https://tinyurl.com/vcredist2015.\n\nOther controller types should still work.", MessageBox.MESSAGE_ERROR));
-            	threwUnsatisfiedLinkError = true;
-        	}
+            if (!threwUnsatisfiedLinkError) {
+                e.printStackTrace();
+                log.info("This error can be fixed! Please install the Visual C++ Redistributables:");
+                log.info("https://www.microsoft.com/en-us/download/details.aspx?id=48145");
+                log.info("If that doesn't help, create an issue on GitHub.");
+                MessageBoxManager.addMessageBox(
+                        "There was a problem setting up XInput.\nTo fix this, try installing the Visual C++\nredistributables: https://tinyurl.com/vcredist2015.\n\nOther controller types should still work.",
+                        MessageBox.MESSAGE_ERROR);
+                threwUnsatisfiedLinkError = true;
+            }
         }
-        
+
         if (XInputDevice.isAvailable() || XInputDevice14.isAvailable()) {
             if (XInputDevice14.isAvailable()) {
                 type = ControllerType.XINPUT14;

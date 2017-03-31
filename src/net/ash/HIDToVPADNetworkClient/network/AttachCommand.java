@@ -19,21 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.network.commands;
+package net.ash.HIDToVPADNetworkClient.network;
 
-import net.ash.HIDToVPADNetworkClient.network.NetworkHIDDevice;
+import lombok.Getter;
 
-public class PingCommand extends DeviceCommand {
-    public PingCommand() {
-        this((short) 0, null);
-    }
+class AttachCommand extends DeviceCommand {
+    @Getter private final short vid;
+    @Getter private final short pid;
 
-    private PingCommand(int hidHandle, NetworkHIDDevice sender) {
+    protected AttachCommand(int hidHandle, short vid, short pid, NetworkHIDDevice sender) {
         super(hidHandle, sender);
+        this.vid = vid;
+        this.pid = pid;
     }
 
     @Override
     public String toString() {
-        return "PingCommand []";
+        return "AttachCommand [vid=" + vid + ", pid=" + pid + ", handle=" + getHandle() + ", sender=" + getSender() + "]";
     }
 }

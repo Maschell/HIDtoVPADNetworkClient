@@ -119,7 +119,7 @@
 		<dependency>
 			<groupId>com.github.QuarkTheAwesome</groupId>
 			<artifactId>purejavahidapi</artifactId>
-			<version>94cdc9b</version>
+			<version>066842c</version>
 		</dependency>
 	</dependencies>
 </project>

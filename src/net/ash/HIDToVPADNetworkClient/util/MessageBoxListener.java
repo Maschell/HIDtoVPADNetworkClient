@@ -19,48 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient;
 
-import javax.swing.SwingUtilities;
+package net.ash.HIDToVPADNetworkClient.util;
 
-import net.ash.HIDToVPADNetworkClient.gui.GuiMain;
-import net.ash.HIDToVPADNetworkClient.manager.ActiveControllerManager;
-import net.ash.HIDToVPADNetworkClient.network.NetworkManager;
-import net.ash.HIDToVPADNetworkClient.util.MessageBoxManager;
-import net.ash.HIDToVPADNetworkClient.util.Settings;
-
-/* Ash's todo list
- * TODO finish HidController
- * TODO locale
- */
-public class Main {
-    public static void main(String[] args) {
-        Settings.loadSettings();
-        try {
-            new Thread(ActiveControllerManager.getInstance()).start();
-            new Thread(NetworkManager.getInstance()).start();
-        } catch (Exception e) {
-            e.printStackTrace();
-            fatal();
-        }
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                GuiMain.getInstance();
-
-            }
-        });
-
-        MessageBoxManager.addMessageBoxListener(GuiMain.getInstance());
-
-    }
-
-    public static void fatal() {
-        System.err.println("HID To VPAD Network Client encountered an irrecoverable error.");
-        System.err.println("Exiting...");
-        System.exit(1);
-    }
-
-    public static void initiateShutdown() {
-        System.exit(0);
-    }
+public interface MessageBoxListener {
+    public void showMessageBox(MessageBox msgBox);
 }

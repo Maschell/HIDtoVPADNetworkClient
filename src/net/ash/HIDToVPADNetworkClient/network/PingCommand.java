@@ -19,17 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.network.commands;
+package net.ash.HIDToVPADNetworkClient.network;
 
-import net.ash.HIDToVPADNetworkClient.network.NetworkHIDDevice;
+class PingCommand extends DeviceCommand {
+    protected PingCommand() {
+        this((short) 0, null);
+    }
 
-public class DetachCommand extends DeviceCommand {
-    public DetachCommand(int hidHandle, NetworkHIDDevice sender) {
+    protected PingCommand(int hidHandle, NetworkHIDDevice sender) {
         super(hidHandle, sender);
     }
 
     @Override
     public String toString() {
-        return "DetachCommand [handle=" + getHandle() + ", sender=" + getSender() + "]";
+        return "PingCommand []";
     }
 }

@@ -19,21 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.network.commands;
+package net.ash.HIDToVPADNetworkClient.network;
 
-import lombok.Getter;
-import net.ash.HIDToVPADNetworkClient.network.NetworkHIDDevice;
+import lombok.Data;
 
-public class ReadCommand extends DeviceCommand {
-    @Getter private final byte[] data;
+@Data
+abstract class DeviceCommand {
+    private final int handle;
+    private final NetworkHIDDevice sender;
+    private final Class<? extends DeviceCommand> type;
 
-    public ReadCommand(int hidHandle, byte[] data, NetworkHIDDevice sender) {
-        super(hidHandle, sender);
-        this.data = data;
-    }
-
-    @Override
-    public String toString() {
-        return "ReadCommand [handle=" + getHandle() + ", sender=" + getSender() + "]";
+    protected DeviceCommand(int hidHandle, NetworkHIDDevice sender) {
+        this.handle = hidHandle;
+        this.sender = sender;
+        this.type = this.getClass();
     }
 }

@@ -30,10 +30,6 @@ import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import net.ash.HIDToVPADNetworkClient.network.commands.AttachCommand;
-import net.ash.HIDToVPADNetworkClient.network.commands.DetachCommand;
-import net.ash.HIDToVPADNetworkClient.network.commands.DeviceCommand;
-import net.ash.HIDToVPADNetworkClient.network.commands.ReadCommand;
 import net.ash.HIDToVPADNetworkClient.util.HandleFoundry;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
 
@@ -88,7 +84,7 @@ public class NetworkHIDDevice {
         }
     }
 
-    public Collection<? extends DeviceCommand> getCommandList() {
+    protected Collection<? extends DeviceCommand> getCommandList() {
         List<DeviceCommand> commands = new ArrayList<DeviceCommand>();
         commands.addAll(getCommands());
         DeviceCommand lastRead;

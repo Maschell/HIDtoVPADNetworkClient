@@ -31,11 +31,8 @@ import lombok.Synchronized;
 import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.controller.Controller;
 import net.ash.HIDToVPADNetworkClient.manager.ActiveControllerManager;
-import net.ash.HIDToVPADNetworkClient.network.commands.AttachCommand;
-import net.ash.HIDToVPADNetworkClient.network.commands.DetachCommand;
-import net.ash.HIDToVPADNetworkClient.network.commands.DeviceCommand;
-import net.ash.HIDToVPADNetworkClient.network.commands.PingCommand;
-import net.ash.HIDToVPADNetworkClient.network.commands.ReadCommand;
+import net.ash.HIDToVPADNetworkClient.util.MessageBox;
+import net.ash.HIDToVPADNetworkClient.util.MessageBoxManager;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
 import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
@@ -97,7 +94,7 @@ public class NetworkManager implements Runnable {
         if (isConnected() || tcpClient.isShouldRetry()) sendingCommand(new PingCommand());
     }
 
-    public void proccessCommands() {
+    private void proccessCommands() {
         List<DeviceCommand> commands = new ArrayList<DeviceCommand>();
         commands.addAll(ownCommands); // TODO: Does this need a synchronized
                                       // block? It _should_ be only access from
@@ -347,12 +344,14 @@ public class NetworkManager implements Runnable {
                 result = true;
             }
         } catch (Exception e) {
-            log.info("Error while connecting: " + e.getMessage());
+            String error = "Error while connecting: " + e.getMessage();
+            log.info(error);
+            MessageBoxManager.addMessageBox(error, MessageBox.MESSAGE_WARNING);
         }
         return result;
     }
 
-    public void addCommand(DeviceCommand command) {
+    private void addCommand(DeviceCommand command) {
         this.ownCommands.add(command);
     }
 
