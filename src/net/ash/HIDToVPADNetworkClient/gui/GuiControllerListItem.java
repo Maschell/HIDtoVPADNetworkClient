@@ -41,7 +41,6 @@ public class GuiControllerListItem extends JPanel implements ActionListener {
     @Getter private final Controller controller;
     private JCheckBox checkbox;
 
-    private boolean clicked = false;
     private boolean hasConfigCache = true;
 
     public GuiControllerListItem(Controller data) {

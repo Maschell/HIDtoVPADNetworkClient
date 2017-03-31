@@ -31,7 +31,6 @@ import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.controller.Controller;
 import net.ash.HIDToVPADNetworkClient.network.NetworkHIDDevice;
 import net.ash.HIDToVPADNetworkClient.network.NetworkManager;
-import net.ash.HIDToVPADNetworkClient.network.TCPClient;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
 import net.ash.HIDToVPADNetworkClient.util.Utilities;
 

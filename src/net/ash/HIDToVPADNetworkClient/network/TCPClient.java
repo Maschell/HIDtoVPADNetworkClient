@@ -34,7 +34,6 @@ import lombok.Setter;
 import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.manager.ActiveControllerManager;
 import net.ash.HIDToVPADNetworkClient.network.Protocol.HandshakeReturnCode;
-import net.ash.HIDToVPADNetworkClient.util.HandleFoundry;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
 
 @Log

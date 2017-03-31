@@ -28,7 +28,6 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import lombok.extern.java.Log;
-import net.ash.HIDToVPADNetworkClient.network.Protocol.HandshakeReturnCode;
 import net.ash.HIDToVPADNetworkClient.network.commands.AttachCommand;
 import net.ash.HIDToVPADNetworkClient.network.commands.DetachCommand;
 import net.ash.HIDToVPADNetworkClient.network.commands.PingCommand;
