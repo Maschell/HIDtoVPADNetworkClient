@@ -37,26 +37,24 @@ import net.ash.HIDToVPADNetworkClient.util.Settings;
 import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
 @Log
-public class NetworkManager implements Runnable {
+public final class NetworkManager implements Runnable {
     private final TCPClient tcpClient = new TCPClient();
     private UDPClient udpClient = null;
 
-    private static NetworkManager instance = null;
+    @Getter private static NetworkManager instance = new NetworkManager();
 
-    private List<DeviceCommand> ownCommands = new ArrayList<DeviceCommand>();
+    private final List<DeviceCommand> ownCommands = new ArrayList<DeviceCommand>();
+
+    @Getter private final List<NetworkHIDDevice> devices = new ArrayList<NetworkHIDDevice>();
+
+    /*
+     * We want to remove them at the end of a cycle. To make sure the detach was send before removing.
+     */
+    @Getter private final List<NetworkHIDDevice> toRemove = new ArrayList<NetworkHIDDevice>();
 
     private NetworkManager() {
-
+        // Singleton
     }
-
-    public static NetworkManager getInstance() {
-        if (instance == null) {
-            instance = new NetworkManager();
-        }
-        return instance;
-    }
-
-    @Getter private List<NetworkHIDDevice> devices = new ArrayList<NetworkHIDDevice>();
 
     public void addHIDDevice(NetworkHIDDevice device) {
         if (!getDevices().contains(device)) {
@@ -65,11 +63,6 @@ public class NetworkManager implements Runnable {
             }
         }
     }
-
-    /*
-     * We want to remove them at the end of a cycle. To make sure the detach was send before removing.
-     */
-    @Getter private List<NetworkHIDDevice> toRemove = new ArrayList<NetworkHIDDevice>();
 
     @Synchronized("toRemove")
     public void removeHIDDevice(NetworkHIDDevice device) {

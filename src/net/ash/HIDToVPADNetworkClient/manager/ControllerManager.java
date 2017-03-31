@@ -51,8 +51,12 @@ import net.ash.HIDToVPADNetworkClient.util.Settings;
 import purejavahidapi.HidDeviceInfo;
 
 @Log
-public class ControllerManager {
+public final class ControllerManager {
     private static Map<String, Controller> attachedControllers = new HashMap<String, Controller>();
+
+    private ControllerManager() {
+        // Utility Class
+    }
 
     /**
      * Detects all attached controller.

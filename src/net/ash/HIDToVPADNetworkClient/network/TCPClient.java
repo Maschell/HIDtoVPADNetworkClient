@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Synchronized;
 import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.manager.ActiveControllerManager;
 import net.ash.HIDToVPADNetworkClient.network.Protocol.HandshakeReturnCode;
@@ -38,6 +39,7 @@ import net.ash.HIDToVPADNetworkClient.util.Settings;
 
 @Log
 class TCPClient {
+    private final Object lock = new Object();
     private Socket sock;
     private DataInputStream in;
     private DataOutputStream out;
@@ -49,7 +51,8 @@ class TCPClient {
     protected TCPClient() {
     }
 
-    protected synchronized void connect(String ip) throws Exception {
+    @Synchronized("lock")
+    protected void connect(String ip) throws Exception {
         sock = new Socket();
         sock.connect(new InetSocketAddress(ip, Protocol.TCP_PORT), 2000);
         in = new DataInputStream(sock.getInputStream());
@@ -68,7 +71,8 @@ class TCPClient {
         }
     }
 
-    protected synchronized boolean abort() {
+    @Synchronized("lock")
+    protected boolean abort() {
         try {
             shouldRetry = Settings.MAXIMUM_TRIES_FOR_RECONNECTING;
             sock.close();
@@ -79,7 +83,8 @@ class TCPClient {
         return true;
     }
 
-    protected synchronized void send(byte[] rawCommand) throws IOException {
+    @Synchronized("lock")
+    protected void send(byte[] rawCommand) throws IOException {
         try {
             out.write(rawCommand);
             out.flush();
@@ -87,7 +92,7 @@ class TCPClient {
             try {
                 if (shouldRetry++ < Settings.MAXIMUM_TRIES_FOR_RECONNECTING) {
                     log.info("Trying again to connect! Attempt number " + shouldRetry);
-                    connect(ip); // TODO: this is for reconnecting when the WiiU switches the application. But this breaks disconnecting, woops.
+                    connect(ip);
                 } else {
                     abort();
                 }
@@ -98,15 +103,17 @@ class TCPClient {
         }
     }
 
-    protected synchronized void send(int value) throws IOException {
+    protected void send(int value) throws IOException {
         send(ByteBuffer.allocate(4).putInt(value).array());
     }
 
-    protected synchronized byte recvByte() throws IOException {
+    @Synchronized("lock")
+    protected byte recvByte() throws IOException {
         return in.readByte();
     }
 
-    protected synchronized short recvShort() throws IOException {
+    @Synchronized("lock")
+    protected short recvShort() throws IOException {
         try {
             return in.readShort();
         } catch (IOException e) {
@@ -115,7 +122,8 @@ class TCPClient {
         }
     }
 
-    protected synchronized boolean isConnected() {
+    @Synchronized("lock")
+    protected boolean isConnected() {
         return (sock != null && sock.isConnected() && !sock.isClosed());
     }
 

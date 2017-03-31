@@ -30,7 +30,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import lombok.extern.java.Log;
-import net.ash.HIDToVPADNetworkClient.Main;
 import net.ash.HIDToVPADNetworkClient.util.MessageBox;
 import net.ash.HIDToVPADNetworkClient.util.MessageBoxListener;
 
@@ -55,22 +54,13 @@ public class GuiMain extends JPanel implements MessageBoxListener {
         return instance;
     }
 
-    private GuiControllerList leftControllerList;
-    private GuiInputControls rightSideControls;
-
     public GuiMain() {
         super(new BorderLayout());
 
-        leftControllerList = new GuiControllerList();
+        GuiControllerList leftControllerList = new GuiControllerList();
         leftControllerList.setPreferredSize(new Dimension(300, 100));
         add(leftControllerList, BorderLayout.CENTER);
-
-        try {
-            rightSideControls = new GuiInputControls();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Main.fatal();
-        }
+        GuiInputControls rightSideControls = GuiInputControls.getInstance();
         add(rightSideControls, BorderLayout.LINE_END);
     }
 

@@ -37,50 +37,40 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+import lombok.Getter;
 import net.ash.HIDToVPADNetworkClient.network.NetworkManager;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
 
 public class GuiInputControls extends JPanel implements ActionListener {
     private static final long serialVersionUID = 1L;
-    private static GuiInputControls instance = null;
+    @Getter private static GuiInputControls instance = new GuiInputControls();
 
     private static final String CONNECT = "Connect";
     private static final String DISCONNECT = "Disconnect";
     private static final String RECONNECTING = "Reconnecting";
+    private final JTextField ipTextBox;
 
-    private JButton connectButton;
-    private JTextField ipTextBox;
-    private JPanel ipTextBoxWrap;
-    private JLabel statusLabel;
-
-    private JPanel autoActivateWrap;
-    private JCheckBox cbautoActivateController;
-
-    public GuiInputControls() throws Exception {
+    private GuiInputControls() {
         super();
-        if (instance != null) {
-            throw new Exception("GuiInputControls already has an instance!");
-        }
-        instance = this;
 
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         setPreferredSize(new Dimension(220, 150));
 
-        connectButton = new JButton(CONNECT);
+        JButton connectButton = new JButton(CONNECT);
         connectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         ipTextBox = new JTextField();
         ipTextBox.setColumns(15);
         ipTextBox.setText(Settings.getIpAddr());
-        ipTextBoxWrap = new JPanel(new FlowLayout());
+        JPanel ipTextBoxWrap = new JPanel(new FlowLayout());
         ipTextBoxWrap.add(new JLabel("IP: "));
         ipTextBoxWrap.add(ipTextBox);
         ipTextBoxWrap.setMaximumSize(new Dimension(1000, 20));
 
-        statusLabel = new JLabel("Ready.");
+        JLabel statusLabel = new JLabel("Ready.");
         statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        cbautoActivateController = new JCheckBox();
+        JCheckBox cbautoActivateController = new JCheckBox();
         cbautoActivateController.setSelected(Settings.AUTO_ACTIVATE_CONTROLLER);
         cbautoActivateController.addActionListener(new ActionListener() {
 
@@ -92,7 +82,7 @@ public class GuiInputControls extends JPanel implements ActionListener {
             }
         });
 
-        autoActivateWrap = new JPanel(new FlowLayout());
+        JPanel autoActivateWrap = new JPanel(new FlowLayout());
         autoActivateWrap.add(new JLabel("Auto Activate Controller: "));
         autoActivateWrap.add(cbautoActivateController);
         autoActivateWrap.setMaximumSize(new Dimension(1000, 20));
@@ -128,10 +118,6 @@ public class GuiInputControls extends JPanel implements ActionListener {
             }
         };
         new Timer(delay, taskPerformer).start();
-    }
-
-    public static GuiInputControls instance() {
-        return instance;
     }
 
     @Override

@@ -27,7 +27,7 @@ package net.ash.HIDToVPADNetworkClient.util;
 
 import java.util.Random;
 
-public class HandleFoundry {
+public final class HandleFoundry {
     // We start with a random value, so we have at each startup a different clientID!
     private static int h = new Random().nextInt(Short.MAX_VALUE);
 
@@ -35,6 +35,7 @@ public class HandleFoundry {
     }
 
     public static int next() {
+        if (h >= Short.MAX_VALUE) h = 0;
         return h++;
     }
 }

@@ -37,25 +37,31 @@ public class GuiCloseListener implements WindowListener {
 
     @Override
     public void windowActivated(WindowEvent arg0) {
+        // not used
     }
 
     @Override
     public void windowClosed(WindowEvent arg0) {
+        // not used
     }
 
     @Override
     public void windowDeactivated(WindowEvent arg0) {
+        // not used
     }
 
     @Override
     public void windowDeiconified(WindowEvent arg0) {
+        // not used
     }
 
     @Override
     public void windowIconified(WindowEvent arg0) {
+        // not used
     }
 
     @Override
     public void windowOpened(WindowEvent arg0) {
+        // not used
     }
 }

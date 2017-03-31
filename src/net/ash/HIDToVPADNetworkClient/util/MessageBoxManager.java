@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class MessageBoxManager implements Runnable {
+public final class MessageBoxManager implements Runnable {
     private static final Queue<MessageBox> messageBoxQueue = new ConcurrentLinkedQueue<MessageBox>();
     private static List<MessageBoxListener> newList = Collections.synchronizedList(new ArrayList<MessageBoxListener>());
     private static Object listenerListLock = new Object();

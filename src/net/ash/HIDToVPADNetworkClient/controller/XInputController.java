@@ -85,8 +85,8 @@ public class XInputController extends Controller {
             if (buttons.lThumb) buttonState |= (1 << 12);
             if (buttons.rThumb) buttonState |= (1 << 13);
             if (buttons.unknown) buttonState |= (1 << 14);
-            if (XInputDevice.isGuideButtonSupported()) {
-                if (buttons.guide) buttonState |= (1 << 15);
+            if (XInputDevice.isGuideButtonSupported() && buttons.guide) {
+                buttonState |= (1 << 15);
             }
 
             XInputAxes axes = components.getAxes();
@@ -107,7 +107,7 @@ public class XInputController extends Controller {
 
             return (data.array());
         }
-        return null;
+        return new byte[0];
     }
 
     @Override

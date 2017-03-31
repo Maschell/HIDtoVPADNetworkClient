@@ -90,14 +90,14 @@ public class Settings {
         String sendDataOnlyOnChanges = prop.getProperty("sendDataOnlyOnChanges");
 
         if (autoActivatingControllerString != null) { // We don't combine the if statements to keep the default value.
-            if (autoActivatingControllerString.equals("true")) {
+            if ("true".equals(autoActivatingControllerString)) {
                 Settings.AUTO_ACTIVATE_CONTROLLER = true;
             } else {
                 Settings.AUTO_ACTIVATE_CONTROLLER = false;
             }
         }
         if (sendDataOnlyOnChanges != null) { // We don't combine the if statements to keep the default value.
-            if (sendDataOnlyOnChanges.equals("true")) {
+            if ("true".equals(sendDataOnlyOnChanges)) {
                 Settings.SEND_DATA_ONLY_ON_CHANGE = true;
             } else {
                 Settings.SEND_DATA_ONLY_ON_CHANGE = false;

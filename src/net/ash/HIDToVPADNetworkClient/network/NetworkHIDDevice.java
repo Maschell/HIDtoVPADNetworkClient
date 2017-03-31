@@ -42,12 +42,13 @@ public class NetworkHIDDevice {
 
     @Getter @Setter private boolean needFirstData = false;
 
-    @Getter private int hidHandle = HandleFoundry.next();
-    @Getter(AccessLevel.PRIVATE) private List<DeviceCommand> commands = new ArrayList<DeviceCommand>();
+    private byte[] lastdata = null;
 
-    @Getter(AccessLevel.PRIVATE) @Setter(AccessLevel.PRIVATE) private ReadCommand latestRead;
+    @Getter private final int hidHandle = HandleFoundry.next();
 
     private Object readCommandLock = new Object();
+    @Getter(AccessLevel.PRIVATE) private List<DeviceCommand> commands = new ArrayList<DeviceCommand>();
+    @Getter(AccessLevel.PRIVATE) @Setter(AccessLevel.PRIVATE) private ReadCommand latestRead;
 
     public NetworkHIDDevice(short vid, short pid) {
         this.vid = vid;
@@ -69,8 +70,6 @@ public class NetworkHIDDevice {
     public void sendDetach() {
         addCommand(new DetachCommand(getHidHandle(), this));
     }
-
-    private byte[] lastdata = null;
 
     public void sendRead(byte[] data) {
         if (!Settings.SEND_DATA_ONLY_ON_CHANGE || !Arrays.equals(lastdata, data) && Settings.SEND_DATA_ONLY_ON_CHANGE || isNeedFirstData()) {

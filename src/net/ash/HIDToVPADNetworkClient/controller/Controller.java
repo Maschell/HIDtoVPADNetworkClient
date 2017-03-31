@@ -43,10 +43,10 @@ public abstract class Controller implements Runnable {
 
     boolean shutdown = false;
     boolean shutdownDone = false;
-    private Object dataLock = new Object();
-    private Object shutdownLock = new Object();
+    private final Object dataLock = new Object();
+    private final Object shutdownLock = new Object();
 
-    private Object rumbleLock = new Object();
+    private final Object rumbleLock = new Object();
     private boolean rumble = false;
     private boolean hasConfig = true; // Let's be optimistic
 
@@ -65,7 +65,7 @@ public abstract class Controller implements Runnable {
             Utilities.sleep(Settings.DETECT_CONTROLLER_INTERVAL);
             while (isActive()) {
                 byte[] newData = pollLatestData();
-                if (newData != null) {
+                if (newData != null && newData.length != 0) {
                     setLatestData(newData);
                 }
                 doSleepAfterPollingData();

@@ -31,10 +31,6 @@ import lombok.Setter;
 import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
 
 public class LinuxDevInputController extends Controller implements Runnable {
-    public LinuxDevInputController(String identifier) throws ControllerInitializationFailedException {
-        super(ControllerType.LINUX, identifier);
-    }
-
     public static final int NUM_SUPPORTED_AXIS = 10; // possibly off-by-one
     public static final int CONTROLLER_DATA_SIZE = (Long.SIZE / Byte.SIZE) + ((Byte.SIZE / Byte.SIZE) * NUM_SUPPORTED_AXIS);
 
@@ -46,6 +42,13 @@ public class LinuxDevInputController extends Controller implements Runnable {
 
     @Getter @Setter private short VID;
     @Getter @Setter private short PID;
+
+    private long buttonState = 0;
+    private byte[] axisState = new byte[NUM_SUPPORTED_AXIS];
+
+    public LinuxDevInputController(String identifier) throws ControllerInitializationFailedException {
+        super(ControllerType.LINUX, identifier);
+    }
 
     @Override
     public boolean initController(String identifier) {
@@ -64,9 +67,6 @@ public class LinuxDevInputController extends Controller implements Runnable {
 
         return true;
     }
-
-    private long buttonState = 0;
-    private byte[] axisState = new byte[NUM_SUPPORTED_AXIS];
 
     @Override
     public byte[] pollLatestData() {
@@ -151,5 +151,4 @@ public class LinuxDevInputController extends Controller implements Runnable {
     public String getInfoText() {
         return "Linux controller on " + getIdentifier();
     }
-
 }

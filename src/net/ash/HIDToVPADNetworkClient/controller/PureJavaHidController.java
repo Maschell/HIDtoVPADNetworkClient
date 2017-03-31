@@ -34,6 +34,13 @@ import purejavahidapi.HidDevice;
 import purejavahidapi.InputReportListener;
 
 public class PureJavaHidController extends Controller implements InputReportListener {
+    private Object dataLock = new Object();
+    protected byte[] currentData = new byte[1];
+
+    protected int PACKET_LENGTH = 64;
+
+    @Getter @Setter(AccessLevel.PRIVATE) private HidDevice hidDevice;
+
     public static Controller getInstance(String deviceIdentifier) throws IOException, ControllerInitializationFailedException {
         HidDevice device = PureJavaHidApiManager.getDeviceByPath(deviceIdentifier);
         // We use a special version to optimize the data for the switch pro controller
@@ -51,13 +58,6 @@ public class PureJavaHidController extends Controller implements InputReportList
     public PureJavaHidController(String identifier) throws ControllerInitializationFailedException {
         super(ControllerType.PureJAVAHid, identifier);
     }
-
-    private Object dataLock = new Object();
-    protected byte[] currentData = new byte[1];
-
-    protected int PACKET_LENGTH = 64;
-
-    @Getter @Setter(AccessLevel.PRIVATE) private HidDevice hidDevice;
 
     @Override
     public boolean initController(String identifier) {

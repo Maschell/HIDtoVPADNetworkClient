@@ -40,7 +40,7 @@ public class GuiControllerListItem extends JPanel implements ActionListener {
     private static final long serialVersionUID = 1L;
 
     @Getter private final Controller controller;
-    private JCheckBox checkbox;
+    private final JCheckBox checkbox;
 
     private boolean hasConfigCache = true;
 
@@ -78,7 +78,7 @@ public class GuiControllerListItem extends JPanel implements ActionListener {
     }
 
     private void checkIfDisplayNoConfigMessage() {
-        if (hasConfigCache == false) {
+        if (!hasConfigCache) {
             MessageBoxManager.addMessageBox("No configuration for this controller found on the console.", MessageBox.MESSAGE_ERROR);
         }
     }

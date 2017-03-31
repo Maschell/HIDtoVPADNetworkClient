@@ -41,7 +41,8 @@ import net.ash.HIDToVPADNetworkClient.manager.ControllerManager;
 public class GuiControllerList extends JPanel {
     private static final long serialVersionUID = 1L;
 
-    private JPanel innerScrollPanel;
+    private final JPanel innerScrollPanel;
+    private final Object innerScrollPanelLock = new Object();;
 
     public GuiControllerList() {
         super(new BorderLayout());
@@ -59,51 +60,48 @@ public class GuiControllerList extends JPanel {
         new Timer(delay, taskPerformer).start();
     }
 
-    public synchronized void updateControllerList() {
-        // System.out.println("[GuiControllerList] Updating controller
-        // list..."); //XXX debug text
-
+    public void updateControllerList() {
         boolean repaintNeeded = false;
-
         List<Controller> attachedControllers = ControllerManager.getAttachedControllers();
-
         List<GuiControllerListItem> newComponents = new ArrayList<GuiControllerListItem>();
 
-        Map<Controller, GuiControllerListItem> components = new HashMap<Controller, GuiControllerListItem>();
-        for (Component component : innerScrollPanel.getComponents()) {
-            if (component instanceof GuiControllerListItem) {
-                GuiControllerListItem comp = (GuiControllerListItem) component;
-                Controller cont = comp.getController();
-                if (attachedControllers.contains(cont)) {
-                    components.put(cont, comp);
-                } else {// Controller removed
-                    repaintNeeded = true;
+        synchronized (innerScrollPanelLock) {
+            Map<Controller, GuiControllerListItem> components = new HashMap<Controller, GuiControllerListItem>();
+            for (Component component : innerScrollPanel.getComponents()) {
+                if (component instanceof GuiControllerListItem) {
+                    GuiControllerListItem comp = (GuiControllerListItem) component;
+                    Controller cont = comp.getController();
+                    if (attachedControllers.contains(cont)) {
+                        components.put(cont, comp);
+                    } else {// Controller removed
+                        repaintNeeded = true;
+                    }
                 }
             }
-        }
 
-        // Build new list of components.
-        for (Controller controller : attachedControllers) {
-            GuiControllerListItem i = null;
-            if (components.containsKey(controller)) {
-                newComponents.add(components.get(controller));
-            } else { // New controller was added
-                repaintNeeded = true;
-                i = new GuiControllerListItem(controller);
-                newComponents.add(i);
-            }
-        }
-
-        if (repaintNeeded) {
-            innerScrollPanel.removeAll();
-            for (GuiControllerListItem component : newComponents) {
-                innerScrollPanel.add(component);
+            // Build new list of components.
+            for (Controller controller : attachedControllers) {
+                GuiControllerListItem i = null;
+                if (components.containsKey(controller)) {
+                    newComponents.add(components.get(controller));
+                } else { // New controller was added
+                    repaintNeeded = true;
+                    i = new GuiControllerListItem(controller);
+                    newComponents.add(i);
+                }
             }
 
-            innerScrollPanel.revalidate();
-            revalidate();
-            innerScrollPanel.repaint();
-            repaint();
+            if (repaintNeeded) {
+                innerScrollPanel.removeAll();
+                for (GuiControllerListItem component : newComponents) {
+                    innerScrollPanel.add(component);
+                }
+
+                innerScrollPanel.revalidate();
+                revalidate();
+                innerScrollPanel.repaint();
+                repaint();
+            }
         }
     }
 }

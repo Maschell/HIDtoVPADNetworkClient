@@ -21,7 +21,7 @@
  *******************************************************************************/
 package net.ash.HIDToVPADNetworkClient.util;
 
-public class Utilities {
+public final class Utilities {
 
     private Utilities() {
     }

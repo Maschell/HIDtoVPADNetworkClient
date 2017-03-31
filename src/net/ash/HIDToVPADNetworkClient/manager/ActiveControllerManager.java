@@ -35,8 +35,9 @@ import net.ash.HIDToVPADNetworkClient.util.Settings;
 import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
 @Log
-public class ActiveControllerManager implements Runnable {
+public final class ActiveControllerManager implements Runnable {
     private static ActiveControllerManager instance = new ActiveControllerManager();
+    private final Map<Controller, NetworkHIDDevice> activeControllers = new HashMap<Controller, NetworkHIDDevice>();
 
     private ActiveControllerManager() {
     }
@@ -46,7 +47,7 @@ public class ActiveControllerManager implements Runnable {
     }
 
     @Override
-    public void run() { // TODO: Add mechanism to stop these threads?
+    public void run() { // TODO: Add mechanism to stop these threads? And add a mechanism start only once?
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -68,8 +69,6 @@ public class ActiveControllerManager implements Runnable {
             }
         }).start();
     }
-
-    private Map<Controller, NetworkHIDDevice> activeControllers = new HashMap<Controller, NetworkHIDDevice>();
 
     public void updateControllerStates() {
         List<Controller> currentControllers = ControllerManager.getActiveControllers();

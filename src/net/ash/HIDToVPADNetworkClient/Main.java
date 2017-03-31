@@ -51,7 +51,9 @@ public class Main {
         });
 
         MessageBoxManager.addMessageBoxListener(GuiMain.getInstance());
+    }
 
+    private Main() {
     }
 
     public static void fatal() {
