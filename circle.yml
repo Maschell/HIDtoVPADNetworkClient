@@ -15,4 +15,4 @@ deployment:
     branch: master
     commands:
       - go get github.com/tcnksm/ghr
-      - ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME -prerelease -b 'Nightly release. Use caution! We recommend downloading a stable release from the README.' `echo "v0.2-nightly-$(git rev-parse --short=7 HEAD)"` ci/
+      - ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME -prerelease -b 'Nightly release - Use caution! We recommend downloading a stable release from the README.' `echo "v0.2-nightly-$(git rev-parse --short=7 HEAD)"` ci/
