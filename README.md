@@ -2,7 +2,7 @@
 # HIDtoVPADNetworkClient
 [![Build Status](https://circleci.com/gh/QuarkTheAwesome/HIDtoVPADNetworkClient.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/QuarkTheAwesome/HIDtoVPADNetworkClient)
 ---
-[Current Stable Release](https://github.com/QuarkTheAwesome/HIDtoVPADNetworkClient/releases/latest) | [Nightly builds](https://github.com/QuarkTheAwesome/HIDtoVPADNetworkClient/releases) | [Issue Tracker](https://github.com/QuarkTheAwesome/HIDtoVPADNetworkClient/issues) | [Support Thread](https://gbatemp.net/threads/hid-to-vpad.424127/)
+[Current Stable Release](https://github.com/QuarkTheAwesome/HIDtoVPADNetworkClient/releases/latest) | [Nightly builds](https://github.com/QuarkTheAwesome/HIDtoVPADNetworkClient/releases) | [Issue Tracker](https://github.com/QuarkTheAwesome/HIDtoVPADNetworkClient/issues) | [Support Thread](http://gbatemp.net/threads/hid-to-vpad-network-client.466150/)
 
 A Java application to send data from various controllers to [HID to VPAD](https://github.com/Maschell/hid_to_vpad); a homebrew application for the Wii U.
 
