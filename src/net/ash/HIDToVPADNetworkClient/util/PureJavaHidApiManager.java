@@ -69,7 +69,7 @@ public final class PureJavaHidApiManager {
         List<HidDeviceInfo> connectedGamepads = new ArrayList<HidDeviceInfo>();
 
         for (HidDeviceInfo info : PureJavaHidApi.enumerateDevices()) {
-            if (info.getUsagePage() == 0x05 || info.getUsagePage() == 0x04 || (info.getVendorId() == 0x57e) || (info.getVendorId() == 0x054c)) {
+            if (info.getUsagePage() == 0x05 ||info.getUsagePage() == 0x01 || info.getUsagePage() == 0x04 || (info.getVendorId() == 0x57e) || (info.getVendorId() == 0x054c)) {
                 connectedGamepads.add(info);
             }
         }

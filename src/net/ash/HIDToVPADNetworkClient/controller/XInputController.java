@@ -21,6 +21,7 @@
  *******************************************************************************/
 package net.ash.HIDToVPADNetworkClient.controller;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 import com.ivan.xinput.XInputAxes;
@@ -32,9 +33,11 @@ import com.ivan.xinput.exceptions.XInputNotLoadedException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
 import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
+@Log
 public class XInputController extends Controller {
     // the pad number will be appended to this String.
     public static final String XINPUT_INDENTIFER = "\\\\?\\XINPUT\\";
@@ -52,7 +55,7 @@ public class XInputController extends Controller {
         try {
             device = XInputDevice.getDeviceFor(pad);
         } catch (XInputNotLoadedException e) {
-            // TODO: Log?
+          e.printStackTrace();
         }
         if (device == null) return false;
         setDevice(device);
@@ -61,7 +64,15 @@ public class XInputController extends Controller {
 
     @Override
     public byte[] pollLatestData() {
-        if (device.poll()) {
+        boolean newData = false;
+        try{
+            newData = device.poll();
+        }catch(BufferUnderflowException e){
+            log.info("Error reading the XInput data " + e.getMessage());
+            setActive(false);
+            Thread.currentThread().stop();
+        }
+        if (newData) {
             ByteBuffer data = ByteBuffer.allocate(8);
             XInputComponents components = device.getComponents();
 

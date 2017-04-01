@@ -35,6 +35,9 @@ public class SwitchProController extends PureJavaHidController {
 
     @Override
     public byte[] pollLatestData() {
+        if(currentData == null || currentData.length < 10){
+            return new byte[0];
+        }
         // remove unused data (because only changed data will be sent)
         currentData[3] = 0;
         currentData[5] = 0;

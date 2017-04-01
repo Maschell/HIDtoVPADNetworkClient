@@ -60,27 +60,47 @@
 			<!-- Generate a jar with dependencies -->
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>net.ash.HIDToVPADNetworkClient.Main</mainClass>
-						</manifest>
-					</archive>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-					<!-- Stick jar in root dir, if you want -->
-					<outputDirectory>${jar_dir}</outputDirectory>
-				</configuration>
-				<!-- Hook the "package" stage -->
 				<executions>
 					<execution>
 						<id>make-assembly</id>
+						<configuration>
+		                    <archive>
+		                        <manifest>
+		                            <mainClass>net.ash.HIDToVPADNetworkClient.Main</mainClass>
+		                        </manifest>
+		                    </archive>
+		                    <descriptorRefs>
+		                        <descriptorRef>jar-with-dependencies</descriptorRef>
+		                    </descriptorRefs>
+		                    <!-- Stick jar in root dir, if you want -->
+		                    <outputDirectory>${jar_dir}</outputDirectory>
+		                    <finalName>HIDToVPADNetworkClient</finalName>
+		                </configuration>
 						<phase>package</phase>
 						<goals>
 							<goal>attached</goal>
 						</goals>
 					</execution>
+					<execution>
+                        <id>make-HIDTest</id>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <mainClass>de.mas.HIDTest.Main</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <!-- Stick jar in root dir, if you want -->
+                            <outputDirectory>${jar_dir}</outputDirectory>
+                            <finalName>HIDTest</finalName>
+                        </configuration>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                    </execution>
 				</executions>
 			</plugin>
 			<!-- Disable the default jar output -->
