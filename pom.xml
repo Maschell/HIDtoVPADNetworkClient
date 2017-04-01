@@ -117,9 +117,9 @@
 			<version>1eb4087</version>    <!-- JXInput 0.7 -->
 		</dependency>
 		<dependency>
-			<groupId>com.github.QuarkTheAwesome</groupId>
+			<groupId>com.github.Maschell</groupId>
 			<artifactId>purejavahidapi</artifactId>
-			<version>066842c</version>
+			<version>cbf0588</version>
 		</dependency>
 	</dependencies>
 </project>
