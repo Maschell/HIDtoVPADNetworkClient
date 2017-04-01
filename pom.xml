@@ -10,6 +10,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<exec.mainClass>net.ash.HIDToVPADNetworkClient.Main</exec.mainClass>
+		<hidtest_version>0.1</hidtest_version>
 	</properties>
 
 	<name>HID To VPAD Network Client</name>
@@ -74,7 +75,7 @@
 		                    </descriptorRefs>
 		                    <!-- Stick jar in root dir, if you want -->
 		                    <outputDirectory>${jar_dir}</outputDirectory>
-		                    <finalName>HIDToVPADNetworkClient</finalName>
+		                    <finalName>HIDToVPADNetworkClient-${version}-nightly</finalName>
 		                </configuration>
 						<phase>package</phase>
 						<goals>
@@ -94,7 +95,7 @@
                             </descriptorRefs>
                             <!-- Stick jar in root dir, if you want -->
                             <outputDirectory>${jar_dir}</outputDirectory>
-                            <finalName>HIDTest</finalName>
+                             <finalName>HIDTest-${hidtest_version}-nightly</finalName>
                         </configuration>
                         <phase>package</phase>
                         <goals>
