@@ -70,6 +70,9 @@ public final class PureJavaHidApiManager {
 
         for (HidDeviceInfo info : PureJavaHidApi.enumerateDevices()) {
             if (info.getUsagePage() == 0x05 ||info.getUsagePage() == 0x01 || info.getUsagePage() == 0x04 || (info.getVendorId() == 0x57e) || (info.getVendorId() == 0x054c)) {
+                if(((info.getVendorId() == 0x045e) && ((info.getProductId() == 0x02ff) || (info.getProductId() == 0x02a1))) && Settings.isWindows()){ //Skip Xbox pads on windows. We have XInput
+                    continue;
+                }
                 connectedGamepads.add(info);
             }
         }
