@@ -28,11 +28,13 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
+import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
 import net.ash.HIDToVPADNetworkClient.util.PureJavaHidApiManager;
 import purejavahidapi.HidDevice;
 import purejavahidapi.InputReportListener;
 
+@Log
 public class PureJavaHidController extends Controller implements InputReportListener {
     private final Object dataLock = new Object();
     protected byte[] currentData = new byte[1];
@@ -43,12 +45,20 @@ public class PureJavaHidController extends Controller implements InputReportList
 
     public static Controller getInstance(String deviceIdentifier) throws IOException, ControllerInitializationFailedException {
         HidDevice device = PureJavaHidApiManager.getDeviceByPath(deviceIdentifier);
+
+        short vid = 0;
+        short pid = 0;
+        if (device != null) {
+            vid = device.getHidDeviceInfo().getVendorId();
+            pid = device.getHidDeviceInfo().getProductId();
+            device.close();
+        }
+
         // We use a special version to optimize the data for the switch pro controller
-        if (device.getHidDeviceInfo().getVendorId() == SwitchProController.SWITCH_PRO_CONTROLLER_VID
-                && device.getHidDeviceInfo().getProductId() == SwitchProController.SWITCH_PRO_CONTROLLER_PID) {
+        if (vid == SwitchProController.SWITCH_PRO_CONTROLLER_VID && pid == SwitchProController.SWITCH_PRO_CONTROLLER_PID) {
+
             return new SwitchProController(deviceIdentifier);
-        } else if (device.getHidDeviceInfo().getVendorId() == DS4NewController.DS4_NEW_CONTROLLER_VID
-                && device.getHidDeviceInfo().getProductId() == DS4NewController.DS4_NEW_CONTROLLER_PID) {
+        } else if (vid == DS4NewController.DS4_NEW_CONTROLLER_VID && pid == DS4NewController.DS4_NEW_CONTROLLER_PID) {
             return new DS4NewController(deviceIdentifier);
         } else {
             return new PureJavaHidController(deviceIdentifier);
@@ -64,6 +74,9 @@ public class PureJavaHidController extends Controller implements InputReportList
         HidDevice device;
         try {
             device = PureJavaHidApiManager.getDeviceByPath(identifier);
+            if (device == null) {
+                return false;
+            }
 
             device.setInputReportListener(this);
             setHidDevice(device);
@@ -83,7 +96,16 @@ public class PureJavaHidController extends Controller implements InputReportList
 
     @Override
     public void destroyDriver() {
-        getHidDevice().close();
+        try {
+            getHidDevice().close();
+        } catch (IllegalStateException e) {
+            if (e.getMessage().equals("device not open")) {
+                log.info("Error closing the device." + e.getMessage());
+            } else {
+                throw e;
+            }
+        }
+
     }
 
     @Override

@@ -44,9 +44,11 @@ public final class Settings {
     public static final int PING_INTERVAL = 1000;
     public static final int PROCESS_CMD_INTERVAL = 10;
 
+    public static boolean SCAN_AUTOMATICALLY_FOR_CONTROLLERS = !isMacOSX(); // It doesn't work on OSX
+
     public static boolean DEBUG_UDP_OUTPUT = false;
     public static boolean SEND_DATA_ONLY_ON_CHANGE = false;
-    public static boolean AUTO_ACTIVATE_CONTROLLER = true;
+    public static boolean AUTO_ACTIVATE_CONTROLLER = false;
 
     @Getter @Setter private static String ipAddr = "192.168.0.35"; // @Maschell, you're welcome
 
@@ -88,6 +90,7 @@ public final class Settings {
         Settings.ipAddr = prop.getProperty("ipAddr");
         String autoActivatingControllerString = prop.getProperty("autoActivatingController");
         String sendDataOnlyOnChanges = prop.getProperty("sendDataOnlyOnChanges");
+        String scanAutomaticallyForControllers = prop.getProperty("scanAutomaticallyForControllers");
 
         if (autoActivatingControllerString != null) { // We don't combine the if statements to keep the default value.
             if ("true".equals(autoActivatingControllerString)) {
@@ -101,6 +104,13 @@ public final class Settings {
                 Settings.SEND_DATA_ONLY_ON_CHANGE = true;
             } else {
                 Settings.SEND_DATA_ONLY_ON_CHANGE = false;
+            }
+        }
+        if (scanAutomaticallyForControllers != null) { // We don't combine the if statements to keep the default value.
+            if ("true".equals(scanAutomaticallyForControllers)) {
+                Settings.SCAN_AUTOMATICALLY_FOR_CONTROLLERS = true;
+            } else {
+                Settings.SCAN_AUTOMATICALLY_FOR_CONTROLLERS = false;
             }
         }
 
@@ -125,6 +135,7 @@ public final class Settings {
         prop.setProperty("ipAddr", Settings.ipAddr);
         prop.setProperty("autoActivatingController", Boolean.toString(Settings.AUTO_ACTIVATE_CONTROLLER));
         prop.setProperty("sendDataOnlyOnChanges", Boolean.toString(Settings.SEND_DATA_ONLY_ON_CHANGE));
+        prop.setProperty("scanAutomaticallyForControllers", Boolean.toString(Settings.SCAN_AUTOMATICALLY_FOR_CONTROLLERS));
 
         try {
             FileOutputStream outStream = new FileOutputStream(configFile);

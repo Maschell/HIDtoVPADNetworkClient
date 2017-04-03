@@ -41,6 +41,7 @@ final class Protocol {
     static final byte TCP_CMD_ATTACH = 0x01;
     static final byte TCP_CMD_DETACH = 0x02;
     static final byte TCP_CMD_PING = (byte) 0xF0;
+    static final byte TCP_CMD_PONG = (byte) 0xF1;
 
     static final byte UDP_CMD_DATA = 0x03;
 

@@ -90,17 +90,21 @@ final class TCPClient {
             out.write(rawCommand);
             out.flush();
         } catch (IOException e) {
-            try {
-                if (shouldRetry++ < Settings.MAXIMUM_TRIES_FOR_RECONNECTING) {
-                    log.info("Trying again to connect! Attempt number " + shouldRetry);
-                    connect(ip);
-                } else {
-                    abort();
-                }
-            } catch (Exception e1) {
-                // e1.printStackTrace();
-            }
+            checkShouldRetry();
             throw e;
+        }
+    }
+
+    protected void checkShouldRetry() {
+        try {
+            if (shouldRetry++ < Settings.MAXIMUM_TRIES_FOR_RECONNECTING) {
+                log.info("Trying again to connect! Attempt number " + shouldRetry);
+                connect(ip);
+            } else {
+                abort();
+            }
+        } catch (Exception e1) {
+            // e1.printStackTrace();
         }
     }
 

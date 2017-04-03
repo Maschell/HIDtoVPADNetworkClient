@@ -161,6 +161,18 @@ public final class NetworkManager implements Runnable {
     private void sendPing(PingCommand command) {
         if (sendTCP(Protocol.getRawPingDataToSend(command))) {
             log.info("PING");
+            byte pong;
+            try {
+                pong = tcpClient.recvByte();
+                if (pong != Protocol.TCP_CMD_PONG) {
+                    disconnect();
+                }
+                log.info("got PONG!");
+            } catch (IOException e) {
+                log.info("Failed to get PONG. Disconnecting.");
+                tcpClient.checkShouldRetry();
+            }
+
         } else {
             log.info("Sending the PING failed");
         }

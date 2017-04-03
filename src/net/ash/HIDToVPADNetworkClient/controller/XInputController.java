@@ -55,7 +55,7 @@ public class XInputController extends Controller {
         try {
             device = XInputDevice.getDeviceFor(pad);
         } catch (XInputNotLoadedException e) {
-          e.printStackTrace();
+            e.printStackTrace();
         }
         if (device == null) return false;
         setDevice(device);
@@ -65,9 +65,9 @@ public class XInputController extends Controller {
     @Override
     public byte[] pollLatestData() {
         boolean newData = false;
-        try{
+        try {
             newData = device.poll();
-        }catch(BufferUnderflowException e){
+        } catch (BufferUnderflowException e) {
             log.info("Error reading the XInput data " + e.getMessage());
             setActive(false);
             Thread.currentThread().stop();

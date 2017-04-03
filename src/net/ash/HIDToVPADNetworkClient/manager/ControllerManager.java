@@ -52,7 +52,8 @@ import purejavahidapi.HidDeviceInfo;
 
 @Log
 public final class ControllerManager {
-    private static Map<String, Controller> attachedControllers = new HashMap<String, Controller>();
+    private static final Map<String, Controller> attachedControllers = new HashMap<String, Controller>();
+    private static final Map<String, HidDeviceInfo> connectedDevicesInfo = new HashMap<String, HidDeviceInfo>();
 
     private static boolean threwUnsatisfiedLinkError = false;
 
@@ -63,7 +64,7 @@ public final class ControllerManager {
     /**
      * Detects all attached controller.
      */
-    @Synchronized("attachedControllers")
+
     public static void detectControllers() {
         Map<String, ControllerType> connectedDevices = new HashMap<String, ControllerType>();
 
@@ -77,20 +78,30 @@ public final class ControllerManager {
 
         // Remove detached devices
         List<String> toRemove = new ArrayList<String>();
-        for (String s : attachedControllers.keySet()) {
-            if (!connectedDevices.containsKey(s)) {
-                toRemove.add(s);
+        synchronized (attachedControllers) {
+            for (String s : attachedControllers.keySet()) {
+                System.out.println(s);
+                if (!connectedDevices.containsKey(s)) {
+                    toRemove.add(s);
+                }
             }
         }
+
         for (String remove : toRemove) {
-            attachedControllers.get(remove).destroyAll();
-            attachedControllers.remove(remove);
+            synchronized (attachedControllers) {
+                attachedControllers.get(remove).destroyAll();
+                attachedControllers.remove(remove);
+            }
         }
 
         // Add attached devices!
         for (Entry<String, ControllerType> entry : connectedDevices.entrySet()) {
             String deviceIdentifier = entry.getKey();
-            if (!attachedControllers.containsKey(deviceIdentifier)) {
+            boolean contains = false;
+            synchronized (attachedControllers) {
+                contains = attachedControllers.containsKey(deviceIdentifier);
+            }
+            if (!contains) {
                 Controller c = null;
                 switch (entry.getValue()) {
                 case PureJAVAHid:
@@ -131,7 +142,9 @@ public final class ControllerManager {
                         c.setActive(true);
                     }
                     new Thread(c).start();
-                    attachedControllers.put(deviceIdentifier, c);
+                    synchronized (attachedControllers) {
+                        attachedControllers.put(deviceIdentifier, c);
+                    }
                 }
             }
         }
@@ -144,12 +157,13 @@ public final class ControllerManager {
 
     private static Map<String, ControllerType> detectHIDDevices() {
         Map<String, ControllerType> connectedDevices = new HashMap<String, ControllerType>();
-
+        System.out.println("detectHIDDevices");
         for (HidDeviceInfo info : PureJavaHidApiManager.getAttachedController()) {
             String path = info.getPath();
-
-            if (Settings.isMacOSX()) path = path.substring(0, 13);
             connectedDevices.put(path, ControllerType.PureJAVAHid);
+            synchronized (connectedDevicesInfo) {
+                connectedDevicesInfo.put(path, info);
+            }
         }
 
         return connectedDevices;
@@ -214,10 +228,10 @@ public final class ControllerManager {
         return result;
     }
 
-    @Synchronized("attachedControllers")
     public static List<Controller> getActiveControllers() {
         List<Controller> active = new ArrayList<Controller>();
-        for (Controller c : attachedControllers.values()) {
+        List<Controller> attached = getAttachedControllers();
+        for (Controller c : attached) {
             if (c.isActive()) {
                 active.add(c);
             }
@@ -225,11 +239,16 @@ public final class ControllerManager {
         return active;
     }
 
-    @Synchronized("attachedControllers")
     public static void deactivateAllAttachedControllers() {
-        for (Controller c : attachedControllers.values()) {
+        List<Controller> attached = getAttachedControllers();
+        for (Controller c : attached) {
             c.setActive(false);
         }
+    }
+
+    @Synchronized("connectedDevicesInfo")
+    public static HidDeviceInfo getDeviceInfoByPath(String path) {
+        return connectedDevicesInfo.get(path);
     }
 
 }

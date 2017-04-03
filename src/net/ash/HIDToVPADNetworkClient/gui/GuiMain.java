@@ -58,7 +58,7 @@ public class GuiMain extends JPanel implements MessageBoxListener {
         super(new BorderLayout());
 
         GuiControllerList leftControllerList = new GuiControllerList();
-        leftControllerList.setPreferredSize(new Dimension(300, 100));
+        leftControllerList.setPreferredSize(new Dimension(400, 200));
         add(leftControllerList, BorderLayout.CENTER);
         GuiInputControls rightSideControls = GuiInputControls.getInstance();
         add(rightSideControls, BorderLayout.LINE_END);

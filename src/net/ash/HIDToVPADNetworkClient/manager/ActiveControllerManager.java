@@ -51,9 +51,13 @@ public final class ActiveControllerManager implements Runnable {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                // Scan once initially
+                ControllerManager.detectControllers();
                 while (true) {
                     updateControllerStates();
-                    ControllerManager.detectControllers();
+                    if (Settings.SCAN_AUTOMATICALLY_FOR_CONTROLLERS) {
+                        ControllerManager.detectControllers();
+                    }
                     Utilities.sleep(Settings.DETECT_CONTROLLER_INTERVAL);
                 }
             }

@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.ash.HIDToVPADNetworkClient.manager.ControllerManager;
 import purejavahidapi.HidDevice;
 import purejavahidapi.HidDeviceInfo;
 import purejavahidapi.PureJavaHidApi;
@@ -43,25 +44,17 @@ public final class PureJavaHidApiManager {
      * @throws IOException
      */
     public static HidDevice getDeviceByPath(String path) throws IOException {
-        List<HidDeviceInfo> devList = PureJavaHidApi.enumerateDevices();
-        HidDevice result = null;
-        for (HidDeviceInfo info : devList) {
-            result = openDeviceByPath(info, path);
-            if (result != null) return result;
+        HidDeviceInfo deviceinfo = ControllerManager.getDeviceInfoByPath(path);
+        if (deviceinfo != null) {
+            HidDevice result = PureJavaHidApi.openDevice(deviceinfo);
+            if (result != null) {
+                return result;
+            }
         }
-        return result;
-    }
-
-    private static HidDevice openDeviceByPath(HidDeviceInfo info, String expected_path) throws IOException {
-        if (info == null) return null;
-        String real_path = info.getPath();
-
-        if (Settings.isMacOSX()) real_path = real_path.substring(0, 13);
-
-        if (real_path.equals(expected_path)) {
-            return PureJavaHidApi.openDevice(info);
-        }
-
+        /*
+         * List<HidDeviceInfo> devList = PureJavaHidApi.enumerateDevices(); HidDevice result = null; for (HidDeviceInfo info : devList) { String real_path =
+         * info.getPath(); if (real_path.equals(path)) { return PureJavaHidApi.openDevice(info); } }
+         */
         return null;
     }
 
@@ -69,14 +62,35 @@ public final class PureJavaHidApiManager {
         List<HidDeviceInfo> connectedGamepads = new ArrayList<HidDeviceInfo>();
 
         for (HidDeviceInfo info : PureJavaHidApi.enumerateDevices()) {
-            if (info.getUsagePage() == 0x05 ||info.getUsagePage() == 0x01 || info.getUsagePage() == 0x04 || (info.getVendorId() == 0x57e) || (info.getVendorId() == 0x054c)) {
-                if(((info.getVendorId() == 0x045e) && ((info.getProductId() == 0x02ff) || (info.getProductId() == 0x02a1))) && Settings.isWindows()){ //Skip Xbox pads on windows. We have XInput
+            if (isGamepad(info)) {
+                // Skip Xbox controller under windows. We should use XInput instead.
+                if (isXboxController(info) && Settings.isWindows()) {
                     continue;
                 }
                 connectedGamepads.add(info);
             }
         }
-
         return connectedGamepads;
+    }
+
+    public static boolean isGamepad(HidDeviceInfo info) {
+        if (info == null) return false;
+        short usagePage = info.getUsagePage();
+        return (usagePage == 0x05 || usagePage == 0x01 || usagePage == 0x04 || isNintendoController(info) || isPlaystationController(info));
+    }
+
+    private static boolean isPlaystationController(HidDeviceInfo info) {
+        if (info == null) return false;
+        return (info.getVendorId() == 0x054c);
+    }
+
+    private static boolean isNintendoController(HidDeviceInfo info) {
+        if (info == null) return false;
+        return (info.getVendorId() == 0x57e);
+    }
+
+    private static boolean isXboxController(HidDeviceInfo info) {
+        if (info == null) return false;
+        return (info.getVendorId() == 0x045e) && ((info.getProductId() == 0x02ff) || (info.getProductId() == 0x02a1));
     }
 }
