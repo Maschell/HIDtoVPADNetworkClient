@@ -29,7 +29,6 @@ import org.hid4java.HidManager;
 import org.hid4java.HidServices;
 
 import net.ash.HIDToVPADNetworkClient.hid.HidDevice;
-import net.ash.HIDToVPADNetworkClient.hid.HidDeviceInfo;
 import net.ash.HIDToVPADNetworkClient.hid.HidManagerBackend;
 
 public class Hid4JavaHidManagerBackend extends HidManagerBackend {
@@ -50,10 +49,10 @@ public class Hid4JavaHidManagerBackend extends HidManagerBackend {
     }
 
     @Override
-    public List<HidDeviceInfo> enumerateDevices() {
-        List<HidDeviceInfo> result = new ArrayList<HidDeviceInfo>();
+    public List<HidDevice> enumerateDevices() {
+        List<HidDevice> result = new ArrayList<HidDevice>();
         for (org.hid4java.HidDevice info : HidManager.getHidServices().getAttachedHidDevices()) {
-            result.add(new Hid4JavaHidDeviceInfo(info));
+            result.add(new Hid4JavaHidDevice(info));
         }
         return result;
     }

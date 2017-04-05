@@ -43,7 +43,6 @@ public class HidController extends Controller {
         if (device != null) {
             vid = device.getVendorId();
             pid = device.getProductId();
-            device.close();
         }
 
         // We use a special version to optimize the data for the switch pro controller
@@ -62,10 +61,9 @@ public class HidController extends Controller {
 
     @Override
     public boolean initController(String identifier) {
-        HidDevice device;
         try {
-            device = HidManager.getDeviceByPath(identifier);
-            if (device == null) {
+            HidDevice device = HidManager.getDeviceByPath(identifier);
+            if (device == null || !device.open()) {
                 return false;
             }
 
@@ -108,7 +106,7 @@ public class HidController extends Controller {
 
     @Override
     public String getInfoText() {
-        // TODO:
+        // TODO: own class for joycons
         if (getVID() == 0x57e) {
             if (getPID() == 0x2006) {
                 return "Joy-Con (L) on " + getIdentifier();

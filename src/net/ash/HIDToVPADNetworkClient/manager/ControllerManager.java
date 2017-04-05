@@ -44,7 +44,7 @@ import net.ash.HIDToVPADNetworkClient.controller.XInput13Controller;
 import net.ash.HIDToVPADNetworkClient.controller.XInput14Controller;
 import net.ash.HIDToVPADNetworkClient.controller.XInputController;
 import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
-import net.ash.HIDToVPADNetworkClient.hid.HidDeviceInfo;
+import net.ash.HIDToVPADNetworkClient.hid.HidDevice;
 import net.ash.HIDToVPADNetworkClient.hid.HidManager;
 import net.ash.HIDToVPADNetworkClient.util.MessageBox;
 import net.ash.HIDToVPADNetworkClient.util.MessageBoxManager;
@@ -53,7 +53,6 @@ import net.ash.HIDToVPADNetworkClient.util.Settings;
 @Log
 public final class ControllerManager {
     private static final Map<String, Controller> attachedControllers = new HashMap<String, Controller>();
-    private static final Map<String, HidDeviceInfo> connectedDevicesInfo = new HashMap<String, HidDeviceInfo>();
 
     private static boolean threwUnsatisfiedLinkError = false;
 
@@ -157,12 +156,9 @@ public final class ControllerManager {
 
     private static Map<String, ControllerType> detectHIDDevices() {
         Map<String, ControllerType> connectedDevices = new HashMap<String, ControllerType>();
-        for (HidDeviceInfo info : HidManager.getAttachedController()) {
+        for (HidDevice info : HidManager.getAttachedController()) {
             String path = info.getPath();
             connectedDevices.put(path, ControllerType.HIDController);
-            synchronized (connectedDevicesInfo) {
-                connectedDevicesInfo.put(path, info);
-            }
         }
 
         return connectedDevices;
@@ -244,10 +240,4 @@ public final class ControllerManager {
             c.setActive(false);
         }
     }
-
-    @Synchronized("connectedDevicesInfo")
-    public static HidDeviceInfo getDeviceInfoByPath(String path) {
-        return connectedDevicesInfo.get(path);
-    }
-
 }

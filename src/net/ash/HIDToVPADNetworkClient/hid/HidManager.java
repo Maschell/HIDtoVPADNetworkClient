@@ -31,7 +31,7 @@ import net.ash.HIDToVPADNetworkClient.util.Settings;
 public class HidManager {
     private final static HidManagerBackend backend;
 
-    public static List<HidDeviceInfo> getAttachedController() {
+    public static List<HidDevice> getAttachedController() {
         return backend.getAttachedController();
     }
 

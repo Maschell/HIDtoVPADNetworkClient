@@ -35,6 +35,16 @@ class Hid4JavaHidDevice implements HidDevice {
     }
 
     @Override
+    public boolean open() {
+        return myDevice.open();
+    }
+
+    @Override
+    public void close() {
+        myDevice.close();
+    }
+
+    @Override
     public short getVendorId() {
         return myDevice.getVendorId();
     }
@@ -45,14 +55,20 @@ class Hid4JavaHidDevice implements HidDevice {
     }
 
     @Override
-    public void close() {
-        myDevice.close();
-    }
-
-    @Override
     public byte[] getLatestData() {
         int length = myDevice.read(data);
         if (length <= 0) return null;
         return Arrays.copyOf(data, length);
     }
+
+    @Override
+    public short getUsagePage() {
+        return (short) myDevice.getUsagePage();
+    }
+
+    @Override
+    public String getPath() {
+        return myDevice.getPath();
+    }
+
 }

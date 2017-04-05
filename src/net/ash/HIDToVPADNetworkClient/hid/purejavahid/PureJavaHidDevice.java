@@ -21,21 +21,23 @@
  *******************************************************************************/
 package net.ash.HIDToVPADNetworkClient.hid.purejavahid;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import lombok.Synchronized;
 import net.ash.HIDToVPADNetworkClient.hid.HidDevice;
+import purejavahidapi.HidDeviceInfo;
 import purejavahidapi.InputReportListener;
 
 class PureJavaHidDevice implements HidDevice, InputReportListener {
-    private final purejavahidapi.HidDevice myDevice;
+    private purejavahidapi.HidDevice myDevice = null;
+    private final purejavahidapi.HidDeviceInfo myDeviceInfo;
 
     private final Object dataLock = new Object();
     protected byte[] currentData = new byte[1];
 
-    public PureJavaHidDevice(purejavahidapi.HidDevice device) {
-        this.myDevice = device;
-        device.setInputReportListener(this);
+    public PureJavaHidDevice(HidDeviceInfo info) {
+        this.myDeviceInfo = info;
     }
 
     @Override
@@ -46,12 +48,25 @@ class PureJavaHidDevice implements HidDevice, InputReportListener {
 
     @Override
     public short getVendorId() {
-        return myDevice.getHidDeviceInfo().getVendorId();
+        return myDeviceInfo.getVendorId();
     }
 
     @Override
     public short getProductId() {
-        return myDevice.getHidDeviceInfo().getProductId();
+        return myDeviceInfo.getProductId();
+    }
+
+    @Override
+    public boolean open() {
+        boolean result = true;
+        try {
+            myDevice = purejavahidapi.PureJavaHidApi.openDevice(myDeviceInfo);
+            myDevice.setInputReportListener(this);
+        } catch (IOException e) {
+            result = false;
+            e.printStackTrace();
+        }
+        return result;
     }
 
     @Override
@@ -65,4 +80,13 @@ class PureJavaHidDevice implements HidDevice, InputReportListener {
         return currentData.clone();
     }
 
+    @Override
+    public short getUsagePage() {
+        return myDeviceInfo.getUsagePage();
+    }
+
+    @Override
+    public String getPath() {
+        return myDeviceInfo.getPath();
+    }
 }

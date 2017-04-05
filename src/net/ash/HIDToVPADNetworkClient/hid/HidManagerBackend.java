@@ -38,10 +38,10 @@ public abstract class HidManagerBackend {
      */
     public abstract HidDevice getDeviceByPath(String path) throws IOException;
 
-    public List<HidDeviceInfo> getAttachedController() {
-        List<HidDeviceInfo> connectedGamepads = new ArrayList<HidDeviceInfo>();
+    public List<HidDevice> getAttachedController() {
+        List<HidDevice> connectedGamepads = new ArrayList<HidDevice>();
 
-        for (HidDeviceInfo info : enumerateDevices()) {
+        for (HidDevice info : enumerateDevices()) {
             if (isGamepad(info)) {
                 // Skip Xbox controller under windows. We should use XInput instead.
                 if (isXboxController(info) && Settings.isWindows()) {
@@ -53,26 +53,26 @@ public abstract class HidManagerBackend {
         return connectedGamepads;
     }
 
-    public static boolean isGamepad(HidDeviceInfo info) {
+    public static boolean isGamepad(HidDevice info) {
         if (info == null) return false;
         short usagePage = info.getUsagePage();
         return (usagePage == 0x05 || usagePage == 0x01 || usagePage == 0x04 || isNintendoController(info) || isPlaystationController(info));
     }
 
-    private static boolean isPlaystationController(HidDeviceInfo info) {
+    private static boolean isPlaystationController(HidDevice info) {
         if (info == null) return false;
         return (info.getVendorId() == 0x054c);
     }
 
-    private static boolean isNintendoController(HidDeviceInfo info) {
+    private static boolean isNintendoController(HidDevice info) {
         if (info == null) return false;
         return (info.getVendorId() == 0x57e);
     }
 
-    private static boolean isXboxController(HidDeviceInfo info) {
+    private static boolean isXboxController(HidDevice info) {
         if (info == null) return false;
         return (info.getVendorId() == 0x045e) && ((info.getProductId() == 0x02ff) || (info.getProductId() == 0x02a1));
     }
 
-    public abstract List<HidDeviceInfo> enumerateDevices();
+    public abstract List<HidDevice> enumerateDevices();
 }

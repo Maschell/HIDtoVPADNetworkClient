@@ -26,17 +26,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.ash.HIDToVPADNetworkClient.hid.HidDevice;
-import net.ash.HIDToVPADNetworkClient.hid.HidDeviceInfo;
 import net.ash.HIDToVPADNetworkClient.hid.HidManagerBackend;
 import purejavahidapi.PureJavaHidApi;
 
 public class PureJavaHidManagerBackend extends HidManagerBackend {
 
     @Override
-    public List<HidDeviceInfo> enumerateDevices() {
-        List<HidDeviceInfo> result = new ArrayList<HidDeviceInfo>();
+    public List<HidDevice> enumerateDevices() {
+        List<HidDevice> result = new ArrayList<HidDevice>();
         for (purejavahidapi.HidDeviceInfo info : PureJavaHidApi.enumerateDevices()) {
-            result.add(new PureJavaHidDeviceInfo(info));
+            result.add(new PureJavaHidDevice(info));
         }
         return result;
     }
@@ -48,7 +47,7 @@ public class PureJavaHidManagerBackend extends HidManagerBackend {
         for (purejavahidapi.HidDeviceInfo info : devList) {
             String real_path = info.getPath();
             if (real_path.equals(path)) {
-                return new PureJavaHidDevice(PureJavaHidApi.openDevice(info));
+                return new PureJavaHidDevice(info);
             }
         }
 
