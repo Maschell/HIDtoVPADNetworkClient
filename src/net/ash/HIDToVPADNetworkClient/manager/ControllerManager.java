@@ -89,6 +89,7 @@ public final class ControllerManager {
             synchronized (attachedControllers) {
                 attachedControllers.get(remove).destroyAll();
                 attachedControllers.remove(remove);
+                log.info("Device removed: " + toRemove);
             }
         }
 
@@ -139,10 +140,11 @@ public final class ControllerManager {
                     if (Settings.AUTO_ACTIVATE_CONTROLLER) {
                         c.setActive(true);
                     }
-                    new Thread(c, "Controller Thread " + deviceIdentifier.substring(0, 50)).start();
+                    new Thread(c, "Controller Thread " + deviceIdentifier).start();
                     synchronized (attachedControllers) {
                         attachedControllers.put(deviceIdentifier, c);
                     }
+                    log.info("Device added: " + deviceIdentifier);
                 }
             }
         }

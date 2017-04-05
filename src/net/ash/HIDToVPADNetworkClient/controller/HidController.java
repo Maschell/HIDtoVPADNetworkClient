@@ -30,7 +30,6 @@ import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
 import net.ash.HIDToVPADNetworkClient.hid.HidDevice;
 import net.ash.HIDToVPADNetworkClient.hid.HidManager;
-import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
 @Log
 public class HidController extends Controller {
@@ -69,6 +68,7 @@ public class HidController extends Controller {
             if (device == null || !device.open()) {
                 return false;
             }
+            log.info("HidDevice opened!");
 
             setHidDevice(device);
             return true;

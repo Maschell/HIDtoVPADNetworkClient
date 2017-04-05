@@ -20,8 +20,9 @@ public class DS4NewController extends HidController {
 
     @Override
     public byte[] pollLatestData() {
-        byte[] currentData = super.getLatestData();
-        if (Settings.isMacOSX()) { // for some reason the controller has one extra byte at the beginning under OSX
+        byte[] currentData = super.pollLatestData();
+        if (Settings.isMacOSX() && currentData != null && currentData.length > 6) { // for some reason the controller has one extra byte at the beginning under
+                                                                                    // OSX
             currentData = Arrays.copyOfRange(currentData, 1, 7);
         }
         return currentData;
