@@ -19,36 +19,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.controller;
+package net.ash.HIDToVPADNetworkClient.hid;
 
-import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
+import java.io.IOException;
+import java.util.List;
 
-public class SwitchProController extends HidController {
-    public static final short SWITCH_PRO_CONTROLLER_VID = 0x57e;
-    public static final short SWITCH_PRO_CONTROLLER_PID = 0x2009;
+import net.ash.HIDToVPADNetworkClient.hid.hid4java.Hid4JavaHidManagerBackend;
+import net.ash.HIDToVPADNetworkClient.hid.purejavahid.PureJavaHidManagerBackend;
+import net.ash.HIDToVPADNetworkClient.util.Settings;
 
-    public SwitchProController(String identifier) throws ControllerInitializationFailedException {
-        super(identifier);
-        // truncate package to 11;
-        this.MAX_PACKET_LENGTH = 11;
+public class HidManager {
+    private final static HidManagerBackend backend;
+
+    public static List<HidDeviceInfo> getAttachedController() {
+        return backend.getAttachedController();
     }
 
-    @Override
-    public byte[] pollLatestData() {
-        byte[] currentData = super.pollLatestData();
-        if (currentData == null || currentData.length < 10) {
-            return new byte[0];
-        }
-        // remove unused data (because only changed data will be sent)
-        currentData[3] = 0;
-        currentData[5] = 0;
-        currentData[7] = 0;
-        currentData[9] = 0;
-        return currentData;
+    public static HidDevice getDeviceByPath(String path) throws IOException {
+        return backend.getDeviceByPath(path);
     }
 
-    @Override
-    public String getInfoText() {
-        return "Switch Pro Controller on " + getIdentifier();
+    static {
+        if (Settings.isMacOSX()) {
+            backend = new Hid4JavaHidManagerBackend();
+        } else if (Settings.isWindows()) {
+            backend = new PureJavaHidManagerBackend();
+        } else if (Settings.isLinux()) {
+            backend = new Hid4JavaHidManagerBackend();
+        } else
+            backend = null;
     }
 }

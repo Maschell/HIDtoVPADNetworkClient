@@ -19,36 +19,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.controller;
+package net.ash.HIDToVPADNetworkClient.hid.hid4java;
 
-import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
+import org.hid4java.HidDevice;
 
-public class SwitchProController extends HidController {
-    public static final short SWITCH_PRO_CONTROLLER_VID = 0x57e;
-    public static final short SWITCH_PRO_CONTROLLER_PID = 0x2009;
+import net.ash.HIDToVPADNetworkClient.hid.HidDeviceInfo;
 
-    public SwitchProController(String identifier) throws ControllerInitializationFailedException {
-        super(identifier);
-        // truncate package to 11;
-        this.MAX_PACKET_LENGTH = 11;
+class Hid4JavaHidDeviceInfo implements HidDeviceInfo {
+    private final HidDevice myDevice;
+
+    public Hid4JavaHidDeviceInfo(HidDevice device) {
+        myDevice = device;
     }
 
     @Override
-    public byte[] pollLatestData() {
-        byte[] currentData = super.pollLatestData();
-        if (currentData == null || currentData.length < 10) {
-            return new byte[0];
-        }
-        // remove unused data (because only changed data will be sent)
-        currentData[3] = 0;
-        currentData[5] = 0;
-        currentData[7] = 0;
-        currentData[9] = 0;
-        return currentData;
+    public short getUsagePage() {
+        return (short) myDevice.getUsagePage();
     }
 
     @Override
-    public String getInfoText() {
-        return "Switch Pro Controller on " + getIdentifier();
+    public int getVendorId() {
+        return myDevice.getVendorId();
+    }
+
+    @Override
+    public int getProductId() {
+        return myDevice.getProductId();
+    }
+
+    @Override
+    public String getPath() {
+        return myDevice.getPath();
     }
 }

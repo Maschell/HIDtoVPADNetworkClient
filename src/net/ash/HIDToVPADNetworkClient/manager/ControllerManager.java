@@ -38,17 +38,17 @@ import lombok.Synchronized;
 import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.controller.Controller;
 import net.ash.HIDToVPADNetworkClient.controller.Controller.ControllerType;
+import net.ash.HIDToVPADNetworkClient.controller.HidController;
 import net.ash.HIDToVPADNetworkClient.controller.LinuxDevInputController;
-import net.ash.HIDToVPADNetworkClient.controller.PureJavaHidController;
 import net.ash.HIDToVPADNetworkClient.controller.XInput13Controller;
 import net.ash.HIDToVPADNetworkClient.controller.XInput14Controller;
 import net.ash.HIDToVPADNetworkClient.controller.XInputController;
 import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
+import net.ash.HIDToVPADNetworkClient.hid.HidDeviceInfo;
+import net.ash.HIDToVPADNetworkClient.hid.HidManager;
 import net.ash.HIDToVPADNetworkClient.util.MessageBox;
 import net.ash.HIDToVPADNetworkClient.util.MessageBoxManager;
-import net.ash.HIDToVPADNetworkClient.util.PureJavaHidApiManager;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
-import purejavahidapi.HidDeviceInfo;
 
 @Log
 public final class ControllerManager {
@@ -104,9 +104,9 @@ public final class ControllerManager {
             if (!contains) {
                 Controller c = null;
                 switch (entry.getValue()) {
-                case PureJAVAHid:
+                case HIDController:
                     try {
-                        c = PureJavaHidController.getInstance(deviceIdentifier);
+                        c = HidController.getInstance(deviceIdentifier);
                     } catch (ControllerInitializationFailedException e) {
                         // e.printStackTrace();
                     } catch (IOException e) {
@@ -157,10 +157,9 @@ public final class ControllerManager {
 
     private static Map<String, ControllerType> detectHIDDevices() {
         Map<String, ControllerType> connectedDevices = new HashMap<String, ControllerType>();
-        System.out.println("detectHIDDevices");
-        for (HidDeviceInfo info : PureJavaHidApiManager.getAttachedController()) {
+        for (HidDeviceInfo info : HidManager.getAttachedController()) {
             String path = info.getPath();
-            connectedDevices.put(path, ControllerType.PureJAVAHid);
+            connectedDevices.put(path, ControllerType.HIDController);
             synchronized (connectedDevicesInfo) {
                 connectedDevicesInfo.put(path, info);
             }

@@ -19,36 +19,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.controller;
+package net.ash.HIDToVPADNetworkClient.hid.hid4java;
 
-import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class SwitchProController extends HidController {
-    public static final short SWITCH_PRO_CONTROLLER_VID = 0x57e;
-    public static final short SWITCH_PRO_CONTROLLER_PID = 0x2009;
+import org.hid4java.HidManager;
+import org.hid4java.HidServices;
 
-    public SwitchProController(String identifier) throws ControllerInitializationFailedException {
-        super(identifier);
-        // truncate package to 11;
-        this.MAX_PACKET_LENGTH = 11;
-    }
+import net.ash.HIDToVPADNetworkClient.hid.HidDevice;
+import net.ash.HIDToVPADNetworkClient.hid.HidDeviceInfo;
+import net.ash.HIDToVPADNetworkClient.hid.HidManagerBackend;
+
+public class Hid4JavaHidManagerBackend extends HidManagerBackend {
 
     @Override
-    public byte[] pollLatestData() {
-        byte[] currentData = super.pollLatestData();
-        if (currentData == null || currentData.length < 10) {
-            return new byte[0];
+    public HidDevice getDeviceByPath(String path) throws IOException {
+        HidDevice result = null;
+        HidServices services = HidManager.getHidServices();
+        if (services == null) return result;
+
+        for (org.hid4java.HidDevice device : services.getAttachedHidDevices()) {
+            if (device.getPath().equals(path)) {
+                result = new Hid4JavaHidDevice(device);
+                break;
+            }
         }
-        // remove unused data (because only changed data will be sent)
-        currentData[3] = 0;
-        currentData[5] = 0;
-        currentData[7] = 0;
-        currentData[9] = 0;
-        return currentData;
+        return result;
     }
 
     @Override
-    public String getInfoText() {
-        return "Switch Pro Controller on " + getIdentifier();
+    public List<HidDeviceInfo> enumerateDevices() {
+        List<HidDeviceInfo> result = new ArrayList<HidDeviceInfo>();
+        for (org.hid4java.HidDevice info : HidManager.getHidServices().getAttachedHidDevices()) {
+            result.add(new Hid4JavaHidDeviceInfo(info));
+        }
+        return result;
     }
+
 }

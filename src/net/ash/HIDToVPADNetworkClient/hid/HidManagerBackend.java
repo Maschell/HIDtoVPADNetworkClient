@@ -19,22 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.util;
+package net.ash.HIDToVPADNetworkClient.hid;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.ash.HIDToVPADNetworkClient.manager.ControllerManager;
-import purejavahidapi.HidDevice;
-import purejavahidapi.HidDeviceInfo;
-import purejavahidapi.PureJavaHidApi;
+import net.ash.HIDToVPADNetworkClient.util.Settings;
 
-public final class PureJavaHidApiManager {
-
-    private PureJavaHidApiManager() {
-    }
-
+public abstract class HidManagerBackend {
     /**
      * Searches the corresponding HIDDevice for the given path
      * 
@@ -43,25 +36,12 @@ public final class PureJavaHidApiManager {
      * @return It the device is found, it will be returned. Otherwise null is returned.
      * @throws IOException
      */
-    public static HidDevice getDeviceByPath(String path) throws IOException {
-        HidDeviceInfo deviceinfo = ControllerManager.getDeviceInfoByPath(path);
-        if (deviceinfo != null) {
-            HidDevice result = PureJavaHidApi.openDevice(deviceinfo);
-            if (result != null) {
-                return result;
-            }
-        }
-        /*
-         * List<HidDeviceInfo> devList = PureJavaHidApi.enumerateDevices(); HidDevice result = null; for (HidDeviceInfo info : devList) { String real_path =
-         * info.getPath(); if (real_path.equals(path)) { return PureJavaHidApi.openDevice(info); } }
-         */
-        return null;
-    }
+    public abstract HidDevice getDeviceByPath(String path) throws IOException;
 
-    public static List<HidDeviceInfo> getAttachedController() {
+    public List<HidDeviceInfo> getAttachedController() {
         List<HidDeviceInfo> connectedGamepads = new ArrayList<HidDeviceInfo>();
 
-        for (HidDeviceInfo info : PureJavaHidApi.enumerateDevices()) {
+        for (HidDeviceInfo info : enumerateDevices()) {
             if (isGamepad(info)) {
                 // Skip Xbox controller under windows. We should use XInput instead.
                 if (isXboxController(info) && Settings.isWindows()) {
@@ -93,4 +73,6 @@ public final class PureJavaHidApiManager {
         if (info == null) return false;
         return (info.getVendorId() == 0x045e) && ((info.getProductId() == 0x02ff) || (info.getProductId() == 0x02a1));
     }
+
+    public abstract List<HidDeviceInfo> enumerateDevices();
 }

@@ -19,36 +19,50 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.controller;
+package net.ash.HIDToVPADNetworkClient.hid.purejavahid;
 
-import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
+import java.util.Arrays;
 
-public class SwitchProController extends HidController {
-    public static final short SWITCH_PRO_CONTROLLER_VID = 0x57e;
-    public static final short SWITCH_PRO_CONTROLLER_PID = 0x2009;
+import lombok.Synchronized;
+import net.ash.HIDToVPADNetworkClient.hid.HidDevice;
+import purejavahidapi.InputReportListener;
 
-    public SwitchProController(String identifier) throws ControllerInitializationFailedException {
-        super(identifier);
-        // truncate package to 11;
-        this.MAX_PACKET_LENGTH = 11;
+class PureJavaHidDevice implements HidDevice, InputReportListener {
+    private final purejavahidapi.HidDevice myDevice;
+
+    private final Object dataLock = new Object();
+    protected byte[] currentData = new byte[1];
+
+    public PureJavaHidDevice(purejavahidapi.HidDevice device) {
+        this.myDevice = device;
+        device.setInputReportListener(this);
     }
 
     @Override
-    public byte[] pollLatestData() {
-        byte[] currentData = super.pollLatestData();
-        if (currentData == null || currentData.length < 10) {
-            return new byte[0];
-        }
-        // remove unused data (because only changed data will be sent)
-        currentData[3] = 0;
-        currentData[5] = 0;
-        currentData[7] = 0;
-        currentData[9] = 0;
-        return currentData;
+    @Synchronized("dataLock")
+    public void onInputReport(purejavahidapi.HidDevice source, byte reportID, byte[] reportData, int reportLength) {
+        currentData = Arrays.copyOfRange(reportData, 0, reportLength);
     }
 
     @Override
-    public String getInfoText() {
-        return "Switch Pro Controller on " + getIdentifier();
+    public short getVendorId() {
+        return myDevice.getHidDeviceInfo().getVendorId();
     }
+
+    @Override
+    public short getProductId() {
+        return myDevice.getHidDeviceInfo().getProductId();
+    }
+
+    @Override
+    public void close() {
+        myDevice.close();
+    }
+
+    @Override
+    @Synchronized("dataLock")
+    public byte[] getLatestData() {
+        return currentData.clone();
+    }
+
 }
