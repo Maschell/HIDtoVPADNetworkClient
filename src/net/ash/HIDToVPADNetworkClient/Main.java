@@ -37,8 +37,8 @@ public final class Main {
     public static void main(String[] args) {
         Settings.loadSettings();
         try {
-            new Thread(ActiveControllerManager.getInstance()).start();
-            new Thread(NetworkManager.getInstance()).start();
+            new Thread(ActiveControllerManager.getInstance(), "ActiveControllerManager").start();
+            new Thread(NetworkManager.getInstance(), "NetworkManager").start();
         } catch (Exception e) {
             e.printStackTrace();
             fatal();

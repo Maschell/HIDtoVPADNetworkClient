@@ -73,7 +73,7 @@ public final class MessageBoxManager implements Runnable {
 
     public static void addMessageBoxListener(MessageBoxListener msglistener) {
         if (!threadStarted) {
-            new Thread(instance).start();
+            new Thread(instance, "MessageBoxManager").start();
             threadStarted = true;
         }
         newList.add(msglistener);

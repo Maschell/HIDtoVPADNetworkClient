@@ -70,7 +70,7 @@ public final class ControllerManager {
         if (Settings.isLinux()) {
             connectedDevices.putAll(detectLinuxControllers());
         } else if (Settings.isWindows()) {
-            connectedDevices.putAll(detectWindowsControllers());
+            connectedDevices.putAll(detectXInputControllers());
         }
 
         connectedDevices.putAll(detectHIDDevices());
@@ -79,7 +79,6 @@ public final class ControllerManager {
         List<String> toRemove = new ArrayList<String>();
         synchronized (attachedControllers) {
             for (String s : attachedControllers.keySet()) {
-                System.out.println(s);
                 if (!connectedDevices.containsKey(s)) {
                     toRemove.add(s);
                 }
@@ -107,7 +106,7 @@ public final class ControllerManager {
                     try {
                         c = HidController.getInstance(deviceIdentifier);
                     } catch (ControllerInitializationFailedException e) {
-                        // e.printStackTrace();
+                        log.info(e.getMessage());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -116,14 +115,14 @@ public final class ControllerManager {
                     try {
                         c = new LinuxDevInputController(deviceIdentifier);
                     } catch (ControllerInitializationFailedException e) {
-                        // e.printStackTrace();
+                        log.info(e.getMessage());
                     }
                     break;
                 case XINPUT14:
                     try {
                         c = new XInput14Controller(deviceIdentifier);
                     } catch (ControllerInitializationFailedException e) {
-                        // e.printStackTrace();
+                        log.info(e.getMessage());
                     }
                     break;
                 case XINPUT13:
@@ -140,7 +139,7 @@ public final class ControllerManager {
                     if (Settings.AUTO_ACTIVATE_CONTROLLER) {
                         c.setActive(true);
                     }
-                    new Thread(c).start();
+                    new Thread(c, "Controller Thread " + deviceIdentifier.substring(0, 50)).start();
                     synchronized (attachedControllers) {
                         attachedControllers.put(deviceIdentifier, c);
                     }
@@ -164,7 +163,7 @@ public final class ControllerManager {
         return connectedDevices;
     }
 
-    private static Map<String, ControllerType> detectWindowsControllers() {
+    private static Map<String, ControllerType> detectXInputControllers() {
         Map<String, ControllerType> result = new HashMap<String, ControllerType>();
         ControllerType type = ControllerType.XINPUT13;
 

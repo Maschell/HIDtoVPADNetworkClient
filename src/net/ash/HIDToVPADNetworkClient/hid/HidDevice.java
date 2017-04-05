@@ -31,7 +31,7 @@ public interface HidDevice {
 
     byte[] getLatestData();
 
-    short getUsagePage();
+    short getUsage();
 
     String getPath();
 

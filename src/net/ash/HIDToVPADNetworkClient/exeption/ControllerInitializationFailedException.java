@@ -23,6 +23,10 @@ package net.ash.HIDToVPADNetworkClient.exeption;
 
 public class ControllerInitializationFailedException extends Exception {
 
+    public ControllerInitializationFailedException(String string) {
+        super(string);
+    }
+
     /**
      * 
      */

@@ -26,7 +26,7 @@ import java.util.Arrays;
 import net.ash.HIDToVPADNetworkClient.hid.HidDevice;
 
 class Hid4JavaHidDevice implements HidDevice {
-    private final org.hid4java.HidDevice myDevice;
+    private org.hid4java.HidDevice myDevice;
 
     private final byte[] data = new byte[64];
 
@@ -57,13 +57,8 @@ class Hid4JavaHidDevice implements HidDevice {
     @Override
     public byte[] getLatestData() {
         int length = myDevice.read(data);
-        if (length <= 0) return null;
+        if (length <= 0) return new byte[0];
         return Arrays.copyOf(data, length);
-    }
-
-    @Override
-    public short getUsagePage() {
-        return (short) myDevice.getUsagePage();
     }
 
     @Override
@@ -71,4 +66,13 @@ class Hid4JavaHidDevice implements HidDevice {
         return myDevice.getPath();
     }
 
+    @Override
+    public String toString() {
+        return "Hid4JavaHidDevice [myDevice=" + myDevice + ", data=" + Arrays.toString(data) + "]";
+    }
+
+    @Override
+    public short getUsage() {
+        return (short) myDevice.getUsage();
+    }
 }

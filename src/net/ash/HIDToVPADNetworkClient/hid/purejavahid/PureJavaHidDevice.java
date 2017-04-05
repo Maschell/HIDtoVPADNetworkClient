@@ -81,7 +81,7 @@ class PureJavaHidDevice implements HidDevice, InputReportListener {
     }
 
     @Override
-    public short getUsagePage() {
+    public short getUsage() {
         return myDeviceInfo.getUsagePage();
     }
 

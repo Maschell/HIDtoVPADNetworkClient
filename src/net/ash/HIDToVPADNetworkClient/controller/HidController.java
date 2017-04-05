@@ -30,12 +30,14 @@ import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
 import net.ash.HIDToVPADNetworkClient.hid.HidDevice;
 import net.ash.HIDToVPADNetworkClient.hid.HidManager;
+import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
 @Log
 public class HidController extends Controller {
     @Getter @Setter(AccessLevel.PRIVATE) private HidDevice hidDevice;
 
     public static Controller getInstance(String deviceIdentifier) throws IOException, ControllerInitializationFailedException {
+
         HidDevice device = HidManager.getDeviceByPath(deviceIdentifier);
 
         short vid = 0;
@@ -63,6 +65,7 @@ public class HidController extends Controller {
     public boolean initController(String identifier) {
         try {
             HidDevice device = HidManager.getDeviceByPath(identifier);
+
             if (device == null || !device.open()) {
                 return false;
             }
@@ -78,7 +81,8 @@ public class HidController extends Controller {
 
     @Override
     public byte[] pollLatestData() {
-        return hidDevice.getLatestData();
+        byte[] result = hidDevice.getLatestData();
+        return result;
     }
 
     @Override

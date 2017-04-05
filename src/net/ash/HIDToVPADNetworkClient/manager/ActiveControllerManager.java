@@ -61,7 +61,7 @@ public final class ActiveControllerManager implements Runnable {
                     Utilities.sleep(Settings.DETECT_CONTROLLER_INTERVAL);
                 }
             }
-        }).start();
+        }, "DetectControllerThread").start();
 
         new Thread(new Runnable() {
             @Override
@@ -71,7 +71,7 @@ public final class ActiveControllerManager implements Runnable {
                     Utilities.sleep(Settings.HANDLE_INPUTS_INTERVAL);
                 }
             }
-        }).start();
+        }, "HandleControllerInputThread").start();
     }
 
     public void updateControllerStates() {

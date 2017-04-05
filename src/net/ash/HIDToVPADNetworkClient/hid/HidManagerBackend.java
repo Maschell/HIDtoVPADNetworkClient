@@ -55,8 +55,8 @@ public abstract class HidManagerBackend {
 
     public static boolean isGamepad(HidDevice info) {
         if (info == null) return false;
-        short usagePage = info.getUsagePage();
-        return (usagePage == 0x05 || usagePage == 0x01 || usagePage == 0x04 || isNintendoController(info) || isPlaystationController(info));
+        short usage = info.getUsage();
+        return (usage == 0x05 || usage == 0x04 || isNintendoController(info) || isPlaystationController(info));
     }
 
     private static boolean isPlaystationController(HidDevice info) {

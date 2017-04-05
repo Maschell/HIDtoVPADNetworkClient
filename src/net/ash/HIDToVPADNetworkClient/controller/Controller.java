@@ -58,7 +58,7 @@ public abstract class Controller implements Runnable {
         this.type = type;
         this.identifier = identifier;
         if (!initController(identifier)) {
-            throw new ControllerInitializationFailedException();
+            throw new ControllerInitializationFailedException("Initialization failed");
         }
     }
 
@@ -66,17 +66,18 @@ public abstract class Controller implements Runnable {
     public void run() {
         boolean shutdownState = shutdown;
         while (!shutdownState) {
-            Utilities.sleep(Settings.DETECT_CONTROLLER_INTERVAL);
             while (isActive()) {
                 byte[] newData = pollLatestData();
                 if (newData != null && newData.length != 0) {
                     if (newData.length > MAX_PACKET_LENGTH) {
                         newData = Arrays.copyOfRange(newData, 0, MAX_PACKET_LENGTH);
                     }
+                    // System.out.println("data:" + Utilities.ByteArrayToString(newData));
                     setLatestData(newData);
                 }
                 doSleepAfterPollingData();
             }
+            Utilities.sleep(Settings.DETECT_CONTROLLER_ACTIVE_INTERVAL);
             synchronized (shutdownLock) {
                 shutdownState = shutdown;
             }
