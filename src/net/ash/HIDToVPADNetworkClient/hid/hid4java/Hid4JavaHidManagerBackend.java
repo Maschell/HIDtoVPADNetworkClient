@@ -19,16 +19,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.exeption;
+package net.ash.HIDToVPADNetworkClient.hid.hid4java;
 
-public class ControllerInitializationFailedException extends Exception {
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-    public ControllerInitializationFailedException(String string) {
-        super(string);
+import org.hid4java.HidManager;
+import org.hid4java.HidServices;
+
+import net.ash.HIDToVPADNetworkClient.hid.HidDevice;
+import net.ash.HIDToVPADNetworkClient.hid.HidManagerBackend;
+
+public class Hid4JavaHidManagerBackend extends HidManagerBackend {
+
+    @Override
+    public HidDevice getDeviceByPath(String path) throws IOException {
+        HidDevice result = null;
+        HidServices services = HidManager.getHidServices();
+        if (services == null) return result;
+
+        for (org.hid4java.HidDevice device : services.getAttachedHidDevices()) {
+            if (device.getPath().equals(path)) {
+                result = new Hid4JavaHidDevice(device);
+                break;
+            }
+        }
+        return result;
     }
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+    @Override
+    public List<HidDevice> enumerateDevices() {
+        List<HidDevice> result = new ArrayList<HidDevice>();
+        for (org.hid4java.HidDevice info : HidManager.getHidServices().getAttachedHidDevices()) {
+            result.add(new Hid4JavaHidDevice(info));
+        }
+        return result;
+    }
+
 }

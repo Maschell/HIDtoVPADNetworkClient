@@ -19,16 +19,60 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.exeption;
+package net.ash.HIDToVPADNetworkClient.hid.hid4java;
 
-public class ControllerInitializationFailedException extends Exception {
+import java.util.Arrays;
 
-    public ControllerInitializationFailedException(String string) {
-        super(string);
+import net.ash.HIDToVPADNetworkClient.hid.HidDevice;
+
+class Hid4JavaHidDevice implements HidDevice {
+    private org.hid4java.HidDevice myDevice;
+
+    private final byte[] data = new byte[64];
+
+    public Hid4JavaHidDevice(org.hid4java.HidDevice device) {
+        this.myDevice = device;
     }
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+    @Override
+    public boolean open() {
+        return myDevice.open();
+    }
+
+    @Override
+    public void close() {
+        myDevice.close();
+    }
+
+    @Override
+    public short getVendorId() {
+        return myDevice.getVendorId();
+    }
+
+    @Override
+    public short getProductId() {
+        return myDevice.getProductId();
+    }
+
+    @Override
+    public byte[] getLatestData() {
+        int length = myDevice.read(data);
+        if (length <= 0) return new byte[0];
+        return Arrays.copyOf(data, length);
+    }
+
+    @Override
+    public String getPath() {
+        return myDevice.getPath();
+    }
+
+    @Override
+    public String toString() {
+        return "Hid4JavaHidDevice [myDevice=" + myDevice + ", data=" + Arrays.toString(data) + "]";
+    }
+
+    @Override
+    public short getUsage() {
+        return (short) myDevice.getUsage();
+    }
 }

@@ -19,16 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.exeption;
+package net.ash.HIDToVPADNetworkClient.hid;
 
-public class ControllerInitializationFailedException extends Exception {
+public interface HidDevice {
 
-    public ControllerInitializationFailedException(String string) {
-        super(string);
-    }
+    short getVendorId();
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+    short getProductId();
+
+    void close();
+
+    byte[] getLatestData();
+
+    short getUsage();
+
+    String getPath();
+
+    boolean open();
+
 }

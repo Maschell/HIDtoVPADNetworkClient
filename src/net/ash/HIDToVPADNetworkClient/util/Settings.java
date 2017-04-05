@@ -44,7 +44,9 @@ public final class Settings {
     public static final int PING_INTERVAL = 1000;
     public static final int PROCESS_CMD_INTERVAL = 10;
 
-    public static boolean SCAN_AUTOMATICALLY_FOR_CONTROLLERS = !isMacOSX(); // It doesn't work on OSX
+    public static final int DETECT_CONTROLLER_ACTIVE_INTERVAL = 100;
+
+    public static boolean SCAN_AUTOMATICALLY_FOR_CONTROLLERS = true;
 
     public static boolean DEBUG_UDP_OUTPUT = false;
     public static boolean SEND_DATA_ONLY_ON_CHANGE = false;

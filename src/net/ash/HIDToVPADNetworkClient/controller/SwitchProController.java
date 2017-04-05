@@ -23,18 +23,19 @@ package net.ash.HIDToVPADNetworkClient.controller;
 
 import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
 
-public class SwitchProController extends PureJavaHidController {
+public class SwitchProController extends HidController {
     public static final short SWITCH_PRO_CONTROLLER_VID = 0x57e;
     public static final short SWITCH_PRO_CONTROLLER_PID = 0x2009;
 
     public SwitchProController(String identifier) throws ControllerInitializationFailedException {
         super(identifier);
         // truncate package to 11;
-        this.PACKET_LENGTH = 11;
+        this.MAX_PACKET_LENGTH = 11;
     }
 
     @Override
     public byte[] pollLatestData() {
+        byte[] currentData = super.pollLatestData();
         if (currentData == null || currentData.length < 10) {
             return new byte[0];
         }
@@ -43,7 +44,7 @@ public class SwitchProController extends PureJavaHidController {
         currentData[5] = 0;
         currentData[7] = 0;
         currentData[9] = 0;
-        return currentData.clone();
+        return currentData;
     }
 
     @Override

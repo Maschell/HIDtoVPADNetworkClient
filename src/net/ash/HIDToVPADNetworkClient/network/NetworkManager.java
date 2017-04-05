@@ -157,17 +157,17 @@ public final class NetworkManager implements Runnable {
         }
     }
 
-    // TODO: PONG from WiiU? Hey Quark ;)
     private void sendPing(PingCommand command) {
         if (sendTCP(Protocol.getRawPingDataToSend(command))) {
-            log.info("PING");
             byte pong;
             try {
                 pong = tcpClient.recvByte();
-                if (pong != Protocol.TCP_CMD_PONG) {
+                if (pong == Protocol.TCP_CMD_PONG) {
+                    log.info("Ping...Pong!");
+                } else {
+                    log.info("Got no valid response to a Ping. Disconnecting.");
                     disconnect();
                 }
-                log.info("got PONG!");
             } catch (IOException e) {
                 log.info("Failed to get PONG. Disconnecting.");
                 tcpClient.checkShouldRetry();

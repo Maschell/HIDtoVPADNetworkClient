@@ -61,11 +61,7 @@ public final class GuiInputControls extends JPanel {
         connectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         final JCheckBox cbautoScanForController = new JCheckBox();
-        if (Settings.isMacOSX()) {
-            cbautoScanForController.setEnabled(false);
-        } else {
-            cbautoScanForController.setSelected(Settings.SCAN_AUTOMATICALLY_FOR_CONTROLLERS);
-        }
+        cbautoScanForController.setSelected(Settings.SCAN_AUTOMATICALLY_FOR_CONTROLLERS);
 
         cbautoScanForController.addActionListener(new ActionListener() {
 

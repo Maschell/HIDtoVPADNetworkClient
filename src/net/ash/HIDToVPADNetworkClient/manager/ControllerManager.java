@@ -38,22 +38,21 @@ import lombok.Synchronized;
 import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.controller.Controller;
 import net.ash.HIDToVPADNetworkClient.controller.Controller.ControllerType;
+import net.ash.HIDToVPADNetworkClient.controller.HidController;
 import net.ash.HIDToVPADNetworkClient.controller.LinuxDevInputController;
-import net.ash.HIDToVPADNetworkClient.controller.PureJavaHidController;
 import net.ash.HIDToVPADNetworkClient.controller.XInput13Controller;
 import net.ash.HIDToVPADNetworkClient.controller.XInput14Controller;
 import net.ash.HIDToVPADNetworkClient.controller.XInputController;
 import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
+import net.ash.HIDToVPADNetworkClient.hid.HidDevice;
+import net.ash.HIDToVPADNetworkClient.hid.HidManager;
 import net.ash.HIDToVPADNetworkClient.util.MessageBox;
 import net.ash.HIDToVPADNetworkClient.util.MessageBoxManager;
-import net.ash.HIDToVPADNetworkClient.util.PureJavaHidApiManager;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
-import purejavahidapi.HidDeviceInfo;
 
 @Log
 public final class ControllerManager {
     private static final Map<String, Controller> attachedControllers = new HashMap<String, Controller>();
-    private static final Map<String, HidDeviceInfo> connectedDevicesInfo = new HashMap<String, HidDeviceInfo>();
 
     private static boolean threwUnsatisfiedLinkError = false;
 
@@ -71,7 +70,7 @@ public final class ControllerManager {
         if (Settings.isLinux()) {
             connectedDevices.putAll(detectLinuxControllers());
         } else if (Settings.isWindows()) {
-            connectedDevices.putAll(detectWindowsControllers());
+            connectedDevices.putAll(detectXInputControllers());
         }
 
         connectedDevices.putAll(detectHIDDevices());
@@ -80,7 +79,6 @@ public final class ControllerManager {
         List<String> toRemove = new ArrayList<String>();
         synchronized (attachedControllers) {
             for (String s : attachedControllers.keySet()) {
-                System.out.println(s);
                 if (!connectedDevices.containsKey(s)) {
                     toRemove.add(s);
                 }
@@ -91,6 +89,7 @@ public final class ControllerManager {
             synchronized (attachedControllers) {
                 attachedControllers.get(remove).destroyAll();
                 attachedControllers.remove(remove);
+                log.info("Device removed: " + toRemove);
             }
         }
 
@@ -104,11 +103,11 @@ public final class ControllerManager {
             if (!contains) {
                 Controller c = null;
                 switch (entry.getValue()) {
-                case PureJAVAHid:
+                case HIDController:
                     try {
-                        c = PureJavaHidController.getInstance(deviceIdentifier);
+                        c = HidController.getInstance(deviceIdentifier);
                     } catch (ControllerInitializationFailedException e) {
-                        // e.printStackTrace();
+                        log.info(e.getMessage());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -117,14 +116,14 @@ public final class ControllerManager {
                     try {
                         c = new LinuxDevInputController(deviceIdentifier);
                     } catch (ControllerInitializationFailedException e) {
-                        // e.printStackTrace();
+                        log.info(e.getMessage());
                     }
                     break;
                 case XINPUT14:
                     try {
                         c = new XInput14Controller(deviceIdentifier);
                     } catch (ControllerInitializationFailedException e) {
-                        // e.printStackTrace();
+                        log.info(e.getMessage());
                     }
                     break;
                 case XINPUT13:
@@ -141,10 +140,11 @@ public final class ControllerManager {
                     if (Settings.AUTO_ACTIVATE_CONTROLLER) {
                         c.setActive(true);
                     }
-                    new Thread(c).start();
+                    new Thread(c, "Controller Thread " + deviceIdentifier).start();
                     synchronized (attachedControllers) {
                         attachedControllers.put(deviceIdentifier, c);
                     }
+                    log.info("Device added: " + deviceIdentifier);
                 }
             }
         }
@@ -157,19 +157,15 @@ public final class ControllerManager {
 
     private static Map<String, ControllerType> detectHIDDevices() {
         Map<String, ControllerType> connectedDevices = new HashMap<String, ControllerType>();
-        System.out.println("detectHIDDevices");
-        for (HidDeviceInfo info : PureJavaHidApiManager.getAttachedController()) {
+        for (HidDevice info : HidManager.getAttachedController()) {
             String path = info.getPath();
-            connectedDevices.put(path, ControllerType.PureJAVAHid);
-            synchronized (connectedDevicesInfo) {
-                connectedDevicesInfo.put(path, info);
-            }
+            connectedDevices.put(path, ControllerType.HIDController);
         }
 
         return connectedDevices;
     }
 
-    private static Map<String, ControllerType> detectWindowsControllers() {
+    private static Map<String, ControllerType> detectXInputControllers() {
         Map<String, ControllerType> result = new HashMap<String, ControllerType>();
         ControllerType type = ControllerType.XINPUT13;
 
@@ -245,10 +241,4 @@ public final class ControllerManager {
             c.setActive(false);
         }
     }
-
-    @Synchronized("connectedDevicesInfo")
-    public static HidDeviceInfo getDeviceInfoByPath(String path) {
-        return connectedDevicesInfo.get(path);
-    }
-
 }

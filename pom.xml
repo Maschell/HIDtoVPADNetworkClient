@@ -138,9 +138,14 @@
 			<version>1eb4087</version>    <!-- JXInput 0.7 -->
 		</dependency>
 		<dependency>
-			<groupId>com.github.Maschell</groupId>
+			<groupId>com.github.QuarkTheAwesome</groupId>
 			<artifactId>purejavahidapi</artifactId>
-			<version>cbf0588</version>
+			<version>3591b7e</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hid4java</groupId>
+			<artifactId>hid4java</artifactId>
+			<version>0.4.0</version>
 		</dependency>
 	</dependencies>
 </project>

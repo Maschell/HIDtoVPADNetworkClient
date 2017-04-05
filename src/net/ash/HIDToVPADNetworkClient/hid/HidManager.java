@@ -19,16 +19,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.exeption;
+package net.ash.HIDToVPADNetworkClient.hid;
 
-public class ControllerInitializationFailedException extends Exception {
+import java.io.IOException;
+import java.util.List;
 
-    public ControllerInitializationFailedException(String string) {
-        super(string);
+import net.ash.HIDToVPADNetworkClient.hid.hid4java.Hid4JavaHidManagerBackend;
+import net.ash.HIDToVPADNetworkClient.hid.purejavahid.PureJavaHidManagerBackend;
+import net.ash.HIDToVPADNetworkClient.util.Settings;
+
+public class HidManager {
+    private final static HidManagerBackend backend;
+
+    public static List<HidDevice> getAttachedController() {
+        return backend.getAttachedController();
     }
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+    public static HidDevice getDeviceByPath(String path) throws IOException {
+        return backend.getDeviceByPath(path);
+    }
+
+    static {
+        if (Settings.isMacOSX()) {
+            backend = new Hid4JavaHidManagerBackend();
+        } else if (Settings.isWindows()) {
+            backend = new PureJavaHidManagerBackend();
+        } else if (Settings.isLinux()) {
+            backend = new Hid4JavaHidManagerBackend();
+        } else
+            backend = null;
+    }
 }

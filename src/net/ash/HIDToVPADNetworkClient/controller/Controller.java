@@ -21,6 +21,8 @@
  *******************************************************************************/
 package net.ash.HIDToVPADNetworkClient.controller;
 
+import java.util.Arrays;
+
 import lombok.Getter;
 import lombok.Synchronized;
 import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
@@ -41,6 +43,8 @@ public abstract class Controller implements Runnable {
     @Getter private final String identifier;
     private byte[] latestData = null;
 
+    protected int MAX_PACKET_LENGTH = 64;
+
     boolean shutdown = false;
     boolean shutdownDone = false;
     private final Object dataLock = new Object();
@@ -54,7 +58,7 @@ public abstract class Controller implements Runnable {
         this.type = type;
         this.identifier = identifier;
         if (!initController(identifier)) {
-            throw new ControllerInitializationFailedException();
+            throw new ControllerInitializationFailedException("Initialization failed");
         }
     }
 
@@ -62,14 +66,18 @@ public abstract class Controller implements Runnable {
     public void run() {
         boolean shutdownState = shutdown;
         while (!shutdownState) {
-            Utilities.sleep(Settings.DETECT_CONTROLLER_INTERVAL);
             while (isActive()) {
                 byte[] newData = pollLatestData();
                 if (newData != null && newData.length != 0) {
+                    if (newData.length > MAX_PACKET_LENGTH) {
+                        newData = Arrays.copyOfRange(newData, 0, MAX_PACKET_LENGTH);
+                    }
+                    // System.out.println("data:" + Utilities.ByteArrayToString(newData));
                     setLatestData(newData);
                 }
                 doSleepAfterPollingData();
             }
+            Utilities.sleep(Settings.DETECT_CONTROLLER_ACTIVE_INTERVAL);
             synchronized (shutdownLock) {
                 shutdownState = shutdown;
             }
@@ -202,7 +210,7 @@ public abstract class Controller implements Runnable {
     }
 
     public enum ControllerType {
-        PureJAVAHid, LINUX, XINPUT13, XINPUT14
+        HIDController, LINUX, XINPUT13, XINPUT14
     }
 
     public abstract String getInfoText();

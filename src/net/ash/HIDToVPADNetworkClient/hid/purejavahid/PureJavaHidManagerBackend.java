@@ -19,16 +19,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.exeption;
+package net.ash.HIDToVPADNetworkClient.hid.purejavahid;
 
-public class ControllerInitializationFailedException extends Exception {
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-    public ControllerInitializationFailedException(String string) {
-        super(string);
+import net.ash.HIDToVPADNetworkClient.hid.HidDevice;
+import net.ash.HIDToVPADNetworkClient.hid.HidManagerBackend;
+import purejavahidapi.PureJavaHidApi;
+
+public class PureJavaHidManagerBackend extends HidManagerBackend {
+
+    @Override
+    public List<HidDevice> enumerateDevices() {
+        List<HidDevice> result = new ArrayList<HidDevice>();
+        for (purejavahidapi.HidDeviceInfo info : PureJavaHidApi.enumerateDevices()) {
+            result.add(new PureJavaHidDevice(info));
+        }
+        return result;
     }
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+    @Override
+    public HidDevice getDeviceByPath(String path) throws IOException {
+        List<purejavahidapi.HidDeviceInfo> devList = PureJavaHidApi.enumerateDevices();
+        HidDevice result = null;
+        for (purejavahidapi.HidDeviceInfo info : devList) {
+            String real_path = info.getPath();
+            if (real_path.equals(path)) {
+                return new PureJavaHidDevice(info);
+            }
+        }
+
+        return result;
+    }
 }

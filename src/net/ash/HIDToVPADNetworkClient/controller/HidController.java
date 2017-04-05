@@ -22,63 +22,54 @@
 package net.ash.HIDToVPADNetworkClient.controller;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.Synchronized;
 import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
-import net.ash.HIDToVPADNetworkClient.util.PureJavaHidApiManager;
-import purejavahidapi.HidDevice;
-import purejavahidapi.InputReportListener;
+import net.ash.HIDToVPADNetworkClient.hid.HidDevice;
+import net.ash.HIDToVPADNetworkClient.hid.HidManager;
 
 @Log
-public class PureJavaHidController extends Controller implements InputReportListener {
-    private final Object dataLock = new Object();
-    protected byte[] currentData = new byte[1];
-
-    protected int PACKET_LENGTH = 64;
-
+public class HidController extends Controller {
     @Getter @Setter(AccessLevel.PRIVATE) private HidDevice hidDevice;
 
     public static Controller getInstance(String deviceIdentifier) throws IOException, ControllerInitializationFailedException {
-        HidDevice device = PureJavaHidApiManager.getDeviceByPath(deviceIdentifier);
+
+        HidDevice device = HidManager.getDeviceByPath(deviceIdentifier);
 
         short vid = 0;
         short pid = 0;
         if (device != null) {
-            vid = device.getHidDeviceInfo().getVendorId();
-            pid = device.getHidDeviceInfo().getProductId();
-            device.close();
+            vid = device.getVendorId();
+            pid = device.getProductId();
         }
 
         // We use a special version to optimize the data for the switch pro controller
         if (vid == SwitchProController.SWITCH_PRO_CONTROLLER_VID && pid == SwitchProController.SWITCH_PRO_CONTROLLER_PID) {
-
             return new SwitchProController(deviceIdentifier);
         } else if (vid == DS4NewController.DS4_NEW_CONTROLLER_VID && pid == DS4NewController.DS4_NEW_CONTROLLER_PID) {
             return new DS4NewController(deviceIdentifier);
         } else {
-            return new PureJavaHidController(deviceIdentifier);
+            return new HidController(deviceIdentifier);
         }
     }
 
-    public PureJavaHidController(String identifier) throws ControllerInitializationFailedException {
-        super(ControllerType.PureJAVAHid, identifier);
+    public HidController(String identifier) throws ControllerInitializationFailedException {
+        super(ControllerType.HIDController, identifier);
     }
 
     @Override
     public boolean initController(String identifier) {
-        HidDevice device;
         try {
-            device = PureJavaHidApiManager.getDeviceByPath(identifier);
-            if (device == null) {
+            HidDevice device = HidManager.getDeviceByPath(identifier);
+
+            if (device == null || !device.open()) {
                 return false;
             }
+            log.info("HidDevice opened!");
 
-            device.setInputReportListener(this);
             setHidDevice(device);
             return true;
 
@@ -89,9 +80,9 @@ public class PureJavaHidController extends Controller implements InputReportList
     }
 
     @Override
-    @Synchronized("dataLock")
     public byte[] pollLatestData() {
-        return currentData.clone();
+        byte[] result = hidDevice.getLatestData();
+        return result;
     }
 
     @Override
@@ -105,34 +96,21 @@ public class PureJavaHidController extends Controller implements InputReportList
                 throw e;
             }
         }
-
     }
 
     @Override
     public short getVID() {
-        return getHidDevice().getHidDeviceInfo().getVendorId();
+        return getHidDevice().getVendorId();
     }
 
     @Override
     public short getPID() {
-        return getHidDevice().getHidDeviceInfo().getProductId();
-    }
-
-    @Override
-    @Synchronized("dataLock")
-    public void onInputReport(HidDevice source, byte reportID, byte[] reportData, int reportLength) {
-        if (isActive()) {
-            int length = PACKET_LENGTH;
-            if (reportLength < length) {
-                length = reportLength;
-            }
-            currentData = Arrays.copyOfRange(reportData, 0, length);
-        }
+        return getHidDevice().getProductId();
     }
 
     @Override
     public String getInfoText() {
-        // TODO:
+        // TODO: own class for joycons
         if (getVID() == 0x57e) {
             if (getPID() == 0x2006) {
                 return "Joy-Con (L) on " + getIdentifier();
