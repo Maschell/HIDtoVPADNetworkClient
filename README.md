@@ -15,4 +15,5 @@ Configuration files for HID to VPAD can be found [here](https://github.com/Masch
 ## Used Libraries
 Lombok - https://projectlombok.org/index.html  
 purejavahidapi - https://github.com/nyholku/purejavahidapi  
+hid4java - https://github.com/gary-rowe/hid4java  
 JXInput - https://github.com/StrikerX3/JXInput  

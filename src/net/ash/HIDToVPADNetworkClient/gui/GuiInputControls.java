@@ -41,6 +41,8 @@ import lombok.Getter;
 import net.ash.HIDToVPADNetworkClient.manager.ControllerManager;
 import net.ash.HIDToVPADNetworkClient.network.NetworkManager;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
 
 public final class GuiInputControls extends JPanel {
     private static final long serialVersionUID = 1L;
@@ -55,7 +57,7 @@ public final class GuiInputControls extends JPanel {
         super();
 
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        setPreferredSize(new Dimension(220, 150));
+        setPreferredSize(new Dimension(220, 200));
 
         final JButton connectButton = new JButton(CONNECT);
         connectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -87,8 +89,9 @@ public final class GuiInputControls extends JPanel {
         });
 
         JPanel scanWrap = new JPanel();
-        scanWrap.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-        scanWrap.add(new JLabel("Auto Scan for Controllers: "));
+        scanWrap.setLayout(new BoxLayout(scanWrap, BoxLayout.X_AXIS));
+        JLabel label = new JLabel("Auto Scan for Controllers: ");
+        scanWrap.add(label);
         scanWrap.add(cbautoScanForController);
 
         ipTextBox = new JTextField();
@@ -111,10 +114,10 @@ public final class GuiInputControls extends JPanel {
             }
         });
 
-        JPanel autoActivateWrap = new JPanel(new FlowLayout());
+        JPanel autoActivateWrap = new JPanel();
+        autoActivateWrap.setLayout(new BoxLayout(autoActivateWrap, BoxLayout.X_AXIS));
         autoActivateWrap.add(new JLabel("Auto Activate Controller: "));
         autoActivateWrap.add(cbautoActivateController);
-        autoActivateWrap.setMaximumSize(new Dimension(1000, 20));
 
         add(Box.createVerticalGlue());
 
@@ -124,9 +127,12 @@ public final class GuiInputControls extends JPanel {
         add(connectButton);
         add(Box.createRigidArea(new Dimension(1, 4)));
         add(scanButton);
+        add(Box.createRigidArea(new Dimension(1, 4)));
         add(scanWrap);
-        add(Box.createVerticalGlue());
+        add(Box.createRigidArea(new Dimension(1, 4)));
         add(autoActivateWrap);
+        add(Box.createVerticalGlue());
+        
 
         add(Box.createVerticalGlue());
 

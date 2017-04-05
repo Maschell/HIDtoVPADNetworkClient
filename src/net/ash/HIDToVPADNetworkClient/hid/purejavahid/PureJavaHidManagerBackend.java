@@ -29,8 +29,7 @@ import net.ash.HIDToVPADNetworkClient.hid.HidDevice;
 import net.ash.HIDToVPADNetworkClient.hid.HidManagerBackend;
 import purejavahidapi.PureJavaHidApi;
 
-public class PureJavaHidManagerBackend extends HidManagerBackend {
-
+public class PureJavaHidManagerBackend implements HidManagerBackend {
     @Override
     public List<HidDevice> enumerateDevices() {
         List<HidDevice> result = new ArrayList<HidDevice>();

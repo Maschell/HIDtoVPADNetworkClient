@@ -22,12 +22,9 @@
 package net.ash.HIDToVPADNetworkClient.hid;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import net.ash.HIDToVPADNetworkClient.util.Settings;
-
-public abstract class HidManagerBackend {
+public interface HidManagerBackend {
     /**
      * Searches the corresponding HIDDevice for the given path
      * 
@@ -37,42 +34,6 @@ public abstract class HidManagerBackend {
      * @throws IOException
      */
     public abstract HidDevice getDeviceByPath(String path) throws IOException;
-
-    public List<HidDevice> getAttachedController() {
-        List<HidDevice> connectedGamepads = new ArrayList<HidDevice>();
-
-        for (HidDevice info : enumerateDevices()) {
-            if (isGamepad(info)) {
-                // Skip Xbox controller under windows. We should use XInput instead.
-                if (isXboxController(info) && Settings.isWindows()) {
-                    continue;
-                }
-                connectedGamepads.add(info);
-            }
-        }
-        return connectedGamepads;
-    }
-
-    public static boolean isGamepad(HidDevice info) {
-        if (info == null) return false;
-        short usage = info.getUsage();
-        return (usage == 0x05 || usage == 0x04 || isNintendoController(info) || isPlaystationController(info));
-    }
-
-    private static boolean isPlaystationController(HidDevice info) {
-        if (info == null) return false;
-        return (info.getVendorId() == 0x054c);
-    }
-
-    private static boolean isNintendoController(HidDevice info) {
-        if (info == null) return false;
-        return (info.getVendorId() == 0x57e);
-    }
-
-    private static boolean isXboxController(HidDevice info) {
-        if (info == null) return false;
-        return (info.getVendorId() == 0x045e) && ((info.getProductId() == 0x02ff) || (info.getProductId() == 0x02a1));
-    }
 
     public abstract List<HidDevice> enumerateDevices();
 }

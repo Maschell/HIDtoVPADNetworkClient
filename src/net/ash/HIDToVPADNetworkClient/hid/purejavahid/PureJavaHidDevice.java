@@ -34,7 +34,7 @@ class PureJavaHidDevice implements HidDevice, InputReportListener {
     private final purejavahidapi.HidDeviceInfo myDeviceInfo;
 
     private final Object dataLock = new Object();
-    protected byte[] currentData = new byte[1];
+    protected byte[] currentData = new byte[0];
 
     public PureJavaHidDevice(HidDeviceInfo info) {
         this.myDeviceInfo = info;

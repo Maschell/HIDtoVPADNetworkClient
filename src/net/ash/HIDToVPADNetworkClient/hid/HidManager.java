@@ -22,21 +22,56 @@
 package net.ash.HIDToVPADNetworkClient.hid;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
+import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.hid.hid4java.Hid4JavaHidManagerBackend;
 import net.ash.HIDToVPADNetworkClient.hid.purejavahid.PureJavaHidManagerBackend;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
 
+@Log
 public class HidManager {
     private final static HidManagerBackend backend;
 
-    public static List<HidDevice> getAttachedController() {
-        return backend.getAttachedController();
-    }
-
     public static HidDevice getDeviceByPath(String path) throws IOException {
         return backend.getDeviceByPath(path);
+    }
+    
+    public static List<HidDevice> getAttachedControllers() {
+        List<HidDevice> connectedGamepads = new ArrayList<HidDevice>();
+
+        for (HidDevice info : backend.enumerateDevices()) {
+            if (isGamepad(info)) {
+                // Skip Xbox controller under windows. We should use XInput instead.
+                if (isXboxController(info) && Settings.isWindows()) {
+                    continue;
+                }
+                connectedGamepads.add(info);
+            }
+        }
+        return connectedGamepads;
+    }
+
+    public static boolean isGamepad(HidDevice info) {
+        if (info == null) return false;
+        short usage = info.getUsage();
+        return (usage == 0x05 || usage == 0x04 || isNintendoController(info) || isPlaystationController(info));
+    }
+
+    private static boolean isPlaystationController(HidDevice info) {
+        if (info == null) return false;
+        return (info.getVendorId() == 0x054c);
+    }
+
+    private static boolean isNintendoController(HidDevice info) {
+        if (info == null) return false;
+        return (info.getVendorId() == 0x57e);
+    }
+
+    private static boolean isXboxController(HidDevice info) {
+        if (info == null) return false;
+        return (info.getVendorId() == 0x045e) && ((info.getProductId() == 0x02ff) || (info.getProductId() == 0x02a1));
     }
 
     static {
@@ -46,7 +81,14 @@ public class HidManager {
             backend = new PureJavaHidManagerBackend();
         } else if (Settings.isLinux()) {
             backend = new Hid4JavaHidManagerBackend();
-        } else
+        } else{
             backend = null;
+        }
+        log.info("Plattform: " + System.getProperty("os.name"));
+        if(backend != null){          
+           log.info("Backend: " + backend.getClass().getSimpleName());
+        }else{
+            log.info("No Backend loaded =(");
+        }
     }
 }

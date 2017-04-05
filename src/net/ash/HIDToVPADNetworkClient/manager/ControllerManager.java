@@ -157,7 +157,7 @@ public final class ControllerManager {
 
     private static Map<String, ControllerType> detectHIDDevices() {
         Map<String, ControllerType> connectedDevices = new HashMap<String, ControllerType>();
-        for (HidDevice info : HidManager.getAttachedController()) {
+        for (HidDevice info : HidManager.getAttachedControllers()) {
             String path = info.getPath();
             connectedDevices.put(path, ControllerType.HIDController);
         }

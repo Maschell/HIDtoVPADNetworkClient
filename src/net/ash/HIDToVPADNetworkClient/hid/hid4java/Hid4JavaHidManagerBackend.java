@@ -31,7 +31,7 @@ import org.hid4java.HidServices;
 import net.ash.HIDToVPADNetworkClient.hid.HidDevice;
 import net.ash.HIDToVPADNetworkClient.hid.HidManagerBackend;
 
-public class Hid4JavaHidManagerBackend extends HidManagerBackend {
+public class Hid4JavaHidManagerBackend implements HidManagerBackend {
 
     @Override
     public HidDevice getDeviceByPath(String path) throws IOException {
