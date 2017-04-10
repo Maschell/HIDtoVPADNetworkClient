@@ -86,6 +86,19 @@ public final class GuiInputControls extends JPanel {
             }
         });
 
+        final JButton optionsButton = new JButton("Options");
+        optionsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        GuiOptionsWindow.showWindow();
+                    }
+                });
+            }
+        });
+        
         JPanel scanWrap = new JPanel();
         scanWrap.setLayout(new BoxLayout(scanWrap, BoxLayout.X_AXIS));
         JLabel label = new JLabel("Auto Scan for Controllers: ");
@@ -125,6 +138,8 @@ public final class GuiInputControls extends JPanel {
         add(connectButton);
         add(Box.createRigidArea(new Dimension(1, 4)));
         add(scanButton);
+        add(Box.createRigidArea(new Dimension(1, 4)));
+        add(optionsButton);
         add(Box.createRigidArea(new Dimension(1, 4)));
         add(scanWrap);
         add(Box.createRigidArea(new Dimension(1, 4)));
