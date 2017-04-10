@@ -25,42 +25,47 @@ package net.ash.HIDToVPADNetworkClient.hid;
 public interface HidDevice {
     /**
      * Opens the HidDevice for usage.
+     * 
      * @return true on success, false when it failed.
      */
     boolean open();
-    
+
     /**
      * Closes the HidDevice
      */
     void close();
-    
+
     /**
      * Returns the VendorID of the HidDevice
+     * 
      * @return vendorID
      */
     short getVendorId();
 
     /**
      * Returns the ProductID of the HidDevice
+     * 
      * @return productID
      */
     short getProductId();
 
-
     /**
      * Returns the latest data.
+     * 
      * @return An byte array containing the latest data. If no data is present, it'll return a empty byte array
      */
     byte[] getLatestData();
 
     /**
      * Retuns the Usage of this HID-Device
+     * 
      * @return usage
      */
     short getUsage();
 
     /**
      * Returns the path of this HidDevice
+     * 
      * @return path
      */
     String getPath();

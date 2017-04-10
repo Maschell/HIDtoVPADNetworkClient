@@ -49,6 +49,7 @@ public final class Settings {
     public static boolean SCAN_AUTOMATICALLY_FOR_CONTROLLERS = true;
 
     public static boolean DEBUG_UDP_OUTPUT = false;
+    public static boolean DEBUG_TCP_PING_PONG = false;
     public static boolean SEND_DATA_ONLY_ON_CHANGE = false;
     public static boolean AUTO_ACTIVATE_CONTROLLER = false;
 

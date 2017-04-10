@@ -37,12 +37,13 @@ public class HidManager {
     public static HidDevice getDeviceByPath(String path) throws IOException {
         return backend.getDeviceByPath(path);
     }
-    
+
     public static List<HidDevice> getAttachedControllers() {
         List<HidDevice> connectedGamepads = new ArrayList<HidDevice>();
 
         for (HidDevice info : backend.enumerateDevices()) {
             if (isGamepad(info)) {
+
                 // Skip Xbox controller under windows. We should use XInput instead.
                 if (isXboxController(info) && Settings.isWindows()) {
                     continue;
@@ -61,17 +62,17 @@ public class HidManager {
 
     private static boolean isPlaystationController(HidDevice info) {
         if (info == null) return false;
-        return (info.getVendorId() == 0x054c);
+        return (info.getVendorId() == (short) 0x054c);
     }
 
     private static boolean isNintendoController(HidDevice info) {
         if (info == null) return false;
-        return (info.getVendorId() == 0x57e);
+        return (info.getVendorId() == (short) 0x57e);
     }
 
     private static boolean isXboxController(HidDevice info) {
         if (info == null) return false;
-        return (info.getVendorId() == 0x045e) && ((info.getProductId() == 0x02ff) || (info.getProductId() == 0x02a1));
+        return (info.getVendorId() == (short) 0x045e) && ((info.getProductId() == (short) 0x02ff) || (info.getProductId() == (short) 0x02a1));
     }
 
     static {
@@ -81,13 +82,13 @@ public class HidManager {
             backend = new PureJavaHidManagerBackend();
         } else if (Settings.isLinux()) {
             backend = new Hid4JavaHidManagerBackend();
-        } else{
+        } else {
             backend = null;
         }
         log.info("Plattform: " + System.getProperty("os.name"));
-        if(backend != null){          
-           log.info("Backend: " + backend.getClass().getSimpleName());
-        }else{
+        if (backend != null) {
+            log.info("Backend: " + backend.getClass().getSimpleName());
+        } else {
             log.info("No Backend loaded =(");
         }
     }

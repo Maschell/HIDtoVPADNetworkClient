@@ -41,8 +41,6 @@ import lombok.Getter;
 import net.ash.HIDToVPADNetworkClient.manager.ControllerManager;
 import net.ash.HIDToVPADNetworkClient.network.NetworkManager;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
 
 public final class GuiInputControls extends JPanel {
     private static final long serialVersionUID = 1L;
@@ -132,7 +130,6 @@ public final class GuiInputControls extends JPanel {
         add(Box.createRigidArea(new Dimension(1, 4)));
         add(autoActivateWrap);
         add(Box.createVerticalGlue());
-        
 
         add(Box.createVerticalGlue());
 

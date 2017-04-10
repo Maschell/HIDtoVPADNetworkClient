@@ -68,7 +68,7 @@ class Hid4JavaHidDevice implements HidDevice {
 
     @Override
     public String toString() {
-        return "Hid4JavaHidDevice [myDevice=" + myDevice + ", data=" + Arrays.toString(data) + "]";
+        return "Hid4JavaHidDevice [vid= " + getVendorId() + ", pid= " + getProductId() + ", data=" + Arrays.toString(data) + "]";
     }
 
     @Override

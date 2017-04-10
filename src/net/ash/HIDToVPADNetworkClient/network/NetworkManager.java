@@ -31,6 +31,7 @@ import lombok.Synchronized;
 import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.controller.Controller;
 import net.ash.HIDToVPADNetworkClient.manager.ActiveControllerManager;
+import net.ash.HIDToVPADNetworkClient.network.Protocol.HandshakeReturnCode;
 import net.ash.HIDToVPADNetworkClient.util.MessageBox;
 import net.ash.HIDToVPADNetworkClient.util.MessageBoxManager;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
@@ -163,7 +164,7 @@ public final class NetworkManager implements Runnable {
             try {
                 pong = tcpClient.recvByte();
                 if (pong == Protocol.TCP_CMD_PONG) {
-                    log.info("Ping...Pong!");
+                    if (Settings.DEBUG_TCP_PING_PONG) log.info("Ping...Pong!");
                 } else {
                     log.info("Got no valid response to a Ping. Disconnecting.");
                     disconnect();
@@ -344,13 +345,18 @@ public final class NetworkManager implements Runnable {
         boolean result = false;
         log.info("Trying to connect to: " + ip);
         try {
-            tcpClient.connect(ip);
-            log.info("TCP Connected!");
-            udpClient = UDPClient.createUDPClient(ip);
-            if (udpClient != null) {
-                result = true;
+            HandshakeReturnCode tcpresult = tcpClient.connect(ip);
+            if (tcpresult == HandshakeReturnCode.GOOD_HANDSHAKE) {
+                log.info("TCP Connected!");
+                udpClient = UDPClient.createUDPClient(ip);
+                if (udpClient != null) {
+                    result = true;
+                }
+            } else {
+                String error = "Error while connecting.";
+                log.info(error);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             String error = "Error while connecting: " + e.getMessage();
             log.info(error);
             MessageBoxManager.addMessageBox(error, MessageBox.MESSAGE_WARNING);

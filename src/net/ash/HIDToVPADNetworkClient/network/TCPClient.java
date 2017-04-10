@@ -33,7 +33,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
 import lombok.extern.java.Log;
-import net.ash.HIDToVPADNetworkClient.manager.ActiveControllerManager;
 import net.ash.HIDToVPADNetworkClient.network.Protocol.HandshakeReturnCode;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
 
@@ -53,23 +52,18 @@ final class TCPClient {
     }
 
     @Synchronized("lock")
-    void connect(String ip) throws Exception {
+    HandshakeReturnCode connect(String ip) throws IOException {
         sock = new Socket();
         sock.connect(new InetSocketAddress(ip, Protocol.TCP_PORT), 2000);
         in = new DataInputStream(sock.getInputStream());
         out = new DataOutputStream(sock.getOutputStream());
 
-        HandshakeReturnCode resultHandshake = HandshakeReturnCode.GOOD_HANDSHAKE;
-        if (recvByte() != Protocol.TCP_HANDSHAKE) resultHandshake = HandshakeReturnCode.BAD_HANDSHAKE;
-
-        if (resultHandshake == HandshakeReturnCode.GOOD_HANDSHAKE) {
-            ActiveControllerManager.getInstance().attachAllActiveControllers();
+        HandshakeReturnCode result = Protocol.doHandshake(this);
+        if (result == HandshakeReturnCode.GOOD_HANDSHAKE) {
             this.ip = ip;
             shouldRetry = 0;
-        } else {
-            log.info("[TCP] Handshaking failed");
-            throw new Exception();
         }
+        return result;
     }
 
     @Synchronized("lock")
@@ -110,6 +104,10 @@ final class TCPClient {
 
     void send(int value) throws IOException {
         send(ByteBuffer.allocate(4).putInt(value).array());
+    }
+
+    public void send(byte _byte) throws IOException {
+        send(ByteBuffer.allocate(1).put(_byte).array());
     }
 
     @Synchronized("lock")

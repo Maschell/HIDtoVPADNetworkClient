@@ -89,4 +89,10 @@ class PureJavaHidDevice implements HidDevice, InputReportListener {
     public String getPath() {
         return myDeviceInfo.getPath();
     }
+
+    @Override
+    public String toString() {
+        return "PureJavaHidDevice [vid= " + String.format("%04X", getVendorId()) + ", pid= " + String.format("%04X", getProductId()) + ", path= " + getPath()
+                + ", data=" + Arrays.toString(currentData) + "]";
+    }
 }
