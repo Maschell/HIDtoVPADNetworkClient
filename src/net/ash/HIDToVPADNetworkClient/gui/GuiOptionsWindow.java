@@ -46,6 +46,7 @@ import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
 import lombok.extern.java.Log;
+import net.ash.HIDToVPADNetworkClient.util.Settings;
 
 @Log
 public class GuiOptionsWindow extends JPanel {
@@ -99,11 +100,10 @@ public class GuiOptionsWindow extends JPanel {
             cFilterList = new ControllerFilteringList();
             cFilterList.setBackground(Color.BLUE);
             
-            ControllerFilteringListItem cHidGamepadsListItem = new ControllerFilteringListItem("Gamepads (HID)");
-            cFilterList.add(cHidGamepadsListItem);
-            
-            ControllerFilteringListItem cKeyboardsListItem = new ControllerFilteringListItem("Keyboards (HID)");
-            cFilterList.add(cKeyboardsListItem);
+            for (Settings.ControllerFiltering.Type type : Settings.ControllerFiltering.Type.values()) {
+                ControllerFilteringListItem item = new ControllerFilteringListItem(type);
+                cFilterList.add(item);
+            }
             
             add(cFilterList);
             
@@ -137,24 +137,26 @@ public class GuiOptionsWindow extends JPanel {
             private static final long serialVersionUID = 1L;
             
             private final JCheckBox cBox;
+            private final Settings.ControllerFiltering.Type type;
             
-            private ControllerFilteringListItem(String type) {
+            private ControllerFilteringListItem(Settings.ControllerFiltering.Type typeIn) {
                 super(new GridLayout(1, 1));
+                this.type = typeIn;
                 
-                cBox = new JCheckBox(type);
+                cBox = new JCheckBox(type.getName());
                 cBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-                cBox.setSelected(true); //TODO get checkbox state
+                cBox.setSelected(Settings.ControllerFiltering.getFilterState(type));
                 cBox.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        //TODO actually change filtering
+                        Settings.ControllerFiltering.setFilterState(type, cBox.isSelected());
                     }
                 });
                 add(cBox);
             }
             
             public void updateItem() {
-                cBox.setSelected(true); //TODO get checkbox State
+                cBox.setSelected(Settings.ControllerFiltering.getFilterState(type));
             }
             
             //I can't believe I didn't figure this out for GuiControllerList
