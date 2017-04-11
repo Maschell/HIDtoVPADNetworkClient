@@ -22,6 +22,7 @@
 package net.ash.HIDToVPADNetworkClient.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -34,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -69,7 +71,7 @@ public class GuiOptionsWindow extends JPanel {
         
         log.info("Hello from the Options window!");
         
-        setPreferredSize(new Dimension(200, 100));
+        setPreferredSize(new Dimension(500, 400));
         
         JTabbedPane tabPane = new JTabbedPane();
         tabPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -91,8 +93,13 @@ public class GuiOptionsWindow extends JPanel {
             setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
             
             infoText = new JTextArea();
-            infoText.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-            add(infoText);
+            infoText.setEditable(false);
+            infoText.setText("WIP");
+            JPanel infoTextWrap = new JPanel(new GridLayout(1, 1));
+            infoTextWrap.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            infoTextWrap.add(infoText);
+            infoTextWrap.setAlignmentX(Component.CENTER_ALIGNMENT);
+            add(infoTextWrap);
             
             JButton copyButton = new JButton("Copy");
             copyButton.addActionListener(new ActionListener() {
@@ -104,6 +111,7 @@ public class GuiOptionsWindow extends JPanel {
             });
             copyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
             add(copyButton);
+            add(Box.createVerticalStrut(10));
         }
 
         @Override
