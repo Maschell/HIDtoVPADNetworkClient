@@ -38,6 +38,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -71,18 +72,99 @@ public class GuiOptionsWindow extends JPanel {
         
         log.info("Hello from the Options window!");
         
-        setPreferredSize(new Dimension(500, 400));
+        setPreferredSize(new Dimension(600, 400));
         
         JTabbedPane tabPane = new JTabbedPane();
         tabPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         
+        Tab controllerTab = new ControllerTab();
+        tabs.add(controllerTab);
+        tabPane.addTab("Controllers", controllerTab);
+        
         Tab infoTab = new InfoTab();
         tabs.add(infoTab);
-        tabPane.addTab("Info", null, infoTab, "desc");
+        tabPane.addTab("Info", infoTab);
         
         add(tabPane);
     }
 
+    private class ControllerTab extends Tab {
+        private static final long serialVersionUID = 1L;
+        
+        private final ControllerFilteringList cFilterList;
+        
+        private ControllerTab() {
+            super(new GridLayout(1, 2));
+            
+            cFilterList = new ControllerFilteringList();
+            cFilterList.setBackground(Color.BLUE);
+            
+            ControllerFilteringListItem cHidGamepadsListItem = new ControllerFilteringListItem("Gamepads (HID)");
+            cFilterList.add(cHidGamepadsListItem);
+            
+            ControllerFilteringListItem cKeyboardsListItem = new ControllerFilteringListItem("Keyboards (HID)");
+            cFilterList.add(cKeyboardsListItem);
+            
+            add(cFilterList);
+            
+            add(new JPanel()); //TODO right side controls
+        }
+        
+        @Override
+        public void updateTab() {
+            for (ControllerFilteringListItem c : cFilterList.items) {
+                c.updateItem();
+            }
+        }
+        
+        private class ControllerFilteringList extends JPanel {
+            private static final long serialVersionUID = 1L;
+            
+            private List<ControllerFilteringListItem> items = new ArrayList<ControllerFilteringListItem>();
+        
+            private ControllerFilteringList() {
+                super();
+                setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+            }
+            
+            public Component add(ControllerFilteringListItem c) {
+                items.add(c);
+                return super.add(c);
+            }
+        }
+        
+        private class ControllerFilteringListItem extends JPanel {
+            private static final long serialVersionUID = 1L;
+            
+            private final JCheckBox cBox;
+            
+            private ControllerFilteringListItem(String type) {
+                super(new GridLayout(1, 1));
+                
+                cBox = new JCheckBox(type);
+                cBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+                cBox.setSelected(true); //TODO get checkbox state
+                cBox.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        //TODO actually change filtering
+                    }
+                });
+                add(cBox);
+            }
+            
+            public void updateItem() {
+                cBox.setSelected(true); //TODO get checkbox State
+            }
+            
+            //I can't believe I didn't figure this out for GuiControllerList
+            @Override
+            public Dimension getMaximumSize() {
+                return new Dimension(Integer.MAX_VALUE, getPreferredSize().height);
+            }
+        }
+    }
+    
     private class InfoTab extends Tab {
         private static final long serialVersionUID = 1L;
         
