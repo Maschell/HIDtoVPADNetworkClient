@@ -48,6 +48,7 @@ import javax.swing.border.EtchedBorder;
 
 import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
+import net.ash.HIDToVPADNetworkClient.util.StatusReport;
 
 @Log
 public class GuiOptionsWindow extends JPanel {
@@ -217,20 +218,20 @@ public class GuiOptionsWindow extends JPanel {
         private static final long serialVersionUID = 1L;
         
         private final JTextArea infoText;
+        private final JScrollPane infoTextWrap;
         
         private InfoTab() {
             super();
             setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+            setBorder(BorderFactory.createEmptyBorder(5, 5, 10, 5));
             
             infoText = new JTextArea();
-            infoText.setBorder(BorderFactory.createLoweredBevelBorder());
             infoText.setEditable(false);
-            infoText.setText("WIP");
-            JPanel infoTextWrap = new JPanel(new GridLayout(1, 1));
-            infoTextWrap.setBorder(BorderFactory.createEmptyBorder(5, 5, 10, 5));
-            infoTextWrap.add(infoText);
+            infoTextWrap = new JScrollPane(infoText, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
             infoTextWrap.setAlignmentX(Component.CENTER_ALIGNMENT);
             add(infoTextWrap);
+            
+            add(Box.createVerticalStrut(10));
             
             JButton copyButton = new JButton("Copy");
             copyButton.addActionListener(new ActionListener() {
@@ -242,12 +243,13 @@ public class GuiOptionsWindow extends JPanel {
             });
             copyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
             add(copyButton);
-            add(Box.createVerticalStrut(10));
         }
 
         @Override
         public void updateTab() {
-            //TODO update info text
+            infoText.setCaretPosition(0);
+            infoText.setText(StatusReport.generateStatusReport());
+            infoText.setCaretPosition(0);
         }
     }
     
