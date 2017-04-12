@@ -30,7 +30,6 @@ import java.awt.event.ActionListener;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -60,19 +59,6 @@ public final class GuiInputControls extends JPanel {
         final JButton connectButton = new JButton(CONNECT);
         connectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        final JCheckBox cbautoScanForController = new JCheckBox();
-        cbautoScanForController.setSelected(Settings.SCAN_AUTOMATICALLY_FOR_CONTROLLERS);
-
-        cbautoScanForController.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                boolean selected = ((JCheckBox) e.getSource()).isSelected();
-                Settings.SCAN_AUTOMATICALLY_FOR_CONTROLLERS = selected;
-                cbautoScanForController.setSelected(selected);
-            }
-        });
-
         final JButton scanButton = new JButton("Scan for Controllers");
         scanButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         scanButton.addActionListener(new ActionListener() {
@@ -98,12 +84,6 @@ public final class GuiInputControls extends JPanel {
                 });
             }
         });
-        
-        JPanel scanWrap = new JPanel();
-        scanWrap.setLayout(new BoxLayout(scanWrap, BoxLayout.X_AXIS));
-        JLabel label = new JLabel("Auto Scan for Controllers: ");
-        scanWrap.add(label);
-        scanWrap.add(cbautoScanForController);
 
         ipTextBox = new JTextField();
         ipTextBox.setColumns(15);
@@ -112,23 +92,6 @@ public final class GuiInputControls extends JPanel {
         ipTextBoxWrap.add(new JLabel("IP: "));
         ipTextBoxWrap.add(ipTextBox);
         ipTextBoxWrap.setMaximumSize(new Dimension(1000, 20));
-
-        final JCheckBox cbautoActivateController = new JCheckBox();
-        cbautoActivateController.setSelected(Settings.AUTO_ACTIVATE_CONTROLLER);
-        cbautoActivateController.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                boolean selected = ((JCheckBox) e.getSource()).isSelected();
-                Settings.AUTO_ACTIVATE_CONTROLLER = selected;
-                cbautoActivateController.setSelected(selected);
-            }
-        });
-
-        JPanel autoActivateWrap = new JPanel();
-        autoActivateWrap.setLayout(new BoxLayout(autoActivateWrap, BoxLayout.X_AXIS));
-        autoActivateWrap.add(new JLabel("Auto Activate Controller: "));
-        autoActivateWrap.add(cbautoActivateController);
 
         add(Box.createVerticalGlue());
 
@@ -140,10 +103,6 @@ public final class GuiInputControls extends JPanel {
         add(scanButton);
         add(Box.createRigidArea(new Dimension(1, 4)));
         add(optionsButton);
-        add(Box.createRigidArea(new Dimension(1, 4)));
-        add(scanWrap);
-        add(Box.createRigidArea(new Dimension(1, 4)));
-        add(autoActivateWrap);
         add(Box.createVerticalGlue());
 
         add(Box.createVerticalGlue());

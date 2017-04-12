@@ -82,7 +82,7 @@ public class GuiOptionsWindow extends JPanel {
         
         log.info("Hello from the Options window!");
         
-        setPreferredSize(new Dimension(600, 300));
+        setPreferredSize(new Dimension(600, 200));
         
         JTabbedPane tabPane = new JTabbedPane();
         tabPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -102,6 +102,8 @@ public class GuiOptionsWindow extends JPanel {
         private static final long serialVersionUID = 1L;
         
         private final ControllerFilteringList cFilterList;
+        private final JCheckBox cBoxScanForControllers;
+        private final JCheckBox cBoxAutoActivateControllers;
         
         private ControllerTab() {
             super(new GridLayout(1, 2));
@@ -115,7 +117,34 @@ public class GuiOptionsWindow extends JPanel {
             
             add(cFilterList);
             
-            add(new JPanel()); //TODO right side controls
+            JPanel rightSideControls = new JPanel();
+            rightSideControls.setLayout(new BoxLayout(rightSideControls, BoxLayout.PAGE_AXIS));
+            rightSideControls.add(Box.createVerticalGlue());
+            
+            cBoxScanForControllers = new JCheckBox("Automatically scan for controllers");
+            cBoxScanForControllers.setAlignmentX(Component.CENTER_ALIGNMENT);
+            cBoxScanForControllers.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Settings.SCAN_AUTOMATICALLY_FOR_CONTROLLERS = cBoxScanForControllers.isSelected();
+                }
+            });
+            rightSideControls.add(cBoxScanForControllers);
+            
+            rightSideControls.add(Box.createVerticalStrut(2));
+            
+            cBoxAutoActivateControllers = new JCheckBox("Automatically activate controllers");
+            cBoxAutoActivateControllers.setAlignmentX(Component.CENTER_ALIGNMENT);
+            cBoxAutoActivateControllers.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Settings.AUTO_ACTIVATE_CONTROLLER = cBoxAutoActivateControllers.isSelected();
+                }
+            });
+            rightSideControls.add(cBoxAutoActivateControllers);
+            
+            rightSideControls.add(Box.createVerticalGlue());
+            add(rightSideControls);
         }
         
         @Override
@@ -123,6 +152,8 @@ public class GuiOptionsWindow extends JPanel {
             for (ControllerFilteringListItem c : cFilterList.items) {
                 c.updateItem();
             }
+            cBoxScanForControllers.setSelected(Settings.SCAN_AUTOMATICALLY_FOR_CONTROLLERS);
+            cBoxAutoActivateControllers.setSelected(Settings.AUTO_ACTIVATE_CONTROLLER);
         }
         
         private class ControllerFilteringList extends JPanel {
@@ -165,7 +196,6 @@ public class GuiOptionsWindow extends JPanel {
                 
                 cBox = new JCheckBox(type.getName());
                 cBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-                cBox.setSelected(Settings.ControllerFiltering.getFilterState(type));
                 cBox.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
