@@ -192,26 +192,36 @@ public final class Settings {
         } else if (os.contains("Mac OS X")) {
             return Platform.MAC_OS_X;
         }
-        return null;
+        return Platform.UNKNOWN;
     }
 
     public enum Platform {
-        LINUX, WINDOWS, MAC_OS_X, UNKNOWN
+        LINUX (0x1), WINDOWS (0x2), MAC_OS_X (0x4), UNKNOWN (0x8);
+        
+        private int mask;
+        private Platform(int mask) {
+            this.mask = mask;
+        }
     }
     
     //TODO rename this to something less nonsensical
     public static class ControllerFiltering {
         public static enum Type {
-            HIDGAMEPAD (0, "HID Gamepads"),
-            HIDKEYBOARD (1, "HID Keyboards"),
-            HIDMOUSE (2, "HID Mice"),
-            HIDOTHER (3, "Other HIDs");
+            HIDGAMEPAD (0, "HID Gamepads", Platform.LINUX.mask | Platform.WINDOWS.mask | Platform.MAC_OS_X.mask),
+            HIDKEYBOARD (1, "HID Keyboards", Platform.LINUX.mask | Platform.MAC_OS_X.mask),
+            HIDMOUSE (2, "HID Mice", Platform.LINUX.mask | Platform.MAC_OS_X.mask),
+            HIDOTHER (3, "Other HIDs", Platform.LINUX.mask | Platform.WINDOWS.mask | Platform.MAC_OS_X.mask);
             
             private int index;
             @Getter private String name;
-            private Type(int index, String name) {
+            private int platforms;
+            private Type(int index, String name, int platforms) {
                 this.index = index;
                 this.name = name;
+                this.platforms = platforms;
+            }
+            public boolean isSupportedOnPlatform() {
+                return (platforms & getPlattform().mask) != 0;
             }
         }
         
@@ -234,7 +244,7 @@ public final class Settings {
             filterStates[filter.index] = state;
         }
         public static boolean getFilterState(Type filter) {
-            return filterStates[filter.index];
+            return filterStates[filter.index] || !filter.isSupportedOnPlatform();
         }
         public static void setDefaultFilterStates() {
             filterStates[Type.HIDGAMEPAD.index] = true;

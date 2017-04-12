@@ -108,6 +108,7 @@ public class GuiOptionsWindow extends JPanel {
             cFilterList = new ControllerFilteringList();
             
             for (Settings.ControllerFiltering.Type type : Settings.ControllerFiltering.Type.values()) {
+                if (!type.isSupportedOnPlatform()) continue;
                 ControllerFilteringListItem item = new ControllerFilteringListItem(type);
                 cFilterList.add(item);
             }
