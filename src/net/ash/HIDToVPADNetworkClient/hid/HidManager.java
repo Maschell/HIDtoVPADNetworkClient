@@ -43,11 +43,22 @@ public class HidManager {
 
         for (HidDevice info : backend.enumerateDevices()) {
             if (isGamepad(info)) {
-
-                // Skip Xbox controller under windows. We should use XInput instead.
-                if (isXboxController(info) && Settings.isWindows()) {
-                    continue;
+                if (Settings.ControllerFiltering.getFilterState(Settings.ControllerFiltering.Type.HIDGAMEPAD)) {
+                 // Skip Xbox controller under windows. We should use XInput instead.
+                    if (isXboxController(info) && Settings.isWindows()) {
+                        continue;
+                    }
+                    connectedGamepads.add(info);
                 }
+            } else if (isKeyboard(info)) {
+                if (Settings.ControllerFiltering.getFilterState(Settings.ControllerFiltering.Type.HIDKEYBOARD)) {
+                    connectedGamepads.add(info);
+                }
+            } else if (isMouse(info)) {
+                if (Settings.ControllerFiltering.getFilterState(Settings.ControllerFiltering.Type.HIDMOUSE)) {
+                    connectedGamepads.add(info);
+                }
+            } else if (Settings.ControllerFiltering.getFilterState(Settings.ControllerFiltering.Type.HIDOTHER)) {
                 connectedGamepads.add(info);
             }
         }
@@ -58,6 +69,18 @@ public class HidManager {
         if (info == null) return false;
         short usage = info.getUsage();
         return (usage == 0x05 || usage == 0x04 || isNintendoController(info) || isPlaystationController(info));
+    }
+    
+    public static boolean isKeyboard(HidDevice info) {
+        if (info == null) return false;
+        short usage = info.getUsage();
+        return (usage == 0x06);
+    }
+    
+    public static boolean isMouse(HidDevice info) {
+        if (info == null) return false;
+        short usage = info.getUsage();
+        return (usage == 0x02);
     }
 
     private static boolean isPlaystationController(HidDevice info) {
@@ -81,7 +104,7 @@ public class HidManager {
         } else if (Settings.isWindows()) {
             backend = new PureJavaHidManagerBackend();
         } else if (Settings.isLinux()) {
-            backend = new Hid4JavaHidManagerBackend();
+            backend = new PureJavaHidManagerBackend();
         } else {
             backend = null;
         }

@@ -204,7 +204,8 @@ public final class Settings {
         public static enum Type {
             HIDGAMEPAD (0, "HID Gamepads"),
             HIDKEYBOARD (1, "HID Keyboards"),
-            HIDOTHER (2, "Other HIDs");
+            HIDMOUSE (2, "HID Mice"),
+            HIDOTHER (3, "Other HIDs");
             
             private int index;
             @Getter private String name;
@@ -231,7 +232,6 @@ public final class Settings {
         
         public static void setFilterState(Type filter, boolean state) {
             filterStates[filter.index] = state;
-            log.info("Just set " + filter + " to " + state);
         }
         public static boolean getFilterState(Type filter) {
             return filterStates[filter.index];
@@ -239,6 +239,7 @@ public final class Settings {
         public static void setDefaultFilterStates() {
             filterStates[Type.HIDGAMEPAD.index] = true;
             filterStates[Type.HIDKEYBOARD.index] = false;
+            filterStates[Type.HIDMOUSE.index] = false;
             filterStates[Type.HIDOTHER.index] = false;
         }
     }
