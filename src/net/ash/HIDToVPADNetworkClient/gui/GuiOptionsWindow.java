@@ -42,6 +42,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
@@ -59,6 +60,10 @@ public class GuiOptionsWindow extends JPanel {
     private final List<Tab> tabs = new ArrayList<Tab>();
     
     public static void showWindow() {
+        showWindow(null);
+    }
+    
+    public static void showWindow(Component parent) {
         instance.setOpaque(true);
         for (Tab t : instance.tabs) {
             t.updateTab();
@@ -68,6 +73,7 @@ public class GuiOptionsWindow extends JPanel {
         //TODO: close window behaviour
         window.setContentPane(instance);
         window.pack();
+        window.setLocationRelativeTo(parent);
         window.setVisible(true);
     }
     
@@ -76,7 +82,7 @@ public class GuiOptionsWindow extends JPanel {
         
         log.info("Hello from the Options window!");
         
-        setPreferredSize(new Dimension(600, 400));
+        setPreferredSize(new Dimension(600, 300));
         
         JTabbedPane tabPane = new JTabbedPane();
         tabPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -131,8 +137,10 @@ public class GuiOptionsWindow extends JPanel {
                 
                 innerPanel = new JPanel();
                 innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.PAGE_AXIS));
-                innerPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-                add(innerPanel, BorderLayout.CENTER);
+                
+                JScrollPane innerPanelWrap = new JScrollPane(innerPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                innerPanelWrap.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+                add(innerPanelWrap, BorderLayout.CENTER);
                 
                 JLabel controllerFilterText = new JLabel("Controllers to show:");
                 controllerFilterText.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
@@ -193,7 +201,7 @@ public class GuiOptionsWindow extends JPanel {
             infoText.setEditable(false);
             infoText.setText("WIP");
             JPanel infoTextWrap = new JPanel(new GridLayout(1, 1));
-            infoTextWrap.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            infoTextWrap.setBorder(BorderFactory.createEmptyBorder(5, 5, 10, 5));
             infoTextWrap.add(infoText);
             infoTextWrap.setAlignmentX(Component.CENTER_ALIGNMENT);
             add(infoTextWrap);

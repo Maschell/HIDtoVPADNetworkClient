@@ -93,7 +93,7 @@ public final class GuiInputControls extends JPanel {
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        GuiOptionsWindow.showWindow();
+                        GuiOptionsWindow.showWindow(GuiMain.getInstance());
                     }
                 });
             }
