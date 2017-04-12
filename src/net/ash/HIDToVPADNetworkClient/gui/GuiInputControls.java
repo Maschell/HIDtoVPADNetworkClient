@@ -73,6 +73,7 @@ public final class GuiInputControls extends JPanel {
         });
 
         final JButton optionsButton = new JButton("Options");
+        optionsButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         optionsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

@@ -22,7 +22,6 @@
 package net.ash.HIDToVPADNetworkClient.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -45,8 +44,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
 import lombok.extern.java.Log;
@@ -70,7 +67,6 @@ public class GuiOptionsWindow extends JPanel {
         }
         
         JFrame window = new JFrame("Options");
-        //TODO: close window behaviour
         window.setContentPane(instance);
         window.pack();
         window.setLocationRelativeTo(parent);
