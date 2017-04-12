@@ -71,19 +71,19 @@ public class HidManager {
 
     public static boolean isGamepad(HidDevice info) {
         if (info == null) return false;
-        short usage = info.getUsage();
+        short usage = info.getUsageID();
         return (usage == 0x05 || usage == 0x04 || isNintendoController(info) || isPlaystationController(info));
     }
     
     public static boolean isKeyboard(HidDevice info) {
         if (info == null) return false;
-        short usage = info.getUsage();
+        short usage = info.getUsageID();
         return (usage == 0x06);
     }
     
     public static boolean isMouse(HidDevice info) {
         if (info == null) return false;
-        short usage = info.getUsage();
+        short usage = info.getUsageID();
         return (usage == 0x02);
     }
 

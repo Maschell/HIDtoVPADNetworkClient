@@ -57,11 +57,18 @@ public interface HidDevice {
     byte[] getLatestData();
 
     /**
-     * Retuns the Usage of this HID-Device
+     * Retuns the Usage Page of this HID-Device
      * 
-     * @return usage
+     * @return usage page
      */
-    short getUsage();
+    short getUsagePage();
+    
+    /**
+     * Retuns the Usage ID of this HID-Device
+     * 
+     * @return usage id
+     */
+    short getUsageID();
 
     /**
      * Returns the path of this HidDevice

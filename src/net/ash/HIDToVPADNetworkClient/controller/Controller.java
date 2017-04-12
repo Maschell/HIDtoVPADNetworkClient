@@ -170,7 +170,7 @@ public abstract class Controller implements Runnable {
 
     @Override
     public String toString() {
-        return getType() + " " + getIdentifier();
+        return getType() + " " + getIdentifier().trim();
     }
 
     @Override

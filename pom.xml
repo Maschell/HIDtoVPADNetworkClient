@@ -140,7 +140,7 @@
 		<dependency>
 			<groupId>com.github.QuarkTheAwesome</groupId>
 			<artifactId>purejavahidapi</artifactId>
-			<version>847db72</version>
+			<version>f877704</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hid4java</groupId>
