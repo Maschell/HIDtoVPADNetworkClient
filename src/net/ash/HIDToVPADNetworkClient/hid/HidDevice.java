@@ -76,4 +76,11 @@ public interface HidDevice {
      * @return path
      */
     String getPath();
+    
+    /**
+     * Returns the name of the HID device
+     * 
+     * @return product string (name)
+     */
+    String getProductString();
 }
