@@ -40,10 +40,13 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
 
 import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
@@ -98,7 +101,6 @@ public class GuiOptionsWindow extends JPanel {
             super(new GridLayout(1, 2));
             
             cFilterList = new ControllerFilteringList();
-            cFilterList.setBackground(Color.BLUE);
             
             for (Settings.ControllerFiltering.Type type : Settings.ControllerFiltering.Type.values()) {
                 ControllerFilteringListItem item = new ControllerFilteringListItem(type);
@@ -121,15 +123,25 @@ public class GuiOptionsWindow extends JPanel {
             private static final long serialVersionUID = 1L;
             
             private List<ControllerFilteringListItem> items = new ArrayList<ControllerFilteringListItem>();
-        
+            private JPanel innerPanel;
+            
             private ControllerFilteringList() {
-                super();
-                setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+                super(new BorderLayout());
+                setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 0));
+                
+                innerPanel = new JPanel();
+                innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.PAGE_AXIS));
+                innerPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+                add(innerPanel, BorderLayout.CENTER);
+                
+                JLabel controllerFilterText = new JLabel("Controllers to show:");
+                controllerFilterText.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
+                add(controllerFilterText, BorderLayout.PAGE_START);
             }
             
             public Component add(ControllerFilteringListItem c) {
                 items.add(c);
-                return super.add(c);
+                return innerPanel.add(c);
             }
         }
         
@@ -177,6 +189,7 @@ public class GuiOptionsWindow extends JPanel {
             setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
             
             infoText = new JTextArea();
+            infoText.setBorder(BorderFactory.createLoweredBevelBorder());
             infoText.setEditable(false);
             infoText.setText("WIP");
             JPanel infoTextWrap = new JPanel(new GridLayout(1, 1));
