@@ -75,7 +75,7 @@
 		                    </descriptorRefs>
 		                    <!-- Stick jar in root dir, if you want -->
 		                    <outputDirectory>${jar_dir}</outputDirectory>
-		                    <finalName>HIDToVPADNetworkClient-${version}-nightly</finalName>
+		                    <finalName>HIDToVPADNetworkClient-${project.version}-nightly</finalName>
 		                </configuration>
 						<phase>package</phase>
 						<goals>
