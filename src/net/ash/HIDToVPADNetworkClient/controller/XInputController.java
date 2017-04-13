@@ -139,6 +139,6 @@ public class XInputController extends Controller {
 
     @Override
     public String getInfoText() {
-        return "XInput on " + getIdentifier();
+        return "XInput (" + Integer.toHexString((int)getVID() & 0xFFFF) + ":" + Integer.toHexString((int)getPID() & 0xFFFF) + ") on " + getIdentifier();
     }
 }

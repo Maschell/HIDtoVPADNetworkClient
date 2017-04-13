@@ -195,6 +195,6 @@ public class LinuxDevInputController extends Controller implements Runnable {
 
     @Override
     public String getInfoText() {
-        return ((name != null) ? name : "Linux controller") + " on " + getIdentifier();    
+        return ((name != null) ? name : "Linux controller") + " (" + Integer.toHexString((int)getVID() & 0xFFFF) + ":" + Integer.toHexString((int)getPID() & 0xFFFF) + ") on " + getIdentifier();    
     }
 }

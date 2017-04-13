@@ -113,13 +113,13 @@ public class HidController extends Controller {
         // TODO: own class for joycons
         if (getVID() == 0x57e) {
             if (getPID() == 0x2006) {
-                return "Joy-Con (L) on " + getIdentifier();
+                return "Joy-Con (L) (57e:2006) on " + getIdentifier();
             } else if (getPID() == 0x2007) {
-                return "Joy-Con (R) on " + getIdentifier();
+                return "Joy-Con (R) (57e:2007) on " + getIdentifier();
             }
         }
 
         String name = getHidDevice().getProductString();
-        return ((name != null) ? name : "USB HID") + " on " + getIdentifier();
+        return ((name != null) ? name : "USB HID") + " (" + Integer.toHexString((int)getVID() & 0xFFFF) + ":" + Integer.toHexString((int)getPID() & 0xFFFF) + ") on " + getIdentifier();
     }
 }
