@@ -8,32 +8,33 @@ import net.ash.HIDToVPADNetworkClient.network.NetworkManager;
 
 public class StatusReport {
     public static String generateStatusReport() {
-        String report = "HID to VPAD Network Client\n\nRunning on ";
-        report += Settings.getPlattform();
+        StringBuilder report = new StringBuilder();
+        report.append("HID to VPAD Network Client\n\nRunning on ");
+        report.append(Settings.getPlattform());
         
-        report += "\nHID Backend: ";
-        report += HidManager.getBackendType();
+        report.append(System.lineSeparator()).append("HID Backend: ");
+        report.append(HidManager.getBackendType());
         
-        report += "\nCurrently ";
-        report += (NetworkManager.getInstance().isConnected()) ? "Connected.\n" : "Disconnected.\n";
-        report += (NetworkManager.getInstance().isReconnecting()) ? "" : "Not ";
-        report += "Reconnecting.";
+        report.append(System.lineSeparator()).append("Currently ");
+        report.append((NetworkManager.getInstance().isConnected()) ? "Connected.\n" : "Disconnected.").append(System.lineSeparator());
+        report.append((NetworkManager.getInstance().isReconnecting()) ? "" : "Not ");
+        report.append("Reconnecting.");
         
-        report += "\n\nCurrently attached controllers:";
+        report.append(System.lineSeparator()).append(System.lineSeparator()).append("Currently attached controllers:");
         for (Controller c : ControllerManager.getAttachedControllers()) {
-            report += "\n";
-            report += c.toString();
+            report.append(System.lineSeparator());
+            report.append(c.toString());
         }
         
-        report += "\n\nFiltering settings:\n";
-        report += Settings.ControllerFiltering.getFilterStates();
+        report.append(System.lineSeparator()).append(System.lineSeparator()).append("Filtering settings:").append(System.lineSeparator());
+        report.append(Settings.ControllerFiltering.getFilterStates());
         
-        report += "\n\nAll HIDs:";
+        report.append(System.lineSeparator()).append(System.lineSeparator()).append("All HIDs:");
         for (HidDevice d : HidManager.getAllAttachedControllers()) {
-            report += "\n";
-            report += d.toString();
+            report.append(System.lineSeparator());
+            report.append(d.toString());
         }
         
-        return report;
+        return report.toString();
     }
 }

@@ -30,6 +30,6 @@ public class XInput13Controller extends XInputController {
 
     @Override
     public String getInfoText() {
-        return "XInput 1.3 (" + Integer.toHexString((int)getVID() & 0xFFFF) + ":" + Integer.toHexString((int)getPID() & 0xFFFF) + ") on " + getIdentifier();
+        return String.format("XInput 1.3 (0x%04X:0x%04X) on ", getVID(),getPID()) + getIdentifier();
     }
 }

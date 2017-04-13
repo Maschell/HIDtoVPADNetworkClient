@@ -113,7 +113,7 @@ class PureJavaHidDevice implements HidDevice, InputReportListener {
 
     @Override
     public String getProductString() {
-        return myDeviceInfo.getProductString();
+        return myDeviceInfo.getProductString().trim();
     }
     
     @Override

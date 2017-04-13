@@ -209,11 +209,12 @@ public final class Settings {
     public static class ControllerFiltering {
         public static enum Type {
             HIDGAMEPAD (0, "HID Gamepads", Platform.LINUX.mask | Platform.WINDOWS.mask | Platform.MAC_OS_X.mask),
+            XINPUT (5, "XInput controllers", Platform.WINDOWS.mask),
             HIDKEYBOARD (1, "HID Keyboards", Platform.LINUX.mask | Platform.MAC_OS_X.mask),
             HIDMOUSE (2, "HID Mice", Platform.LINUX.mask),
             HIDOTHER (3, "Other HIDs", Platform.LINUX.mask | Platform.WINDOWS.mask | Platform.MAC_OS_X.mask),
             LINUX (4, "Linux controllers", Platform.LINUX.mask),
-            XINPUT (5, "XInput controllers", Platform.WINDOWS.mask);
+            ;
             
             private int index;
             @Getter private String name;

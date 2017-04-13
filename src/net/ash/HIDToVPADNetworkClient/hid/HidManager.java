@@ -44,7 +44,7 @@ public class HidManager {
         for (HidDevice info : backend.enumerateDevices()) {
             if (isGamepad(info)) {
                 if (Settings.ControllerFiltering.getFilterState(Settings.ControllerFiltering.Type.HIDGAMEPAD)) {
-                 // Skip Xbox controller under windows. We should use XInput instead.
+                    // Skip Xbox controller under windows. We should use XInput instead.
                     if (isXboxController(info) && Settings.isWindows()) {
                         continue;
                     }
@@ -72,7 +72,7 @@ public class HidManager {
     public static boolean isGamepad(HidDevice info) {
         if (info == null) return false;
         short usage = info.getUsageID();
-        return (usage == 0x05 || usage == 0x04 || isNintendoController(info) || isPlaystationController(info));
+        return (info.getProductString().toLowerCase().contains("gamepad") || usage == 0x05 || usage == 0x04 || isNintendoController(info) || isPlaystationController(info));
     }
     
     public static boolean isKeyboard(HidDevice info) {

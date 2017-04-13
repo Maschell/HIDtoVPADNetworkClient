@@ -41,10 +41,10 @@ public class LinuxDevInputController extends Controller implements Runnable {
     private static final byte JS_EVENT_AXIS = 0x02;
 
     private DataInputStream controller;
-    
+
     @Getter private short VID;
     @Getter private short PID;
-    
+
     private String name;
 
     private long buttonState = 0;
@@ -70,7 +70,7 @@ public class LinuxDevInputController extends Controller implements Runnable {
             e.printStackTrace();
             System.err.println("oops");
         }
-        
+
         if (VID == 0 || PID == 0) {
             VID = ((short) (identifier.hashCode() & 0xFFFF));
             PID = ((short) ((identifier.hashCode() >> (Short.SIZE / Byte.SIZE)) & 0xFFFF));
@@ -81,29 +81,29 @@ public class LinuxDevInputController extends Controller implements Runnable {
         return true;
     }
 
-    //This could probably do with some cleanup
+    // This could probably do with some cleanup
     public void doSysFs(String identifier) throws Exception {
         Process querySysFs = Runtime.getRuntime().exec("udevadm info -q path " + identifier);
         querySysFs.waitFor();
-        
+
         String sysfs_path = "/sys" + Utilities.getStringFromInputStream(querySysFs.getInputStream()).trim() + "/device";
         querySysFs.destroy();
         File sysfs = new File(sysfs_path);
         if (!sysfs.exists()) return;
-        
+
         char[] nameBuf = new char[1024];
         FileReader nameGet = new FileReader(sysfs_path + "/name");
         nameGet.read(nameBuf);
         nameGet.close();
         name = new String(nameBuf).trim();
-        
+
         char[] vidBuf = new char[6];
         FileReader vidGet = new FileReader(sysfs_path + "/id/vendor");
         vidGet.read(vidBuf);
         vidGet.close();
         short vid = Short.parseShort(new String(vidBuf).trim(), 16);
         this.VID = vid;
-        
+
         char[] pidBuf = new char[6];
         FileReader pidGet = new FileReader(sysfs_path + "/id/product");
         pidGet.read(pidBuf);
@@ -111,7 +111,7 @@ public class LinuxDevInputController extends Controller implements Runnable {
         short pid = Short.parseShort(new String(pidBuf).trim(), 16);
         this.PID = pid;
     }
-    
+
     @Override
     public byte[] pollLatestData() {
         DataInputStream inputStream = this.controller;
@@ -125,7 +125,7 @@ public class LinuxDevInputController extends Controller implements Runnable {
             type = inputStream.readByte();
             number = inputStream.readByte();
         } catch (IOException e) {
-            if (!isActive()) return null; //"Stream closed" when removing
+            if (!isActive()) return null; // "Stream closed" when removing
             System.err.println("[LinuxDevInputController] Couldn't read from controller!");
             e.printStackTrace();
             System.out.println("[LinuxDevInputController] Detaching...");
@@ -169,14 +169,13 @@ public class LinuxDevInputController extends Controller implements Runnable {
         for (int i = (Long.SIZE / Byte.SIZE); i < CONTROLLER_DATA_SIZE; i++) {
             newData[i] = axisState[i - (Long.SIZE / Byte.SIZE)];
         }
-        
+
         return newData;
     }
 
     @Override
     protected void doSleepAfterPollingData() {
-        // This is event driven (aka pollLatestData() is blocking anyway until
-        // we have data), we don't need to sleep it all.
+        // This is event driven (aka pollLatestData() is blocking anyway until we have data), we don't need to sleep it all.
     }
 
     @Override
@@ -195,6 +194,6 @@ public class LinuxDevInputController extends Controller implements Runnable {
 
     @Override
     public String getInfoText() {
-        return ((name != null) ? name : "Linux controller") + " (" + Integer.toHexString((int)getVID() & 0xFFFF) + ":" + Integer.toHexString((int)getPID() & 0xFFFF) + ") on " + getIdentifier();    
+        return String.format("%s (0x%04X:0x%04X) on %s", (name != null) ? name : "Linux Controller", getVID(), getPID(), getIdentifier());
     }
 }
