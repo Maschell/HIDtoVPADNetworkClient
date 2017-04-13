@@ -208,6 +208,8 @@ public final class ControllerManager {
 
     private static Map<String, ControllerType> detectLinuxControllers() {
         Map<String, ControllerType> result = new HashMap<String, ControllerType>();
+        if (!Settings.ControllerFiltering.getFilterState(Settings.ControllerFiltering.Type.LINUX)) return result;
+        
         File devInput = new File("/dev/input");
         if (!devInput.exists()) return result;
 

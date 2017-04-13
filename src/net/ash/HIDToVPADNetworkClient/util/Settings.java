@@ -210,7 +210,8 @@ public final class Settings {
             HIDGAMEPAD (0, "HID Gamepads", Platform.LINUX.mask | Platform.WINDOWS.mask | Platform.MAC_OS_X.mask),
             HIDKEYBOARD (1, "HID Keyboards", Platform.LINUX.mask | Platform.MAC_OS_X.mask),
             HIDMOUSE (2, "HID Mice", Platform.LINUX.mask | Platform.MAC_OS_X.mask),
-            HIDOTHER (3, "Other HIDs", Platform.LINUX.mask | Platform.WINDOWS.mask | Platform.MAC_OS_X.mask);
+            HIDOTHER (3, "Other HIDs", Platform.LINUX.mask | Platform.WINDOWS.mask | Platform.MAC_OS_X.mask),
+            LINUX (4, "Linux controllers", Platform.LINUX.mask);
             
             private int index;
             @Getter private String name;
@@ -251,6 +252,7 @@ public final class Settings {
             filterStates[Type.HIDKEYBOARD.index] = false;
             filterStates[Type.HIDMOUSE.index] = false;
             filterStates[Type.HIDOTHER.index] = false;
+            filterStates[Type.LINUX.index] = true;
         }
     }
 }

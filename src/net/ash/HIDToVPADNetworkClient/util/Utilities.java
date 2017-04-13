@@ -21,6 +21,10 @@
  *******************************************************************************/
 package net.ash.HIDToVPADNetworkClient.util;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 public final class Utilities {
 
     private Utilities() {
@@ -90,5 +94,17 @@ public final class Utilities {
           result[i] = Boolean.parseBoolean(strings[i]);
         }
         return result;
-      }
+    }
+    
+    public static String getStringFromInputStream(InputStream is) throws IOException{
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int length;
+        
+        while ((length = is.read(buffer)) != -1) {
+            baos.write(buffer, 0, length);
+        }
+        
+        return baos.toString("UTF-8");
+    }
 }
