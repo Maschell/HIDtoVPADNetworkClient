@@ -67,6 +67,7 @@ public final class Settings {
         }
         File configFile = getConfigFile();
         if (!configFile.exists()) {
+            ControllerFiltering.setDefaultFilterStates();
             log.info("Creating " + configFile.getAbsolutePath() + " with default values...");
             try {
                 configFile.createNewFile();
@@ -209,7 +210,7 @@ public final class Settings {
         public static enum Type {
             HIDGAMEPAD (0, "HID Gamepads", Platform.LINUX.mask | Platform.WINDOWS.mask | Platform.MAC_OS_X.mask),
             HIDKEYBOARD (1, "HID Keyboards", Platform.LINUX.mask | Platform.MAC_OS_X.mask),
-            HIDMOUSE (2, "HID Mice", Platform.LINUX.mask | Platform.MAC_OS_X.mask),
+            HIDMOUSE (2, "HID Mice", Platform.LINUX.mask),
             HIDOTHER (3, "Other HIDs", Platform.LINUX.mask | Platform.WINDOWS.mask | Platform.MAC_OS_X.mask),
             LINUX (4, "Linux controllers", Platform.LINUX.mask),
             XINPUT (5, "XInput controllers", Platform.WINDOWS.mask);
@@ -246,7 +247,7 @@ public final class Settings {
             filterStates[filter.index] = state;
         }
         public static boolean getFilterState(Type filter) {
-            return filterStates[filter.index] || !filter.isSupportedOnPlatform();
+            return filterStates[filter.index];
         }
         public static void setDefaultFilterStates() {
             filterStates[Type.HIDGAMEPAD.index] = true;

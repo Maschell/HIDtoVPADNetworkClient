@@ -87,7 +87,7 @@ public final class GuiInputControls extends JPanel {
         });
 
         ipTextBox = new JTextField();
-        ipTextBox.setColumns(15);
+        ipTextBox.setColumns(14);
         ipTextBox.setText(Settings.getIpAddr());
         JPanel ipTextBoxWrap = new JPanel(new FlowLayout());
         ipTextBoxWrap.add(new JLabel("IP: "));
