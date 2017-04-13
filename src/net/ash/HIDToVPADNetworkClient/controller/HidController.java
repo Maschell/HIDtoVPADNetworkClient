@@ -119,6 +119,7 @@ public class HidController extends Controller {
             }
         }
 
-        return "USB HID on " + getIdentifier();
+        String name = getHidDevice().getProductString();
+        return ((name != null) ? name : "USB HID") + " on " + getIdentifier();
     }
 }

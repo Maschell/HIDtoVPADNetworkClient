@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Properties;
 
 import lombok.Getter;
@@ -117,6 +118,13 @@ public final class Settings {
             }
         }
 
+        String filterStates = prop.getProperty("filterStates");
+        if (filterStates != null) {
+            ControllerFiltering.loadFilterStates(filterStates);
+        } else {
+            ControllerFiltering.setDefaultFilterStates();
+        }
+        
         log.info("Loaded config successfully!");
     }
 
@@ -139,7 +147,8 @@ public final class Settings {
         prop.setProperty("autoActivatingController", Boolean.toString(Settings.AUTO_ACTIVATE_CONTROLLER));
         prop.setProperty("sendDataOnlyOnChanges", Boolean.toString(Settings.SEND_DATA_ONLY_ON_CHANGE));
         prop.setProperty("scanAutomaticallyForControllers", Boolean.toString(Settings.SCAN_AUTOMATICALLY_FOR_CONTROLLERS));
-
+        prop.setProperty("filterStates", ControllerFiltering.getFilterStates());
+        
         try {
             FileOutputStream outStream = new FileOutputStream(configFile);
             prop.store(outStream, "HIDToVPADNetworkClient");
@@ -183,10 +192,65 @@ public final class Settings {
         } else if (os.contains("Mac OS X")) {
             return Platform.MAC_OS_X;
         }
-        return null;
+        return Platform.UNKNOWN;
     }
 
     public enum Platform {
-        LINUX, WINDOWS, MAC_OS_X, UNKNOWN
+        LINUX (0x1), WINDOWS (0x2), MAC_OS_X (0x4), UNKNOWN (0x8);
+        
+        private int mask;
+        private Platform(int mask) {
+            this.mask = mask;
+        }
+    }
+    
+    //TODO rename this to something less nonsensical
+    public static class ControllerFiltering {
+        public static enum Type {
+            HIDGAMEPAD (0, "HID Gamepads", Platform.LINUX.mask | Platform.WINDOWS.mask | Platform.MAC_OS_X.mask),
+            HIDKEYBOARD (1, "HID Keyboards", Platform.LINUX.mask | Platform.MAC_OS_X.mask),
+            HIDMOUSE (2, "HID Mice", Platform.LINUX.mask | Platform.MAC_OS_X.mask),
+            HIDOTHER (3, "Other HIDs", Platform.LINUX.mask | Platform.WINDOWS.mask | Platform.MAC_OS_X.mask);
+            
+            private int index;
+            @Getter private String name;
+            private int platforms;
+            private Type(int index, String name, int platforms) {
+                this.index = index;
+                this.name = name;
+                this.platforms = platforms;
+            }
+            public boolean isSupportedOnPlatform() {
+                return (platforms & getPlattform().mask) != 0;
+            }
+        }
+        
+        private static boolean[] filterStates = new boolean[Type.values().length];
+        public static String getFilterStates() {
+            return Arrays.toString(filterStates);
+        }
+        public static void loadFilterStates(String newFilterStates) {
+            boolean[] newFilterStatesParsed = Utilities.stringToBoolArray(newFilterStates);
+            if (newFilterStatesParsed.length != filterStates.length) {
+                //TODO handle changes in filtering more gracefully
+                log.warning("Number of controller filters in config does not match reality, using defaults...");
+                setDefaultFilterStates();
+            } else {
+                filterStates = newFilterStatesParsed;
+            }
+        }
+        
+        public static void setFilterState(Type filter, boolean state) {
+            filterStates[filter.index] = state;
+        }
+        public static boolean getFilterState(Type filter) {
+            return filterStates[filter.index] || !filter.isSupportedOnPlatform();
+        }
+        public static void setDefaultFilterStates() {
+            filterStates[Type.HIDGAMEPAD.index] = true;
+            filterStates[Type.HIDKEYBOARD.index] = false;
+            filterStates[Type.HIDMOUSE.index] = false;
+            filterStates[Type.HIDOTHER.index] = false;
+        }
     }
 }

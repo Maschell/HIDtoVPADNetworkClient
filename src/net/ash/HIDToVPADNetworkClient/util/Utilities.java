@@ -76,4 +76,19 @@ public final class Utilities {
     public static short signedShortToByte(short value) {
         return signedShortToByte((int) value);
     }
+    
+    /**
+     * Arrays.toString(boolean[]) in reverse.
+     * https://stackoverflow.com/questions/456367/
+     * @param string
+     * @return array
+     */
+    public static boolean[] stringToBoolArray(String string) {
+        String[] strings = string.replace("[", "").replace("]", "").split(", ");
+        boolean result[] = new boolean[strings.length];
+        for (int i = 0; i < result.length; i++) {
+          result[i] = Boolean.parseBoolean(strings[i]);
+        }
+        return result;
+      }
 }

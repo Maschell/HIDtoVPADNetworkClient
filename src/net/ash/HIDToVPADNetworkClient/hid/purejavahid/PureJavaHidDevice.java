@@ -81,8 +81,13 @@ class PureJavaHidDevice implements HidDevice, InputReportListener {
     }
 
     @Override
-    public short getUsage() {
+    public short getUsagePage() {
         return myDeviceInfo.getUsagePage();
+    }
+    
+    @Override
+    public short getUsageID() {
+        return myDeviceInfo.getUsageID();
     }
 
     @Override
@@ -91,8 +96,13 @@ class PureJavaHidDevice implements HidDevice, InputReportListener {
     }
 
     @Override
+    public String getProductString() {
+        return myDeviceInfo.getProductString();
+    }
+    
+    @Override
     public String toString() {
-        return "PureJavaHidDevice [vid= " + String.format("%04X", getVendorId()) + ", pid= " + String.format("%04X", getProductId()) + ", path= " + getPath()
-                + ", data=" + Arrays.toString(currentData) + "]";
+        return "PureJavaHidDevice [vid= " + String.format("%04X", getVendorId()) + ", pid= " + String.format("%04X", getProductId()) + ", path= " + getPath().trim()
+                + ", usage= " + String.format("%04X:%04X", getUsagePage(), getUsageID()) + ", data=" + Arrays.toString(currentData) + "]";
     }
 }
