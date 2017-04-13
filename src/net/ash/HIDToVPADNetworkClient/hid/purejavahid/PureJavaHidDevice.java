@@ -25,10 +25,15 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import lombok.Synchronized;
+import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.hid.HidDevice;
+import net.ash.HIDToVPADNetworkClient.util.MessageBox;
+import net.ash.HIDToVPADNetworkClient.util.MessageBoxManager;
+import net.ash.HIDToVPADNetworkClient.util.Settings;
 import purejavahidapi.HidDeviceInfo;
 import purejavahidapi.InputReportListener;
 
+@Log
 class PureJavaHidDevice implements HidDevice, InputReportListener {
     private purejavahidapi.HidDevice myDevice = null;
     private final purejavahidapi.HidDeviceInfo myDeviceInfo;
@@ -56,6 +61,7 @@ class PureJavaHidDevice implements HidDevice, InputReportListener {
         return myDeviceInfo.getProductId();
     }
 
+    private static boolean hasShownUdevErrorMessage = false;
     @Override
     public boolean open() {
         boolean result = true;
@@ -64,7 +70,17 @@ class PureJavaHidDevice implements HidDevice, InputReportListener {
             myDevice.setInputReportListener(this);
         } catch (IOException e) {
             result = false;
-            e.printStackTrace();
+            if (e.getMessage().contains("errno 13") && Settings.isLinux()) {
+                if (!hasShownUdevErrorMessage) {
+                    hasShownUdevErrorMessage = true;
+                    String msg = "Could not access HID devices.\nTo fix this, please add the following udev rule:\n\nKERNEL==\"hidraw*\", SUBSYSTEM==\"hidraw\", MODE=\"0664\", GROUP=\"plugdev\"\n\nThis will allow everyone to read from HIDs, and users in the group \"plugdev\" to read and write.\nIt's reccomended to add yourself to this group.\n\nHID To VPAD Network Client will be unable to use HIDs until this issue is resolved.";
+                    MessageBoxManager.addMessageBox(new MessageBox(msg, MessageBox.MESSAGE_ERROR));
+                    log.severe(msg);
+                    e.printStackTrace();
+                }
+            } else {
+                e.printStackTrace();
+            }
         }
         return result;
     }
