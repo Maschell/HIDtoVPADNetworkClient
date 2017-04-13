@@ -37,7 +37,7 @@ public class HidManager {
     public static HidDevice getDeviceByPath(String path) throws IOException {
         return backend.getDeviceByPath(path);
     }
-    
+
     public static List<HidDevice> getAttachedControllers() {
         List<HidDevice> connectedGamepads = new ArrayList<HidDevice>();
 
@@ -64,7 +64,7 @@ public class HidManager {
         }
         return connectedGamepads;
     }
-    
+
     public static List<HidDevice> getAllAttachedControllers() {
         return backend.enumerateDevices();
     }
@@ -72,15 +72,16 @@ public class HidManager {
     public static boolean isGamepad(HidDevice info) {
         if (info == null) return false;
         short usage = info.getUsageID();
-        return (info.getProductString().toLowerCase().contains("gamepad") || usage == 0x05 || usage == 0x04 || isNintendoController(info) || isPlaystationController(info));
+        return (info.getProductString().toLowerCase().contains("gamepad") || usage == 0x05 || usage == 0x04 || isNintendoController(info)
+                || isPlaystationController(info));
     }
-    
+
     public static boolean isKeyboard(HidDevice info) {
         if (info == null) return false;
         short usage = info.getUsageID();
         return (usage == 0x06);
     }
-    
+
     public static boolean isMouse(HidDevice info) {
         if (info == null) return false;
         short usage = info.getUsageID();
@@ -105,7 +106,7 @@ public class HidManager {
     public static String getBackendType() {
         return backend.getClass().getSimpleName();
     }
-    
+
     static {
         if (Settings.isMacOSX()) {
             backend = new Hid4JavaHidManagerBackend();

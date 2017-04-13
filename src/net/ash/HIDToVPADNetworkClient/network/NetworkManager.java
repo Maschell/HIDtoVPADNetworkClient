@@ -74,6 +74,7 @@ public final class NetworkManager implements Runnable {
     @Override
     public void run() {
         int i = 0;
+        new Thread(UDPServer.getInstance(), "UDP Server").start();
         while (true) {
             proccessCommands();
             Utilities.sleep(Settings.PROCESS_CMD_INTERVAL);

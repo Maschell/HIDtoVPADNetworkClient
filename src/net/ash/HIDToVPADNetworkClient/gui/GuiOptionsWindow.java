@@ -54,71 +54,71 @@ import net.ash.HIDToVPADNetworkClient.util.StatusReport;
 public class GuiOptionsWindow extends JPanel {
     private static final long serialVersionUID = 1L;
     private static final GuiOptionsWindow instance = new GuiOptionsWindow();
-    
+
     private final List<Tab> tabs = new ArrayList<Tab>();
-    
+
     public static void showWindow() {
         showWindow(null);
     }
-    
+
     public static void showWindow(Component parent) {
         instance.setOpaque(true);
         for (Tab t : instance.tabs) {
             t.updateTab();
         }
-        
+
         JFrame window = new JFrame("Options");
         window.setContentPane(instance);
         window.pack();
         window.setLocationRelativeTo(parent);
         window.setVisible(true);
     }
-    
+
     private GuiOptionsWindow() {
         super(new GridLayout(1, 1));
-        
+
         log.info("Hello from the Options window!");
-        
+
         setPreferredSize(new Dimension(600, 200));
-        
+
         JTabbedPane tabPane = new JTabbedPane();
         tabPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-        
+
         Tab controllerTab = new ControllerTab();
         tabs.add(controllerTab);
         tabPane.addTab("Controllers", controllerTab);
-        
+
         Tab infoTab = new InfoTab();
         tabs.add(infoTab);
         tabPane.addTab("Info", infoTab);
-        
+
         add(tabPane);
     }
 
     private class ControllerTab extends Tab {
         private static final long serialVersionUID = 1L;
-        
+
         private final ControllerFilteringList cFilterList;
         private final JCheckBox cBoxScanForControllers;
         private final JCheckBox cBoxAutoActivateControllers;
-        
+
         private ControllerTab() {
             super(new GridLayout(1, 2));
-            
+
             cFilterList = new ControllerFilteringList();
-            
+
             for (Settings.ControllerFiltering.Type type : Settings.ControllerFiltering.Type.values()) {
                 if (!type.isSupportedOnPlatform()) continue;
                 ControllerFilteringListItem item = new ControllerFilteringListItem(type);
                 cFilterList.add(item);
             }
-            
+
             add(cFilterList);
-            
+
             JPanel rightSideControls = new JPanel();
             rightSideControls.setLayout(new BoxLayout(rightSideControls, BoxLayout.PAGE_AXIS));
             rightSideControls.add(Box.createVerticalGlue());
-            
+
             cBoxScanForControllers = new JCheckBox("Automatically scan for controllers");
             cBoxScanForControllers.setAlignmentX(Component.CENTER_ALIGNMENT);
             cBoxScanForControllers.addActionListener(new ActionListener() {
@@ -128,9 +128,9 @@ public class GuiOptionsWindow extends JPanel {
                 }
             });
             rightSideControls.add(cBoxScanForControllers);
-            
+
             rightSideControls.add(Box.createVerticalStrut(2));
-            
+
             cBoxAutoActivateControllers = new JCheckBox("Automatically activate controllers");
             cBoxAutoActivateControllers.setAlignmentX(Component.CENTER_ALIGNMENT);
             cBoxAutoActivateControllers.addActionListener(new ActionListener() {
@@ -140,11 +140,11 @@ public class GuiOptionsWindow extends JPanel {
                 }
             });
             rightSideControls.add(cBoxAutoActivateControllers);
-            
+
             rightSideControls.add(Box.createVerticalGlue());
             add(rightSideControls);
         }
-        
+
         @Override
         public void updateTab() {
             for (ControllerFilteringListItem c : cFilterList.items) {
@@ -153,45 +153,45 @@ public class GuiOptionsWindow extends JPanel {
             cBoxScanForControllers.setSelected(Settings.SCAN_AUTOMATICALLY_FOR_CONTROLLERS);
             cBoxAutoActivateControllers.setSelected(Settings.AUTO_ACTIVATE_CONTROLLER);
         }
-        
+
         private class ControllerFilteringList extends JPanel {
             private static final long serialVersionUID = 1L;
-            
+
             private List<ControllerFilteringListItem> items = new ArrayList<ControllerFilteringListItem>();
             private JPanel innerPanel;
-            
+
             private ControllerFilteringList() {
                 super(new BorderLayout());
                 setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 0));
-                
+
                 innerPanel = new JPanel();
                 innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.PAGE_AXIS));
-                
+
                 JScrollPane innerPanelWrap = new JScrollPane(innerPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
                 innerPanelWrap.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
                 add(innerPanelWrap, BorderLayout.CENTER);
-                
+
                 JLabel controllerFilterText = new JLabel("Controllers to show:");
                 controllerFilterText.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
                 add(controllerFilterText, BorderLayout.PAGE_START);
             }
-            
+
             public Component add(ControllerFilteringListItem c) {
                 items.add(c);
                 return innerPanel.add(c);
             }
         }
-        
+
         private class ControllerFilteringListItem extends JPanel {
             private static final long serialVersionUID = 1L;
-            
+
             private final JCheckBox cBox;
             private final Settings.ControllerFiltering.Type type;
-            
+
             private ControllerFilteringListItem(Settings.ControllerFiltering.Type typeIn) {
                 super(new GridLayout(1, 1));
                 this.type = typeIn;
-                
+
                 cBox = new JCheckBox(type.getName());
                 cBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
                 cBox.addActionListener(new ActionListener() {
@@ -202,38 +202,38 @@ public class GuiOptionsWindow extends JPanel {
                 });
                 add(cBox);
             }
-            
+
             public void updateItem() {
                 cBox.setSelected(Settings.ControllerFiltering.getFilterState(type));
             }
-            
-            //I can't believe I didn't figure this out for GuiControllerList
+
+            // I can't believe I didn't figure this out for GuiControllerList
             @Override
             public Dimension getMaximumSize() {
                 return new Dimension(Integer.MAX_VALUE, getPreferredSize().height);
             }
         }
     }
-    
+
     private class InfoTab extends Tab {
         private static final long serialVersionUID = 1L;
-        
+
         private final JTextArea infoText;
         private final JScrollPane infoTextWrap;
-        
+
         private InfoTab() {
             super();
             setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
             setBorder(BorderFactory.createEmptyBorder(5, 5, 10, 5));
-            
+
             infoText = new JTextArea();
             infoText.setEditable(false);
             infoTextWrap = new JScrollPane(infoText, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
             infoTextWrap.setAlignmentX(Component.CENTER_ALIGNMENT);
             add(infoTextWrap);
-            
+
             add(Box.createVerticalStrut(10));
-            
+
             JButton copyButton = new JButton("Copy");
             copyButton.addActionListener(new ActionListener() {
                 @Override
@@ -253,13 +253,16 @@ public class GuiOptionsWindow extends JPanel {
             infoText.setCaretPosition(0);
         }
     }
-    
+
     private abstract class Tab extends JPanel {
         private static final long serialVersionUID = 1L;
+
         public abstract void updateTab();
+
         public Tab(LayoutManager l) {
             super(l);
         }
+
         public Tab() {
             super();
         }

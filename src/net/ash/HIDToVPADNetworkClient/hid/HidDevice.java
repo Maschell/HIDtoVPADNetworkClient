@@ -62,7 +62,7 @@ public interface HidDevice {
      * @return usage page
      */
     short getUsagePage();
-    
+
     /**
      * Retuns the Usage ID of this HID-Device
      * 
@@ -76,7 +76,7 @@ public interface HidDevice {
      * @return path
      */
     String getPath();
-    
+
     /**
      * Returns the name of the HID device
      * 

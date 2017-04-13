@@ -25,24 +25,29 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.List;
 
 import lombok.extern.java.Log;
+import net.ash.HIDToVPADNetworkClient.controller.Controller;
 import net.ash.HIDToVPADNetworkClient.manager.ActiveControllerManager;
 import net.ash.HIDToVPADNetworkClient.util.MessageBox;
 import net.ash.HIDToVPADNetworkClient.util.MessageBoxManager;
+import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
 @Log
 final class Protocol {
-    private static ProtocolVersion currentProtocol = ProtocolVersion.MY_VERSION;
+    public static ProtocolVersion currentProtocol = ProtocolVersion.MY_VERSION;
     static final int TCP_PORT = 8112;
     static final int UDP_PORT = 8113;
+    static final int UDP_CLIENT_PORT = 8114;
 
     static final byte TCP_HANDSHAKE_VERSION_1 = 0x12;
     static final byte TCP_HANDSHAKE_VERSION_2 = 0x13;
+    static final byte TCP_HANDSHAKE_VERSION_3 = 0x14;
     static final byte TCP_HANDSHAKE_ABORT = 0x30;
 
-    static final byte TCP_HANDSHAKE = TCP_HANDSHAKE_VERSION_2; // default version.
+    static final byte TCP_HANDSHAKE = TCP_HANDSHAKE_VERSION_3; // default version.
 
     static final byte TCP_SAME_CLIENT = 0x20;
     static final byte TCP_NEW_CLIENT = 0x21;
@@ -58,6 +63,7 @@ final class Protocol {
     static final byte TCP_CMD_ATTACH_CONFIG_NOT_FOUND = (byte) 0xE1;
     static final byte TCP_CMD_ATTACH_USERDATA_OKAY = (byte) 0xE8;
     static final byte TCP_CMD_ATTACH_USERDATA_BAD = (byte) 0xE9;
+    private static boolean showVersionInfo = false;
 
     private Protocol() {
     }
@@ -125,6 +131,9 @@ final class Protocol {
         } else if (wiiuProtocolVersion == ProtocolVersion.Version2) {
             // We want to do version 2!
             tcpClient.send(ProtocolVersion.Version2.getVersionByte());
+        } else if (wiiuProtocolVersion == ProtocolVersion.Version3) {
+            // We want to do version 3!
+            tcpClient.send(ProtocolVersion.Version3.getVersionByte());
         }
 
         if (wiiuProtocolVersion == ProtocolVersion.Version1) {
@@ -151,6 +160,14 @@ final class Protocol {
         if (resultHandshake == HandshakeReturnCode.GOOD_HANDSHAKE) {
             ActiveControllerManager.getInstance().attachAllActiveControllers();
             log.info("Handshake was successful! Using protocol version " + (currentProtocol.getVersionByte() - TCP_HANDSHAKE_VERSION_1 + 1));
+            if (currentProtocol.getVersionByte() != ProtocolVersion.MY_VERSION.versionByte) {
+                String message = "Using an old network protocol. You may want to update this network client and HIDtoVPAD for the best experience.";
+                log.info(message);
+                if (!showVersionInfo) {
+                    MessageBoxManager.addMessageBox(message, MessageBox.MESSAGE_INFO);
+                    showVersionInfo = true;
+                }
+            }
             return resultHandshake;
         } else {
             log.info("[TCP] Handshaking failed");
@@ -160,8 +177,12 @@ final class Protocol {
     }
 
     public enum ProtocolVersion {
-        MY_VERSION((byte) TCP_HANDSHAKE), Version1((byte) TCP_HANDSHAKE_VERSION_1), Version2((byte) TCP_HANDSHAKE_VERSION_2), Abort(
-                (byte) TCP_HANDSHAKE_ABORT), UNKOWN((byte) 0x00);
+        Abort((byte) TCP_HANDSHAKE_ABORT),
+        UNKOWN((byte) 0x00),
+        Version1((byte) TCP_HANDSHAKE_VERSION_1),
+        Version2((byte) TCP_HANDSHAKE_VERSION_2),
+        Version3((byte) TCP_HANDSHAKE_VERSION_3),
+        MY_VERSION((byte) TCP_HANDSHAKE);
         private final byte versionByte;
 
         private ProtocolVersion(byte versionByte) {
@@ -174,6 +195,8 @@ final class Protocol {
                 return ProtocolVersion.Version1;
             case TCP_HANDSHAKE_VERSION_2:
                 return ProtocolVersion.Version2;
+            case TCP_HANDSHAKE_VERSION_3:
+                return ProtocolVersion.Version3;
             case TCP_HANDSHAKE_ABORT:
                 return ProtocolVersion.Abort;
             default:
@@ -183,6 +206,26 @@ final class Protocol {
 
         public byte getVersionByte() {
             return versionByte;
+        }
+    }
+
+    public static void parseUDPServerData(byte[] data) {
+        if (currentProtocol.versionByte >= TCP_HANDSHAKE_VERSION_3) {
+            ByteBuffer buffer = ByteBuffer.wrap(data);
+            buffer.order(ByteOrder.BIG_ENDIAN);
+            byte cmd = buffer.get();
+            if (cmd == 0x01) {
+                int handle = buffer.getInt();
+                byte rumble = buffer.get();
+                Controller c = ActiveControllerManager.getInstance().getControllerByHIDHandle(handle);
+                if (c != null) {
+                    if (rumble == 0x01) {
+                        c.startRumble();
+                    } else {
+                        c.stopRumble();
+                    }
+                }
+            }
         }
     }
 

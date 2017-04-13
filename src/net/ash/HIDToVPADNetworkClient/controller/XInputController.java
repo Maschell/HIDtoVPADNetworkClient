@@ -35,6 +35,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
 import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
+import net.ash.HIDToVPADNetworkClient.util.Settings;
 import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
 @Log
@@ -116,6 +117,15 @@ public class XInputController extends Controller {
             buttonState |= axesDataShoulderButtons << 16;
             data.putInt(axesData).putInt(buttonState);
 
+            if (isRumble()) {
+                int strength = Settings.RUMBLE_STRENGTH;
+                if (strength < 0) strength = 0;
+                if (strength > 100) strength = 100;
+                int value = (int) (65535 * (Settings.RUMBLE_STRENGTH / 100.0));
+                device.setVibration(value, value);
+            } else {
+                device.setVibration(0, 0);
+            }
             return (data.array());
         }
         return new byte[0];
@@ -139,6 +149,6 @@ public class XInputController extends Controller {
 
     @Override
     public String getInfoText() {
-        return String.format("XInput (0x%04X:%0x04X) on ", getVID(),getPID()) + getIdentifier();
+        return String.format("XInput (0x%04X:%0x04X) on ", getVID(), getPID()) + getIdentifier();
     }
 }

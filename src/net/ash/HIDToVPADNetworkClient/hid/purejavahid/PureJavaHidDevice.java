@@ -62,6 +62,7 @@ class PureJavaHidDevice implements HidDevice, InputReportListener {
     }
 
     private static boolean hasShownUdevErrorMessage = false;
+
     @Override
     public boolean open() {
         boolean result = true;
@@ -100,7 +101,7 @@ class PureJavaHidDevice implements HidDevice, InputReportListener {
     public short getUsagePage() {
         return myDeviceInfo.getUsagePage();
     }
-    
+
     @Override
     public short getUsageID() {
         return myDeviceInfo.getUsageID();
@@ -115,10 +116,10 @@ class PureJavaHidDevice implements HidDevice, InputReportListener {
     public String getProductString() {
         return myDeviceInfo.getProductString().trim();
     }
-    
+
     @Override
     public String toString() {
-        return "PureJavaHidDevice [vid= " + String.format("%04X", getVendorId()) + ", pid= " + String.format("%04X", getProductId()) + ", path= " + getPath().trim()
-                + ", usage= " + String.format("%04X:%04X", getUsagePage(), getUsageID()) + ", data=" + Arrays.toString(currentData) + "]";
+        return "PureJavaHidDevice [vid= " + String.format("%04X", getVendorId()) + ", pid= " + String.format("%04X", getProductId()) + ", path= "
+                + getPath().trim() + ", usage= " + String.format("%04X:%04X", getUsagePage(), getUsageID()) + ", data=" + Arrays.toString(currentData) + "]";
     }
 }

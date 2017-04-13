@@ -19,17 +19,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package net.ash.HIDToVPADNetworkClient.controller;
+package net.ash.HIDToVPADNetworkClient.network;
 
-import net.ash.HIDToVPADNetworkClient.exeption.ControllerInitializationFailedException;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketException;
+import java.util.Arrays;
 
-public class XInput14Controller extends XInputController {
-    public XInput14Controller(String identifier) throws ControllerInitializationFailedException {
-        super(ControllerType.XINPUT14, identifier);
+import lombok.extern.java.Log;
+
+@Log
+public final class UDPServer implements Runnable {
+    private final DatagramSocket sock;
+
+    private UDPServer() throws SocketException {
+        sock = new DatagramSocket(Protocol.UDP_CLIENT_PORT);
+    }
+
+    static UDPServer getInstance() {
+        UDPServer result = null;
+        try {
+            result = new UDPServer();
+        } catch (Exception e) {
+            // handle?
+        }
+        return result;
     }
 
     @Override
-    public String getInfoText() {
-        return String.format("XInput 1.4 (0x%04X:0x%04X) on ", getVID(), getPID()) + getIdentifier();
+    public void run() {
+        log.info("UDPServer running.");
+        byte[] receiveData = new byte[1400];
+        while (true) {
+            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+            try {
+                sock.receive(receivePacket);
+            } catch (IOException e) {
+                continue;
+            }
+            byte[] data = Arrays.copyOf(receivePacket.getData(), receivePacket.getLength());
+            Protocol.parseUDPServerData(data);
+        }
+
     }
 }

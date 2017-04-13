@@ -80,10 +80,10 @@ public final class Utilities {
     public static short signedShortToByte(short value) {
         return signedShortToByte((int) value);
     }
-    
+
     /**
-     * Arrays.toString(boolean[]) in reverse.
-     * https://stackoverflow.com/questions/456367/
+     * Arrays.toString(boolean[]) in reverse. https://stackoverflow.com/questions/456367/
+     * 
      * @param string
      * @return array
      */
@@ -91,20 +91,20 @@ public final class Utilities {
         String[] strings = string.replace("[", "").replace("]", "").split(", ");
         boolean result[] = new boolean[strings.length];
         for (int i = 0; i < result.length; i++) {
-          result[i] = Boolean.parseBoolean(strings[i]);
+            result[i] = Boolean.parseBoolean(strings[i]);
         }
         return result;
     }
-    
-    public static String getStringFromInputStream(InputStream is) throws IOException{
+
+    public static String getStringFromInputStream(InputStream is) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
         int length;
-        
+
         while ((length = is.read(buffer)) != -1) {
             baos.write(buffer, 0, length);
         }
-        
+
         return baos.toString("UTF-8");
     }
 }

@@ -24,6 +24,7 @@ package net.ash.HIDToVPADNetworkClient.manager;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.BufferUnderflowException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -168,7 +169,7 @@ public final class ControllerManager {
     private static Map<String, ControllerType> detectXInputControllers() {
         Map<String, ControllerType> result = new HashMap<String, ControllerType>();
         if (!Settings.ControllerFiltering.getFilterState(Settings.ControllerFiltering.Type.XINPUT)) return result;
-        
+
         ControllerType type = ControllerType.XINPUT13;
 
         // Try and catch missing C++ redist
@@ -195,8 +196,13 @@ public final class ControllerManager {
                 XInputDevice device;
                 try {
                     device = XInputDevice.getDeviceFor(i);
-                    if (device.poll() && device.isConnected()) { // Check if it is this controller is connected
-                        result.put(XInputController.XINPUT_INDENTIFER + i, type);
+                    try {
+                        if (device.poll() && device.isConnected()) { // Check if it is this controller is connected
+                            result.put(XInputController.XINPUT_INDENTIFER + i, type);
+                        }
+                    } catch (BufferUnderflowException e) {
+                        //
+                        log.info("XInput error.");
                     }
                 } catch (XInputNotLoadedException e) {
                     // This shouln't happen?
@@ -211,7 +217,7 @@ public final class ControllerManager {
     private static Map<String, ControllerType> detectLinuxControllers() {
         Map<String, ControllerType> result = new HashMap<String, ControllerType>();
         if (!Settings.ControllerFiltering.getFilterState(Settings.ControllerFiltering.Type.LINUX)) return result;
-        
+
         File devInput = new File("/dev/input");
         if (!devInput.exists()) return result;
 

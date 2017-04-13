@@ -120,6 +120,6 @@ public class HidController extends Controller {
         }
 
         String name = getHidDevice().getProductString();
-        return String.format("%s (0x%04X:0x%04X) on %s",(name != null) ? name: "USB HID", getVID(),getPID(),getIdentifier());
+        return String.format("%s (0x%04X:0x%04X) on %s", (name != null) ? name : "USB HID", getVID(), getPID(), getIdentifier());
     }
 }
