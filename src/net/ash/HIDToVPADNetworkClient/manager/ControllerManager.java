@@ -167,6 +167,8 @@ public final class ControllerManager {
 
     private static Map<String, ControllerType> detectXInputControllers() {
         Map<String, ControllerType> result = new HashMap<String, ControllerType>();
+        if (!Settings.ControllerFiltering.getFilterState(Settings.ControllerFiltering.Type.XINPUT)) return result;
+        
         ControllerType type = ControllerType.XINPUT13;
 
         // Try and catch missing C++ redist

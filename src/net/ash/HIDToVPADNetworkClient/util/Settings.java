@@ -211,7 +211,8 @@ public final class Settings {
             HIDKEYBOARD (1, "HID Keyboards", Platform.LINUX.mask | Platform.MAC_OS_X.mask),
             HIDMOUSE (2, "HID Mice", Platform.LINUX.mask | Platform.MAC_OS_X.mask),
             HIDOTHER (3, "Other HIDs", Platform.LINUX.mask | Platform.WINDOWS.mask | Platform.MAC_OS_X.mask),
-            LINUX (4, "Linux controllers", Platform.LINUX.mask);
+            LINUX (4, "Linux controllers", Platform.LINUX.mask),
+            XINPUT (5, "XInput controllers", Platform.WINDOWS.mask);
             
             private int index;
             @Getter private String name;
@@ -253,6 +254,7 @@ public final class Settings {
             filterStates[Type.HIDMOUSE.index] = false;
             filterStates[Type.HIDOTHER.index] = false;
             filterStates[Type.LINUX.index] = true;
+            filterStates[Type.XINPUT.index] = true;
         }
     }
 }
