@@ -72,8 +72,8 @@ public class HidManager {
     public static boolean isGamepad(HidDevice info) {
         if (info == null) return false;
         short usage = info.getUsageID();
-        return (info.getProductString().toLowerCase().contains("gamepad") || usage == 0x05 || usage == 0x04 || isNintendoController(info)
-                || isPlaystationController(info));
+        String productString = info.getProductString();
+        return ((productString != null && productString.toLowerCase().contains("gamepad")) || usage == 0x05 || usage == 0x04 || isNintendoController(info) || isPlaystationController(info));
     }
 
     public static boolean isKeyboard(HidDevice info) {
@@ -108,7 +108,7 @@ public class HidManager {
     }
 
     static {
-        if (Settings.isMacOSX()) {
+        if (Settings.isMacOSX()) {  // PureJavaHid is not properly implemented for OSX!
             backend = new Hid4JavaHidManagerBackend();
         } else if (Settings.isWindows()) {
             backend = new PureJavaHidManagerBackend();

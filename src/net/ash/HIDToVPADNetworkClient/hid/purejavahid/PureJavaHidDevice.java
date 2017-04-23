@@ -30,25 +30,19 @@ import net.ash.HIDToVPADNetworkClient.hid.HidDevice;
 import net.ash.HIDToVPADNetworkClient.util.MessageBox;
 import net.ash.HIDToVPADNetworkClient.util.MessageBoxManager;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
+import net.ash.HIDToVPADNetworkClient.util.Utilities;
 import purejavahidapi.HidDeviceInfo;
 import purejavahidapi.InputReportListener;
 
 @Log
-class PureJavaHidDevice implements HidDevice, InputReportListener {
+class PureJavaHidDevice implements HidDevice {
     private purejavahidapi.HidDevice myDevice = null;
     private final purejavahidapi.HidDeviceInfo myDeviceInfo;
 
-    private final Object dataLock = new Object();
     protected byte[] currentData = new byte[0];
 
     public PureJavaHidDevice(HidDeviceInfo info) {
         this.myDeviceInfo = info;
-    }
-
-    @Override
-    @Synchronized("dataLock")
-    public void onInputReport(purejavahidapi.HidDevice source, byte reportID, byte[] reportData, int reportLength) {
-        currentData = Arrays.copyOfRange(reportData, 0, reportLength);
     }
 
     @Override
@@ -68,7 +62,6 @@ class PureJavaHidDevice implements HidDevice, InputReportListener {
         boolean result = true;
         try {
             myDevice = purejavahidapi.PureJavaHidApi.openDevice(myDeviceInfo);
-            myDevice.setInputReportListener(this);
         } catch (IOException e) {
             result = false;
             if (e.getMessage().contains("errno 13") && Settings.isLinux()) {
@@ -83,6 +76,8 @@ class PureJavaHidDevice implements HidDevice, InputReportListener {
                 e.printStackTrace();
             }
         }
+       
+        
         return result;
     }
 
@@ -91,10 +86,12 @@ class PureJavaHidDevice implements HidDevice, InputReportListener {
         myDevice.close();
     }
 
+    private  byte[] data = new byte[64];
     @Override
-    @Synchronized("dataLock")
-    public byte[] getLatestData() {
-        return currentData.clone();
+    public byte[] getLatestData() {       
+        int length = hid_read(data);
+        if (length <= 0) return new byte[0];
+        return Arrays.copyOf(data, length);
     }
 
     @Override
@@ -114,12 +111,37 @@ class PureJavaHidDevice implements HidDevice, InputReportListener {
 
     @Override
     public String getProductString() {
-        return myDeviceInfo.getProductString().trim();
+        String result = myDeviceInfo.getProductString();
+        if(result != null) result = result.trim();
+        return result;
     }
 
     @Override
     public String toString() {
         return "PureJavaHidDevice [vid= " + String.format("%04X", getVendorId()) + ", pid= " + String.format("%04X", getProductId()) + ", path= "
                 + getPath().trim() + ", usage= " + String.format("%04X:%04X", getUsagePage(), getUsageID()) + ", data=" + Arrays.toString(currentData) + "]";
+    }
+
+    @Override
+    public int hid_write(byte[] data, int length, byte reportID){
+        try{
+            return myDevice.setOutputReport(reportID, data, length);
+        }catch(IllegalStateException e){
+            return -1;
+        }
+    }
+    
+    @Override
+    public int hid_read(byte[] data) {
+        return hid_read(data,0);
+    }
+
+    @Override
+    public int hid_read(byte[] data, int timeoutMillis) {
+        try{
+            return myDevice.getInputReport(data,timeoutMillis);
+        }catch(IllegalStateException e){
+            return -1;
+        }
     }
 }

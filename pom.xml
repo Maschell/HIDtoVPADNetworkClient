@@ -137,15 +137,20 @@
 			<artifactId>jxinput</artifactId>
 			<version>1eb4087</version>    <!-- JXInput 0.7 -->
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>com.github.QuarkTheAwesome</groupId>
 			<artifactId>purejavahidapi</artifactId>
 			<version>f877704</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>org.hid4java</groupId>
 			<artifactId>hid4java</artifactId>
 			<version>0.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>purejavahidapi</groupId>
+			<artifactId>purejavahidapi</artifactId>
+			<version>0.0.1</version>
 		</dependency>
 	</dependencies>
 </project>

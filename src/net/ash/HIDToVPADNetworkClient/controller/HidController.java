@@ -33,7 +33,8 @@ import net.ash.HIDToVPADNetworkClient.hid.HidManager;
 
 @Log
 public class HidController extends Controller {
-    @Getter @Setter(AccessLevel.PRIVATE) private HidDevice hidDevice;
+    @Getter @Setter(AccessLevel.PRIVATE)
+    protected HidDevice hidDevice;
 
     public static Controller getInstance(String deviceIdentifier) throws IOException, ControllerInitializationFailedException {
 
@@ -68,6 +69,8 @@ public class HidController extends Controller {
             if (device == null || !device.open()) {
                 return false;
             }
+            
+            
             log.info("HidDevice opened!");
 
             setHidDevice(device);

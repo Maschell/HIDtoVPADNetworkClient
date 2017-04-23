@@ -83,4 +83,10 @@ public interface HidDevice {
      * @return product string (name)
      */
     String getProductString();
+
+    int hid_write(byte[] data, int length, byte reportID);
+
+    int hid_read(byte[] data);
+
+    int hid_read(byte[] data, int timeoutMillis);
 }

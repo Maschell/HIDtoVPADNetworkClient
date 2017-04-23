@@ -56,7 +56,7 @@ class Hid4JavaHidDevice implements HidDevice {
 
     @Override
     public byte[] getLatestData() {
-        int length = myDevice.read(data);
+        int length = hid_read(data);
         if (length <= 0) return new byte[0];
         return Arrays.copyOf(data, length);
     }
@@ -85,5 +85,20 @@ class Hid4JavaHidDevice implements HidDevice {
     @Override
     public short getUsagePage() {
         return (short) myDevice.getUsagePage();
+    }
+
+    @Override
+    public int hid_write(byte[] data, int length,byte reportId) {
+       return myDevice.write(data, length, reportId);
+    }
+    
+    @Override
+    public int hid_read(byte[] data) {
+       return myDevice.read(data);
+    }
+    
+    @Override
+    public int hid_read(byte[] data,int timeoutMillis) {
+       return myDevice.read(data,timeoutMillis);
     }
 }
