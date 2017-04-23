@@ -3,6 +3,8 @@ package de.mas.HIDTest;
 import net.ash.HIDToVPADNetworkClient.controller.Controller;
 import net.ash.HIDToVPADNetworkClient.manager.ControllerManager;
 import net.ash.HIDToVPADNetworkClient.util.Settings;
+import net.ash.HIDToVPADNetworkClient.util.Settings.ControllerFiltering;
+import net.ash.HIDToVPADNetworkClient.util.Settings.ControllerFiltering.Type;
 import net.ash.HIDToVPADNetworkClient.util.Utilities;
 
 public class Main {
@@ -33,6 +35,8 @@ public class Main {
         Utilities.sleep(1000);
 
         Settings.AUTO_ACTIVATE_CONTROLLER = true;
+        ControllerFiltering.setFilterState(Type.HIDGAMEPAD, true);
+        ControllerFiltering.setFilterState(Type.XINPUT, true);
 
         new Thread(new Runnable() {
             @Override
