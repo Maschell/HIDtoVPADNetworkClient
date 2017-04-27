@@ -4,13 +4,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.ash</groupId>
 	<artifactId>HIDToVPADNetworkClient</artifactId>
-	<version>0.3</version>
+	<version>0.4</version>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<exec.mainClass>net.ash.HIDToVPADNetworkClient.Main</exec.mainClass>
-		<hidtest_version>0.1</hidtest_version>
+		<hidtest_version>0.2</hidtest_version>
 	</properties>
 
 	<name>HID To VPAD Network Client</name>
